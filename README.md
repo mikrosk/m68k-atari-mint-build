@@ -11,6 +11,11 @@ about 3.8 GB of disk space) you will get:
   the 'binary-packages' folder)
 - supporting tools and libraries for the above
 
+Don't forget to install the gcc prerequisities: texinfo, libgmp(-dev),
+libmpfr(-dev), libmpc(-dev), autotools, bison, flex etc. If something fails,
+check out the error message, fix it, delete all intermediate directories and
+start over -- it's the safest path.
+
 When it comes to the cross compilers, there's very little difference -- all
 of them produce m68k/ColdFire code, the only difference is which one is
 produced by default (this has meaning only if you want to compile a native
@@ -38,5 +43,5 @@ In case of questions or problems, feel free to contact me at
 miro.kropacek@gmail.com or ask in the MiNT mailing list.
 
 Miro Kropacek,
-22.11.2013
-Brisbane/Queensland
+03.08.2014
+Kosice/Slovakia

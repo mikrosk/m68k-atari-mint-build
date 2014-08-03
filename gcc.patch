@@ -1,0 +1,12 @@
+diff -ru gcc-4.6.4-old/gcc/config/m68k/m68k.c gcc-4.6.4/gcc/config/m68k/m68k.c
+--- gcc-4.6.4-old/gcc/config/m68k/m68k.c	2011-08-01 01:09:25.000000000 +1000
++++ gcc-4.6.4/gcc/config/m68k/m68k.c	2013-11-19 18:51:45.432740024 +1000
+@@ -628,7 +628,7 @@
+     {
+       enum target_device dev;
+       dev = all_microarchs[M68K_DEFAULT_TUNE].device;
+-      m68k_tune_flags = all_devices[dev]->flags;
++      m68k_tune_flags = all_devices[dev].flags;
+     }
+ #endif
+   else

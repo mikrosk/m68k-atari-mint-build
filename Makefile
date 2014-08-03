@@ -12,7 +12,7 @@ PATCH_PML		= 20110207
 VERSION_BINUTILS	= 2.24
 VERSION_GCC		= 4.6.4
 
-VERSION_GMP		= 6.0.0a
+VERSION_GMP		= 6.0.0
 VERSION_MPFR		= 3.1.2
 VERSION_MPC		= 1.0.2
 
@@ -23,7 +23,7 @@ VERSION_MINTBIN		= 20110527
 default: ./build.sh
 	/bin/bash ./build.sh
 
-download: binutils-${VERSION_BINUTILS}.tar.bz2 gcc-${VERSION_GCC}.tar.bz2 gmp-${VERSION_GMP}.tar.bz2 mpfr-${VERSION_MPFR}.tar.bz2 mpc-${VERSION_MPC}.tar.gz \
+download: binutils-${VERSION_BINUTILS}.tar.bz2 gcc-${VERSION_GCC}.tar.bz2 gmp-${VERSION_GMP}a.tar.lz mpfr-${VERSION_MPFR}.tar.bz2 mpc-${VERSION_MPC}.tar.gz \
 	pml-${VERSION_PML}.tar.bz2 mintlib-CVS-${VERSION_MINTLIB}.tar.gz binutils-${VERSION_BINUTILS}-mint-${PATCH_BINUTILS}.patch.bz2 gcc-${VERSION_GCC}-mint-${PATCH_GCC}.patch.bz2 pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2
 
 # Download libraries
@@ -34,8 +34,8 @@ binutils-${VERSION_BINUTILS}.tar.bz2:
 gcc-${VERSION_GCC}.tar.bz2:
 	wget http://ftp.gnu.org/gnu/gcc/gcc-${VERSION_GCC}/$@
 
-gmp-${VERSION_GMP}.tar.bz2:
-	wget ftp://ftp.gmplib.org/pub/gmp-${VERSION_GMP}/$@
+gmp-${VERSION_GMP}a.tar.lz:
+	wget https://gmplib.org/download/gmp/$@
 
 mpfr-${VERSION_MPFR}.tar.bz2:
 	wget http://www.mpfr.org/mpfr-current/$@
@@ -75,8 +75,8 @@ gcc-${VERSION_GCC}: gcc-${VERSION_GCC}.tar.bz2 gcc-${VERSION_GCC}-mint-${PATCH_G
 	cd $@ && bzcat ../gcc-${VERSION_GCC}-mint-${PATCH_GCC}.patch.bz2 | patch -p1 && cat ../gcc.patch | patch -p1 && cd ..
 	touch $@
 
-gmp-${VERSION_GMP}: gmp-${VERSION_GMP}.tar.bz2
-	tar xjf gmp-${VERSION_GMP}.tar.bz2
+gmp-${VERSION_GMP}: gmp-${VERSION_GMP}a.tar.lz
+	tar --extract --lzip --file gmp-${VERSION_GMP}a.tar.lz
 	touch $@
 
 mpfr-${VERSION_MPFR}: mpfr-${VERSION_MPFR}.tar.bz2

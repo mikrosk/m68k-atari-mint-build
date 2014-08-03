@@ -14,7 +14,8 @@ about 3.8 GB of disk space) you will get:
 Don't forget to install the gcc prerequisities: texinfo, libgmp(-dev),
 libmpfr(-dev), libmpc(-dev), autotools, bison, flex etc. If something fails,
 check out the error message, fix it, delete all intermediate directories and
-start over -- it's the safest path.
+start over -- it's the safest path. Don't forget to install lzip, it's used
+by libgmp.
 
 When it comes to the cross compilers, there's very little difference -- all
 of them produce m68k/ColdFire code, the only difference is which one is

@@ -105,7 +105,7 @@ pml-${VERSION_PML}: pml-${VERSION_PML}.tar.bz2 pml-${VERSION_PML}-mint-${PATCH_P
 binutils-${VERSION_BINUTILS}-${CPU}-cross: binutils-${VERSION_BINUTILS}
 	mkdir -p $@
 	cd $@ && \
-	PATH=${INSTALL_DIR}/bin:$$PATH ../binutils-${VERSION_BINUTILS}/configure --target=m68k-atari-mint --prefix=${INSTALL_DIR} --disable-nls && \
+	PATH=${INSTALL_DIR}/bin:$$PATH ../binutils-${VERSION_BINUTILS}/configure --target=m68k-atari-mint --prefix=${INSTALL_DIR} --disable-nls --disable-werror && \
 	make && \
 	make install-strip
 

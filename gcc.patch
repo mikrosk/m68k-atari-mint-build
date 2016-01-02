@@ -1,6 +1,6 @@
 diff -ru gcc-4.6.4-old/gcc/config/m68k/m68k.c gcc-4.6.4/gcc/config/m68k/m68k.c
---- gcc-4.6.4-old/gcc/config/m68k/m68k.c	2011-08-01 01:09:25.000000000 +1000
-+++ gcc-4.6.4/gcc/config/m68k/m68k.c	2013-11-19 18:51:45.432740024 +1000
+--- gcc-4.6.4-old/gcc/config/m68k/m68k.c	2011-07-31 17:09:25.000000000 +0200
++++ gcc-4.6.4/gcc/config/m68k/m68k.c	2016-01-02 16:04:05.841904368 +0100
 @@ -628,7 +628,7 @@
      {
        enum target_device dev;
@@ -10,3 +10,29 @@ diff -ru gcc-4.6.4-old/gcc/config/m68k/m68k.c gcc-4.6.4/gcc/config/m68k/m68k.c
      }
  #endif
    else
+diff -ru gcc-4.6.4-old/gcc/cp/cfns.gperf gcc-4.6.4/gcc/cp/cfns.gperf
+--- gcc-4.6.4-old/gcc/cp/cfns.gperf	2009-04-21 21:03:23.000000000 +0200
++++ gcc-4.6.4/gcc/cp/cfns.gperf	2016-01-02 16:04:11.798588711 +0100
+@@ -22,6 +22,9 @@
+ static unsigned int hash (const char *, unsigned int);
+ #ifdef __GNUC__
+ __inline
++#ifdef __GNUC_STDC_INLINE__
++__attribute__ ((__gnu_inline__))
++#endif
+ #endif
+ const char * libc_name_p (const char *, unsigned int);
+ %}
+diff -ru gcc-4.6.4-old/gcc/cp/cfns.h gcc-4.6.4/gcc/cp/cfns.h
+--- gcc-4.6.4-old/gcc/cp/cfns.h	2009-04-21 21:03:23.000000000 +0200
++++ gcc-4.6.4/gcc/cp/cfns.h	2016-01-02 16:04:11.798588711 +0100
+@@ -53,6 +53,9 @@
+ static unsigned int hash (const char *, unsigned int);
+ #ifdef __GNUC__
+ __inline
++#ifdef __GNUC_STDC_INLINE__
++__attribute__ ((__gnu_inline__))
++#endif
+ #endif
+ const char * libc_name_p (const char *, unsigned int);
+ /* maximum key range = 391, duplicates = 0 */

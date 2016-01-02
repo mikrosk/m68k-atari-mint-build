@@ -1,7 +1,7 @@
 # Atari cross- and native-binutils/gcc toolchain build Makefile
 # Miro Kropacek aka MiKRO / Mystic Bytes
 # miro.kropacek@gmail.com
-# version 2.0.2 (2015/03/19)
+# version 2.0.3 (2016/01/02)
 
 # please note you need the bash shell for correct compilation of mintlib.
 
@@ -12,19 +12,19 @@ PATCH_PML		= 20110207
 VERSION_BINUTILS	= 2.24
 VERSION_GCC		= 4.6.4
 
-VERSION_GMP		= 6.0.0
-VERSION_MPFR		= 3.1.2
+VERSION_GMP		= 6.1.0
+VERSION_MPFR		= 3.1.3
 VERSION_MPC		= 1.0.3
 
 VERSION_PML		= 2.03
-VERSION_MINTLIB		= 20141104
+VERSION_MINTLIB		= $(shell date +"%Y%m%d")
 VERSION_MINTBIN		= 20110527
 
 default: ./build.sh
 	/bin/bash ./build.sh
 
 download: binutils-${VERSION_BINUTILS}.tar.bz2 gcc-${VERSION_GCC}.tar.bz2 gmp-${VERSION_GMP}a.tar.lz mpfr-${VERSION_MPFR}.tar.bz2 mpc-${VERSION_MPC}.tar.gz \
-	pml-${VERSION_PML}.tar.bz2 mintlib-CVS-${VERSION_MINTLIB}.tar.gz binutils-${VERSION_BINUTILS}-mint-${PATCH_BINUTILS}.patch.bz2 gcc-${VERSION_GCC}-mint-${PATCH_GCC}.patch.bz2 pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2
+	pml-${VERSION_PML}.tar.bz2 binutils-${VERSION_BINUTILS}-mint-${PATCH_BINUTILS}.patch.bz2 gcc-${VERSION_GCC}-mint-${PATCH_GCC}.patch.bz2 pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2
 
 # Download libraries
 
@@ -46,8 +46,8 @@ mpc-${VERSION_MPC}.tar.gz:
 pml-${VERSION_PML}.tar.bz2:
 	wget http://vincent.riviere.free.fr/soft/m68k-atari-mint/archives/$@
 
-mintlib-CVS-${VERSION_MINTLIB}.tar.gz:
-	wget http://vincent.riviere.free.fr/soft/m68k-atari-mint/archives/$@
+mintlib-CVS-${VERSION_MINTLIB}:
+	CVSROOT=:pserver:cvsanon:cvsanon@sparemint.org:/mint cvs checkout -d mintlib-CVS-${VERSION_MINTLIB} mintlib
 
 mintbin-CVS-${VERSION_MINTBIN}.tar.gz:
 	wget http://vincent.riviere.free.fr/soft/m68k-atari-mint/archives/$@
@@ -85,10 +85,6 @@ mpfr-${VERSION_MPFR}: mpfr-${VERSION_MPFR}.tar.bz2
 
 mpc-${VERSION_MPC}: mpc-${VERSION_MPC}.tar.gz
 	tar xzf mpc-${VERSION_MPC}.tar.gz
-	touch $@
-
-mintlib-CVS-${VERSION_MINTLIB}: mintlib-CVS-${VERSION_MINTLIB}.tar.gz
-	tar xzf  mintlib-CVS-${VERSION_MINTLIB}.tar.gz
 	touch $@
 
 mintbin-CVS-${VERSION_MINTBIN}: mintbin-CVS-${VERSION_MINTBIN}.tar.gz

@@ -23,7 +23,7 @@ VERSION_MINTBIN		= 20110527
 default: ./build.sh
 	/bin/bash ./build.sh
 
-download: binutils-${VERSION_BINUTILS}.tar.bz2 gcc-${VERSION_GCC}.tar.bz2 gmp-${VERSION_GMP}a.tar.lz mpfr-${VERSION_MPFR}.tar.bz2 mpc-${VERSION_MPC}.tar.gz \
+download: binutils-${VERSION_BINUTILS}.tar.bz2 gcc-${VERSION_GCC}.tar.bz2 gmp-${VERSION_GMP}.tar.lz mpfr-${VERSION_MPFR}.tar.bz2 mpc-${VERSION_MPC}.tar.gz \
 	pml-${VERSION_PML}.tar.bz2 binutils-${VERSION_BINUTILS}-mint-${PATCH_BINUTILS}.patch.bz2 gcc-${VERSION_GCC}-mint-${PATCH_GCC}.patch.bz2 pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2
 
 # Download libraries
@@ -34,7 +34,7 @@ binutils-${VERSION_BINUTILS}.tar.bz2:
 gcc-${VERSION_GCC}.tar.bz2:
 	wget http://ftp.gnu.org/gnu/gcc/gcc-${VERSION_GCC}/$@
 
-gmp-${VERSION_GMP}a.tar.lz:
+gmp-${VERSION_GMP}.tar.lz:
 	wget https://gmplib.org/download/gmp/$@
 
 mpfr-${VERSION_MPFR}.tar.bz2:
@@ -75,8 +75,8 @@ gcc-${VERSION_GCC}: gcc-${VERSION_GCC}.tar.bz2 gcc-${VERSION_GCC}-mint-${PATCH_G
 	cd $@ && bzcat ../gcc-${VERSION_GCC}-mint-${PATCH_GCC}.patch.bz2 | patch -p1 && cat ../gcc.patch | patch -p1 && cd ..
 	touch $@
 
-gmp-${VERSION_GMP}: gmp-${VERSION_GMP}a.tar.lz
-	tar --extract --lzip --file gmp-${VERSION_GMP}a.tar.lz
+gmp-${VERSION_GMP}: gmp-${VERSION_GMP}.tar.lz
+	tar --extract --lzip --file gmp-${VERSION_GMP}.tar.lz
 	touch $@
 
 mpfr-${VERSION_MPFR}: mpfr-${VERSION_MPFR}.tar.bz2

@@ -1,7 +1,7 @@
 # Atari cross- and native-binutils/gcc toolchain build Makefile
 # Miro Kropacek aka MiKRO / Mystic Bytes
 # miro.kropacek@gmail.com
-# version 2.0.3 (2016/01/02)
+# version 2.0.4 (2016/08/20)
 
 # please note you need the bash shell for correct compilation of mintlib.
 
@@ -12,7 +12,7 @@ PATCH_PML		= 20110207
 VERSION_BINUTILS	= 2.26
 VERSION_GCC		= 4.6.4
 
-VERSION_GMP		= 6.1.0
+VERSION_GMP		= 6.1.1
 VERSION_MPFR		= 3.1.4
 VERSION_MPC		= 1.0.3
 

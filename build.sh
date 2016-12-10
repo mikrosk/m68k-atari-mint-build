@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 INSTALL_DIR="$HOME/gnu-tools"
 CPU_DIRS=("m68000"	"m68020-60"	"m5475")	# target directory

@@ -20,8 +20,12 @@ VERSION_PML		= 2.03
 VERSION_MINTLIB		= $(shell date +"%Y%m%d")
 VERSION_MINTBIN		= 20110527
 
+BASH	= $(shell which bash)
+URLGET	= $(shell which wget || echo "`which curl` -O")
+
+
 default: ./build.sh
-	/bin/bash ./build.sh
+	$(BASH) ./build.sh
 
 download: binutils-${VERSION_BINUTILS}.tar.bz2 gcc-${VERSION_GCC}.tar.bz2 gmp-${VERSION_GMP}.tar.lz mpfr-${VERSION_MPFR}.tar.bz2 mpc-${VERSION_MPC}.tar.gz \
 	pml-${VERSION_PML}.tar.bz2 binutils-${VERSION_BINUTILS}-mint-${PATCH_BINUTILS}.patch.bz2 gcc-${VERSION_GCC}-mint-${PATCH_GCC}.patch.bz2 pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2
@@ -29,39 +33,39 @@ download: binutils-${VERSION_BINUTILS}.tar.bz2 gcc-${VERSION_GCC}.tar.bz2 gmp-${
 # Download libraries
 
 binutils-${VERSION_BINUTILS}.tar.bz2:
-	wget http://ftp.gnu.org/gnu/binutils/$@
+	$(URLGET) http://ftp.gnu.org/gnu/binutils/$@
 
 gcc-${VERSION_GCC}.tar.bz2:
-	wget http://ftp.gnu.org/gnu/gcc/gcc-${VERSION_GCC}/$@
+	$(URLGET) http://ftp.gnu.org/gnu/gcc/gcc-${VERSION_GCC}/$@
 
 gmp-${VERSION_GMP}.tar.lz:
-	wget https://gmplib.org/download/gmp/$@
+	$(URLGET) https://gmplib.org/download/gmp/$@
 
 mpfr-${VERSION_MPFR}.tar.bz2:
-	wget http://www.mpfr.org/mpfr-current/$@
+	$(URLGET) http://www.mpfr.org/mpfr-current/$@
 
 mpc-${VERSION_MPC}.tar.gz:
-	wget http://www.multiprecision.org/mpc/download/$@
+	$(URLGET) http://www.multiprecision.org/mpc/download/$@
 
 pml-${VERSION_PML}.tar.bz2:
-	wget http://vincent.riviere.free.fr/soft/m68k-atari-mint/archives/$@
+	$(URLGET) http://vincent.riviere.free.fr/soft/m68k-atari-mint/archives/$@
 
 mintlib-CVS-${VERSION_MINTLIB}:
 	CVSROOT=:pserver:cvsanon:cvsanon@sparemint.org:/mint cvs checkout -d mintlib-CVS-${VERSION_MINTLIB} mintlib
 
 mintbin-CVS-${VERSION_MINTBIN}.tar.gz:
-	wget http://vincent.riviere.free.fr/soft/m68k-atari-mint/archives/$@
+	$(URLGET) http://vincent.riviere.free.fr/soft/m68k-atari-mint/archives/$@
 
 # Download patches
 
 binutils-${VERSION_BINUTILS}-mint-${PATCH_BINUTILS}.patch.bz2:
-	wget http://vincent.riviere.free.fr/soft/m68k-atari-mint/archives/$@
+	$(URLGET) http://vincent.riviere.free.fr/soft/m68k-atari-mint/archives/$@
 
 gcc-${VERSION_GCC}-mint-${PATCH_GCC}.patch.bz2:
-	wget http://vincent.riviere.free.fr/soft/m68k-atari-mint/archives/$@
+	$(URLGET) http://vincent.riviere.free.fr/soft/m68k-atari-mint/archives/$@
 
 pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2:
-	wget http://vincent.riviere.free.fr/soft/m68k-atari-mint/archives/$@
+	$(URLGET) http://vincent.riviere.free.fr/soft/m68k-atari-mint/archives/$@
 
 # Depacking and patching
 

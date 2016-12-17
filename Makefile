@@ -125,7 +125,8 @@ gcc-${VERSION_GCC}-${CPU}-cross: gcc-${VERSION_GCC}
 # Shortcuts
 
 gcc-multilib-patch: gcc-${VERSION_GCC}
-	sed -i -e "s:\(MULTILIB_OPTIONS =\).*:\1 ${OPTS}:" -e "s:\(MULTILIB_DIRNAMES =\).*:\1 ${DIRS}:" gcc-${VERSION_GCC}/gcc/config/m68k/t-mint
+	sed -e "s:\(MULTILIB_OPTIONS =\).*:\1 ${OPTS}:" -e "s:\(MULTILIB_DIRNAMES =\).*:\1 ${DIRS}:" gcc-${VERSION_GCC}/gcc/config/m68k/t-mint > t-mint.patched
+	mv t-mint.patched gcc-${VERSION_GCC}/gcc/config/m68k/t-mint
 
 gcc-preliminary: gcc-${VERSION_GCC}-${CPU}-cross
 

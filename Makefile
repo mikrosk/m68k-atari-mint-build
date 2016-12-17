@@ -119,7 +119,7 @@ gcc-${VERSION_GCC}-${CPU}-cross: gcc-${VERSION_GCC}
 	mkdir -p $@
 	cd $@ && \
 	PATH=${INSTALL_DIR}/bin:$$PATH ../gcc-${VERSION_GCC}/configure --target=m68k-atari-mint --prefix=${INSTALL_DIR} --enable-languages="c,c++" --disable-nls --disable-libstdcxx-pch CFLAGS_FOR_TARGET="-O2 -fomit-frame-pointer" CXXFLAGS_FOR_TARGET="-O2 -fomit-frame-pointer" --with-cpu=${CPU} && \
-	make all-target-libgcc && \
+	make all-target-libgcc > /dev/null && \
 	cat ../gcc-${VERSION_GCC}/gcc/limitx.h ../gcc-${VERSION_GCC}/gcc/glimits.h ../gcc-${VERSION_GCC}/gcc/limity.h > gcc/include-fixed/limits.h # Dirty hack to fix the PATH_MAX issue. The good solution would be to configure gcc using --with-headers
 
 # Shortcuts

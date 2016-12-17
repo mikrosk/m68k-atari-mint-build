@@ -10,7 +10,7 @@ addons:
     - libmpfr-dev
     - libmpc-dev
     - cvs
-    - makeinfo
+    - texinfo
 
 compiler:
   - gcc

@@ -11,6 +11,7 @@ addons:
     - libmpc-dev
     - cvs
     - texinfo
+    - lzip
 
 compiler:
   - gcc

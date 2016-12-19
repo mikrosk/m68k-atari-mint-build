@@ -110,8 +110,8 @@ binutils-${VERSION_BINUTILS}-${CPU}-cross: binutils-${VERSION_BINUTILS}
 	mkdir -p $@
 	cd $@ && \
 	PATH=${INSTALL_DIR}/bin:$$PATH ../binutils-${VERSION_BINUTILS}/configure --target=m68k-atari-mint --prefix=${INSTALL_DIR} --disable-nls --disable-werror && \
-	make && \
-	make install-strip
+	make > /dev/null && \
+	make install-strip > /dev/null
 
 binutils: binutils-${VERSION_BINUTILS}-${CPU}-cross
 

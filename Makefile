@@ -102,7 +102,8 @@ mintbin-CVS-${VERSION_MINTBIN}: mintbin-CVS-${VERSION_MINTBIN}.tar.gz
 	
 pml-${VERSION_PML}: pml-${VERSION_PML}.tar.bz2 pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2
 	tar xjf pml-${VERSION_PML}.tar.bz2
-	cd $@ && bzcat ../pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2 | patch -p1 && cat ../pml.patch | patch -p1 && cd ..
+	cd $@ && bzcat ../pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2 | patch -p1
+	cd $@ && cat ../pml.patch | patch -p1
 	touch $@
 
 # Building

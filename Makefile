@@ -97,6 +97,7 @@ mpc-${VERSION_MPC}: mpc-${VERSION_MPC}.tar.gz
 
 mintbin-CVS-${VERSION_MINTBIN}: mintbin-CVS-${VERSION_MINTBIN}.tar.gz
 	tar xzf mintbin-CVS-${VERSION_MINTBIN}.tar.gz
+	cd $@ && patch -p1 < ../mintbin.patch
 	touch $@
 	
 pml-${VERSION_PML}: pml-${VERSION_PML}.tar.bz2 pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2

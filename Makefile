@@ -30,7 +30,7 @@ DOWNLOADS	= binutils-${VERSION_BINUTILS}.tar.bz2 gcc-${VERSION_GCC}.tar.bz2 \
 		  gcc-${VERSION_GCC}-mint-${PATCH_GCC}.patch.bz2 pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2
 
 default: ./build.sh $(DOWNLOADS)
-	$(BASH) ./build.sh
+	MAKE=$(MAKE) $(BASH) ./build.sh
 
 download: $(DOWNLOADS)
 
@@ -97,11 +97,13 @@ mpc-${VERSION_MPC}: mpc-${VERSION_MPC}.tar.gz
 
 mintbin-CVS-${VERSION_MINTBIN}: mintbin-CVS-${VERSION_MINTBIN}.tar.gz
 	tar xzf mintbin-CVS-${VERSION_MINTBIN}.tar.gz
+	cd $@ && patch -p1 < ../mintbin.patch
 	touch $@
 	
 pml-${VERSION_PML}: pml-${VERSION_PML}.tar.bz2 pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2
 	tar xjf pml-${VERSION_PML}.tar.bz2
-	cd $@ && bzcat ../pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2 | patch -p1 && cat ../pml.patch | patch -p1 && cd ..
+	cd $@ && bzcat ../pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2 | patch -p1
+	cd $@ && cat ../pml.patch | patch -p1
 	touch $@
 
 # Building
@@ -110,8 +112,8 @@ binutils-${VERSION_BINUTILS}-${CPU}-cross: binutils-${VERSION_BINUTILS}
 	mkdir -p $@
 	cd $@ && \
 	PATH=${INSTALL_DIR}/bin:$$PATH ../binutils-${VERSION_BINUTILS}/configure --target=m68k-atari-mint --prefix=${INSTALL_DIR} --disable-nls --disable-werror && \
-	make && \
-	make install-strip
+	$(MAKE) && \
+	$(MAKE) install-strip
 
 binutils: binutils-${VERSION_BINUTILS}-${CPU}-cross
 
@@ -119,41 +121,42 @@ gcc-${VERSION_GCC}-${CPU}-cross: gcc-${VERSION_GCC}
 	mkdir -p $@
 	cd $@ && \
 	PATH=${INSTALL_DIR}/bin:$$PATH ../gcc-${VERSION_GCC}/configure --target=m68k-atari-mint --prefix=${INSTALL_DIR} --enable-languages="c,c++" --disable-nls --disable-libstdcxx-pch CFLAGS_FOR_TARGET="-O2 -fomit-frame-pointer" CXXFLAGS_FOR_TARGET="-O2 -fomit-frame-pointer" --with-cpu=${CPU} && \
-	make all-target-libgcc && \
+	$(MAKE) all-target-libgcc && \
 	cat ../gcc-${VERSION_GCC}/gcc/limitx.h ../gcc-${VERSION_GCC}/gcc/glimits.h ../gcc-${VERSION_GCC}/gcc/limity.h > gcc/include-fixed/limits.h # Dirty hack to fix the PATH_MAX issue. The good solution would be to configure gcc using --with-headers
 
 # Shortcuts
 
 gcc-multilib-patch: gcc-${VERSION_GCC}
-	sed -i -e "s:\(MULTILIB_OPTIONS =\).*:\1 ${OPTS}:" -e "s:\(MULTILIB_DIRNAMES =\).*:\1 ${DIRS}:" gcc-${VERSION_GCC}/gcc/config/m68k/t-mint
+	sed -e "s:\(MULTILIB_OPTIONS =\).*:\1 ${OPTS}:" -e "s:\(MULTILIB_DIRNAMES =\).*:\1 ${DIRS}:" gcc-${VERSION_GCC}/gcc/config/m68k/t-mint > t-mint.patched
+	mv t-mint.patched gcc-${VERSION_GCC}/gcc/config/m68k/t-mint
 
 gcc-preliminary: gcc-${VERSION_GCC}-${CPU}-cross
 
 mintlib: mintlib-CVS-${VERSION_MINTLIB}
 	cd mintlib-CVS-${VERSION_MINTLIB} && \
-	make clean && \
+	$(MAKE) clean && \
 	export GCC_BUILD_DIR="${PWD}/gcc-${VERSION_GCC}-${CPU}-cross" && export PATH=${INSTALL_DIR}/bin:$$PATH && \
 	echo "$$GCC_BUILD_DIR/gcc/include -I$$GCC_BUILD_DIR/gcc/include-fixed" > includepath && \
-	make SHELL=/bin/bash CROSS=yes WITH_020_LIB=no WITH_V4E_LIB=no CC="$$GCC_BUILD_DIR/gcc/xgcc -B$$GCC_BUILD_DIR/gcc/ -B${INSTALL_DIR}/bin/ -B${INSTALL_DIR}/lib/ -isystem ${INSTALL_DIR}/include -isystem ${INSTALL_DIR}/sys-include" && \
-	make SHELL=/bin/bash CROSS=yes WITH_020_LIB=no WITH_V4E_LIB=no install && \
+	$(MAKE) SHELL=$(BASH) CROSS=yes WITH_020_LIB=no WITH_V4E_LIB=no CC="$$GCC_BUILD_DIR/gcc/xgcc -B$$GCC_BUILD_DIR/gcc/ -B${INSTALL_DIR}/bin/ -B${INSTALL_DIR}/lib/ -isystem ${INSTALL_DIR}/include -isystem ${INSTALL_DIR}/sys-include" && \
+	$(MAKE) SHELL=$(BASH) CROSS=yes WITH_020_LIB=no WITH_V4E_LIB=no install && \
 	touch $@
 
 mintbin: mintbin-CVS-${VERSION_MINTBIN}
 	cd mintbin-CVS-${VERSION_MINTBIN} && \
 	PATH=${INSTALL_DIR}/bin:$$PATH ./configure --target=m68k-atari-mint --prefix=${INSTALL_DIR} --disable-nls && \
-	make && \
-	make install && \
+	$(MAKE) && \
+	$(MAKE) install && \
 	mv ${INSTALL_DIR}/m68k-atari-mint/bin/m68k-atari-mint-* ${INSTALL_DIR}/bin
 
 pml: pml-${VERSION_PML}
 	cd pml-${VERSION_PML}/pmlsrc && \
-	make clean LIB="$(DIR)" && \
+	$(MAKE) clean LIB="$(DIR)" && \
 	export GCC_BUILD_DIR="${PWD}/gcc-${VERSION_GCC}-${CPU}-cross" && export PATH=${INSTALL_DIR}/bin:$$PATH && \
-	make AR="m68k-atari-mint-ar" CC="$$GCC_BUILD_DIR/gcc/xgcc -B$$GCC_BUILD_DIR/gcc/ -B${INSTALL_DIR}/m68k-atari-mint/bin/ -B${INSTALL_DIR}/m68k-atari-mint/lib/ -isystem ${INSTALL_DIR}/m68k-atari-mint/include" CPU="$(OPTS)" CROSSDIR="${INSTALL_DIR}/m68k-atari-mint" LIB="$(DIR)" && \
-	make install AR="m68k-atari-mint-ar" CC="$$GCC_BUILD_DIR/gcc/xgcc -B$$GCC_BUILD_DIR/gcc/ -B${INSTALL_DIR}/m68k-atari-mint/bin/ -B${INSTALL_DIR}/m68k-atari-mint/lib/ -isystem ${INSTALL_DIR}/m68k-atari-mint/include" CPU="$(OPTS)" CROSSDIR="${INSTALL_DIR}/m68k-atari-mint" LIB="$(DIR)"
+	$(MAKE) AR="m68k-atari-mint-ar" CC="$$GCC_BUILD_DIR/gcc/xgcc -B$$GCC_BUILD_DIR/gcc/ -B${INSTALL_DIR}/m68k-atari-mint/bin/ -B${INSTALL_DIR}/m68k-atari-mint/lib/ -isystem ${INSTALL_DIR}/m68k-atari-mint/include" CPU="$(OPTS)" CROSSDIR="${INSTALL_DIR}/m68k-atari-mint" LIB="$(DIR)" && \
+	$(MAKE) install AR="m68k-atari-mint-ar" CC="$$GCC_BUILD_DIR/gcc/xgcc -B$$GCC_BUILD_DIR/gcc/ -B${INSTALL_DIR}/m68k-atari-mint/bin/ -B${INSTALL_DIR}/m68k-atari-mint/lib/ -isystem ${INSTALL_DIR}/m68k-atari-mint/include" CPU="$(OPTS)" CROSSDIR="${INSTALL_DIR}/m68k-atari-mint" LIB="$(DIR)"
 
 gcc:
-	export PATH=${INSTALL_DIR}/bin:$$PATH && cd gcc-${VERSION_GCC}-${CPU}-cross && make && make install-strip
+	export PATH=${INSTALL_DIR}/bin:$$PATH && cd gcc-${VERSION_GCC}-${CPU}-cross && $(MAKE) && $(MAKE) install-strip
 
 # Atari building
 
@@ -162,8 +165,8 @@ binutils-${VERSION_BINUTILS}-${CPU}-atari: binutils-${VERSION_BINUTILS}
 	cd $@ && \
 	export PATH=${INSTALL_DIR}/bin:$$PATH && \
 	../binutils-${VERSION_BINUTILS}/configure --target=m68k-atari-mint --host=m68k-atari-mint --disable-nls --prefix=/usr CFLAGS="-O2 -fomit-frame-pointer" CXXFLAGS="-O2 -fomit-frame-pointer" && \
-	make && \
-	make install DESTDIR=${PWD}/binary-package/${CPU}/binutils-${VERSION_BINUTILS}	# make install-strip doesn't work properly
+	$(MAKE) && \
+	$(MAKE) install DESTDIR=${PWD}/binary-package/${CPU}/binutils-${VERSION_BINUTILS}	# make install-strip doesn't work properly
 
 binutils-atari: binutils-${VERSION_BINUTILS}-${CPU}-atari
 
@@ -172,8 +175,8 @@ gmp-${VERSION_GMP}-${CPU}-atari: gmp-${VERSION_GMP}
 	cd $@ && \
 	export PATH=${INSTALL_DIR}/bin:$$PATH && \
 	../gmp-${VERSION_GMP}/configure $(ASSEMBLY) --host=m68k-atari-mint --prefix=${PWD}/binary-package/${CPU}/gmp-${VERSION_GMP}/usr CFLAGS="-O2 -fomit-frame-pointer" CXXFLAGS="-O2 -fomit-frame-pointer" && \
-	make && \
-	make install-strip
+	$(MAKE) && \
+	$(MAKE) install-strip
 
 gmp-atari: gmp-${VERSION_GMP}-${CPU}-atari
 
@@ -182,8 +185,8 @@ mpfr-${VERSION_MPFR}-${CPU}-atari: mpfr-${VERSION_MPFR}
 	cd $@ && \
 	export PATH=${INSTALL_DIR}/bin:$$PATH && \
 	../mpfr-${VERSION_MPFR}/configure --host=m68k-atari-mint --with-gmp=${PWD}/binary-package/${CPU}/gmp-${VERSION_GMP}/usr --prefix=${PWD}/binary-package/${CPU}/mpfr-${VERSION_MPFR}/usr CFLAGS="-O2 -fomit-frame-pointer" CXXFLAGS="-O2 -fomit-frame-pointer" && \
-	make && \
-	make install-strip
+	$(MAKE) && \
+	$(MAKE) install-strip
 
 mpfr-atari: gmp-atari mpfr-${VERSION_MPFR}-${CPU}-atari
 
@@ -192,8 +195,8 @@ mpc-${VERSION_MPC}-${CPU}-atari: mpc-${VERSION_MPC}
 	cd $@ && \
 	export PATH=${INSTALL_DIR}/bin:$$PATH && \
 	../mpc-${VERSION_MPC}/configure --host=m68k-atari-mint --with-gmp=${PWD}/binary-package/${CPU}/gmp-${VERSION_GMP}/usr --with-mpfr=${PWD}/binary-package/${CPU}/mpfr-${VERSION_MPFR}/usr --prefix=${PWD}/binary-package/${CPU}/mpc-${VERSION_MPC}/usr CFLAGS="-O2 -fomit-frame-pointer" CXXFLAGS="-O2 -fomit-frame-pointer" --disable-shared && \
-	make && \
-	make install-strip
+	$(MAKE) && \
+	$(MAKE) install-strip
 
 mpc-atari: mpfr-atari mpc-${VERSION_MPC}-${CPU}-atari
 
@@ -202,8 +205,8 @@ gcc-${VERSION_GCC}-${CPU}-atari: gcc-${VERSION_GCC}
 	cd $@ && \
 	export PATH=${INSTALL_DIR}/bin:$$PATH && \
 	../gcc-${VERSION_GCC}/configure --target=m68k-atari-mint --host=m68k-atari-mint --enable-languages="c,c++" --disable-nls --disable-libstdcxx-pch --with-gmp=${PWD}/binary-package/${CPU}/gmp-${VERSION_GMP}/usr --with-mpfr=${PWD}/binary-package/${CPU}/mpfr-${VERSION_MPFR}/usr --with-mpc=${PWD}/binary-package/${CPU}/mpc-${VERSION_MPC}/usr --prefix=/usr CFLAGS="-O2 -fomit-frame-pointer" CXXFLAGS="-O2 -fomit-frame-pointer" --with-cpu=${CPU} && \
-	make && \
-	make install-strip DESTDIR=${PWD}/binary-package/${CPU}/gcc-${VERSION_GCC}
+	$(MAKE) && \
+	$(MAKE) install-strip DESTDIR=${PWD}/binary-package/${CPU}/gcc-${VERSION_GCC}
 
 gcc-atari: mpc-atari gcc-${VERSION_GCC}-${CPU}-atari
 

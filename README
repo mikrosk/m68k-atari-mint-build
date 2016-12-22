@@ -17,7 +17,7 @@ check out the error message, fix it, delete all intermediate directories and
 start over -- it's the safest path. Don't forget to install lzip, it's used
 by libgmp.
 
-IMPORTANT: make sure you have textinfo 6.2 or lower  installed. 6.3 is
+IMPORTANT: make sure you have textinfo 6.2 or lower installed. 6.3 is
 buggy and the build process will fail with it.
 
 When it comes to the cross compilers, there's very little difference -- all

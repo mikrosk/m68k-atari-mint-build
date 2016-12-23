@@ -183,8 +183,8 @@ mintlib: mintlib-CVS-${VERSION_MINTLIB}
 mintbin: mintbin-CVS-${VERSION_MINTBIN}
 	cd mintbin-CVS-${VERSION_MINTBIN} && \
 	PATH=${INSTALL_DIR}/bin:$$PATH ./configure --target=m68k-atari-mint --prefix=${INSTALL_DIR} --disable-nls && \
-	$(MAKE) $(OUT) && \
-	$(MAKE) install $(OUT) && \
+	$(MAKE) OUT= $(OUT) && \
+	$(MAKE) OUT= install $(OUT) && \
 	mv ${INSTALL_DIR}/m68k-atari-mint/bin/m68k-atari-mint-* ${INSTALL_DIR}/bin
 
 pml: pml-${VERSION_PML}

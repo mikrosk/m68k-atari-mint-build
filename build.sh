@@ -75,7 +75,7 @@ do
 	done
 	${MAKE} gcc mintbin INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
 	
-	if [ $skip_native -ne 0 ] ; then
+	if [ $skip_native -eq 0 ] ; then
 		${MAKE} binutils-atari INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
 		if [ "$cpu" == "5475" ]
 		then
@@ -88,7 +88,7 @@ do
 	
 done
 
-if [ $skip_native -ne 0 ] ; then
+if [ $skip_native -eq 0 ] ; then
 	${MAKE} strip-atari INSTALL_DIR="$INSTALL_DIR/${CPU_DIRS[0]}"	# use either 'strip'
 
 	for i in $indices

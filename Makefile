@@ -270,7 +270,7 @@ pack-atari:
 	done
 
 strip-atari:
-	find ${PWD}/binary-package -type f -executable -exec m68k-atari-mint-strip -s {} \;
+	find ${PWD}/binary-package -type f -perm -a=x -exec m68k-atari-mint-strip -s {} \;
 	find ${PWD}/binary-package -type f -name '*.a' -exec m68k-atari-mint-strip -S -X -w -N '.L[0-9]*' {} \;
 
 clean-atari:

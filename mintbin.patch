@@ -1,0 +1,25 @@
+diff -ru mintbin-CVS-20110527-old/config.h.in mintbin-CVS-20110527/config.h.in
+--- mintbin-CVS-20110527-old/config.h.in	2011-05-27 19:41:38.000000000 +0200
++++ mintbin-CVS-20110527/config.h.in	2016-12-21 15:04:52.969504000 +0100
+@@ -156,6 +156,9 @@
+ /* Define if you have the strstr function.  */
+ #undef HAVE_STRSTR
+ 
++/* Define if you have the strerror function.  */
++#undef HAVE_STRERROR
++
+ /* Define if you have the strtol function.  */
+ #undef HAVE_STRTOL
+ 
+diff -ru mintbin-CVS-20110527-old/configure mintbin-CVS-20110527/configure
+--- mintbin-CVS-20110527-old/configure	2011-05-27 19:41:38.000000000 +0200
++++ mintbin-CVS-20110527/configure	2016-12-21 14:58:14.059416000 +0100
+@@ -2290,7 +2290,7 @@
+ fi
+ 
+ 
+-for ac_func in stpcpy strcasecmp strncasecmp strtol strtoul strstr
++for ac_func in stpcpy strcasecmp strncasecmp strtol strtoul strstr strerror
+ do
+ echo $ac_n "checking for $ac_func""... $ac_c" 1>&6
+ echo "configure:2297: checking for $ac_func" >&5

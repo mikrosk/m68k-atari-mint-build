@@ -25,4 +25,4 @@ env:
     - TARGET_CPU=5475
 
 script:
-  - 'make download && make ${TARGET_CPU}-skip-native'
+  - 'make download && make ${TARGET_CPU}-skip-native OUT="> /dev/null"'

@@ -16,5 +16,11 @@ addons:
 compiler:
   - gcc
 
+env:
+  matrix:
+    - TARGET_CPU=m68000
+    - TARGET_CPU=m68020-60
+    - TARGET_CPU=5475
+
 script:
-  - 'make download && make m68000-skip-native'
+  - 'make download && make ${TARGET_CPU}-skip-native'

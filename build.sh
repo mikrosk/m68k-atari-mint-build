@@ -6,6 +6,7 @@ CPU_OPTS=("m68000"	"m68020-60"	"mcpu=5475")	# gcc command line
 CPU_CPUS=("m68000"	"m68020-60"	"5475")		# --with-cpu=
 
 indices=""
+indices_all=$(seq 0 $((${#CPU_DIRS[@]} - 1)))
 skip_native=0
 
 # parse command line
@@ -24,7 +25,7 @@ do
 	skip_native=1
 	;;
 	--all)
-	indices=$(seq 0 $((${#CPU_DIRS[@]} - 1)))
+	indices=$indices_all
 	;;
 	*)
 	ok=0
@@ -59,7 +60,9 @@ do
 	${MAKE} gcc-multilib-patch OPTS="$multilib_opts" DIRS="$multilib_dirs" || exit 1
 	
 	${MAKE} binutils gcc-preliminary INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
-	for j in $indices
+
+	# build mintlib and pml for all targets
+	for j in $indices_all
 	do
 		target="${CPU_DIRS[j]}"
 		prefix="$INSTALL_DIR/$dir/m68k-atari-mint"

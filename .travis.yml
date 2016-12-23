@@ -17,4 +17,4 @@ compiler:
   - gcc
 
 script:
-  - 'make download && make'
+  - 'make download && make m68000-skip-native'

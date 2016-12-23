@@ -173,12 +173,12 @@ gcc-preliminary: gcc-${VERSION_GCC}-${CPU}-cross
 
 mintlib: mintlib-CVS-${VERSION_MINTLIB}
 	cd mintlib-CVS-${VERSION_MINTLIB} && \
-	$(MAKE) clean $(OUT) && \
+	$(MAKE) clean $(OUT)
+	cd mintlib-CVS-${VERSION_MINTLIB} && \
 	export GCC_BUILD_DIR="${PWD}/gcc-${VERSION_GCC}-${CPU}-cross" && export PATH=${INSTALL_DIR}/bin:$$PATH && \
 	echo "$$GCC_BUILD_DIR/gcc/include -I$$GCC_BUILD_DIR/gcc/include-fixed" > includepath && \
 	$(MAKE) SHELL=$(BASH) CROSS=yes WITH_020_LIB=no WITH_V4E_LIB=no CC="$$GCC_BUILD_DIR/gcc/xgcc -B$$GCC_BUILD_DIR/gcc/ -B${INSTALL_DIR}/bin/ -B${INSTALL_DIR}/lib/ -isystem ${INSTALL_DIR}/include -isystem ${INSTALL_DIR}/sys-include" $(OUT) && \
-	$(MAKE) SHELL=$(BASH) CROSS=yes WITH_020_LIB=no WITH_V4E_LIB=no install $(OUT) && \
-	touch $@
+	$(MAKE) SHELL=$(BASH) CROSS=yes WITH_020_LIB=no WITH_V4E_LIB=no install
 
 mintbin: mintbin-CVS-${VERSION_MINTBIN}
 	cd mintbin-CVS-${VERSION_MINTBIN} && \

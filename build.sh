@@ -89,7 +89,9 @@ do
 done
 
 if [ $skip_native -eq 0 ] ; then
-	${MAKE} strip-atari INSTALL_DIR="$INSTALL_DIR/${CPU_DIRS[0]}"	# use either 'strip'
+	# use either 'strip'
+	i=$(echo $indices | cut -d " " -f 1)
+	${MAKE} strip-atari INSTALL_DIR="$INSTALL_DIR/${CPU_DIRS[i]}"
 
 	for i in $indices
 	do

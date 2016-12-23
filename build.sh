@@ -6,6 +6,7 @@ CPU_OPTS=("m68000"	"m68020-60"	"mcpu=5475")	# gcc command line
 CPU_CPUS=("m68000"	"m68020-60"	"5475")		# --with-cpu=
 
 indices=""
+indices_all=$(seq 0 $((${#CPU_DIRS[@]} - 1)))
 skip_native=0
 
 # parse command line
@@ -24,7 +25,7 @@ do
 	skip_native=1
 	;;
 	--all)
-	indices=$(seq 0 $((${#CPU_DIRS[@]} - 1)))
+	indices=$indices_all
 	;;
 	*)
 	ok=0
@@ -43,7 +44,7 @@ do
 	esac
 done
 
-if [ -z $indices ] ; then
+if [ -z "$indices" ] ; then
 	echo "No CPU to build. use $0 --help"
 	exit 1
 fi
@@ -59,7 +60,9 @@ do
 	${MAKE} gcc-multilib-patch OPTS="$multilib_opts" DIRS="$multilib_dirs" || exit 1
 	
 	${MAKE} binutils gcc-preliminary INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
-	for j in $indices
+
+	# build mintlib and pml for all targets
+	for j in $indices_all
 	do
 		target="${CPU_DIRS[j]}"
 		prefix="$INSTALL_DIR/$dir/m68k-atari-mint"
@@ -72,7 +75,7 @@ do
 	done
 	${MAKE} gcc mintbin INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
 	
-	if [ $skip_native -ne 0 ] ; then
+	if [ $skip_native -eq 0 ] ; then
 		${MAKE} binutils-atari INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
 		if [ "$cpu" == "5475" ]
 		then
@@ -85,8 +88,10 @@ do
 	
 done
 
-if [ $skip_native -ne 0 ] ; then
-	${MAKE} strip-atari INSTALL_DIR="$INSTALL_DIR/${CPU_DIRS[0]}"	# use either 'strip'
+if [ $skip_native -eq 0 ] ; then
+	# use either 'strip'
+	i=$(echo $indices | cut -d " " -f 1)
+	${MAKE} strip-atari INSTALL_DIR="$INSTALL_DIR/${CPU_DIRS[i]}"
 
 	for i in $indices
 	do

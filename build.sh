@@ -44,7 +44,7 @@ do
 	esac
 done
 
-if [ -z $indices ] ; then
+if [ -z "$indices" ] ; then
 	echo "No CPU to build. use $0 --help"
 	exit 1
 fi

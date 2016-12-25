@@ -29,8 +29,44 @@ DOWNLOADS	= binutils-${VERSION_BINUTILS}.tar.bz2 gcc-${VERSION_GCC}.tar.bz2 \
 		  pml-${VERSION_PML}.tar.bz2 binutils-${VERSION_BINUTILS}-mint-${PATCH_BINUTILS}.patch.bz2 \
 		  gcc-${VERSION_GCC}-mint-${PATCH_GCC}.patch.bz2 pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2
 
-default: ./build.sh $(DOWNLOADS)
-	MAKE=$(MAKE) $(BASH) ./build.sh
+
+# display help
+
+help:	./build.sh
+	@echo "$< options :"
+	@MAKE=$(MAKE) $(BASH) $< --help
+	@echo "Makefile targets :"
+	@echo "    download"
+	@echo "    all / all-skip-native"
+	@echo "    m68000 / m68000-skip-native"
+	@echo "    m68020-60 / m68020-60-skip-native"
+	@echo "    5475 / 5475-skip-native"
+
+# "real" targets
+
+all: ./build.sh $(DOWNLOADS)
+	MAKE=$(MAKE) $(BASH) $< --all
+
+all-skip-native: ./build.sh $(DOWNLOADS)
+	MAKE=$(MAKE) $(BASH) $< --all --skip-native
+
+m68000: ./build.sh $(DOWNLOADS)
+	MAKE=$(MAKE) $(BASH) $< m68000
+
+m68000-skip-native: ./build.sh $(DOWNLOADS)
+	MAKE=$(MAKE) $(BASH) $< --skip-native m68000
+
+m68020-60: ./build.sh $(DOWNLOADS)
+	MAKE=$(MAKE) $(BASH) $< m68020-60
+
+m68020-60-skip-native: ./build.sh $(DOWNLOADS)
+	MAKE=$(MAKE) $(BASH) $< --skip-native m68020-60
+
+5475: ./build.sh $(DOWNLOADS)
+	MAKE=$(MAKE) $(BASH) $< 5475
+
+5475-skip-native: ./build.sh $(DOWNLOADS)
+	MAKE=$(MAKE) $(BASH) $< --skip-native 5475
 
 download: $(DOWNLOADS)
 
@@ -234,7 +270,7 @@ pack-atari:
 	done
 
 strip-atari:
-	find ${PWD}/binary-package -type f -executable -exec m68k-atari-mint-strip -s {} \;
+	find ${PWD}/binary-package -type f -perm -a=x -exec m68k-atari-mint-strip -s {} \;
 	find ${PWD}/binary-package -type f -name '*.a' -exec m68k-atari-mint-strip -S -X -w -N '.L[0-9]*' {} \;
 
 clean-atari:

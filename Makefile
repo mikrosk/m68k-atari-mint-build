@@ -36,8 +36,6 @@ DOWNLOADS	= binutils-${VERSION_BINUTILS}.tar.bz2 gcc-${VERSION_GCC}.tar.bz2 \
 # display help
 
 help:	./build.sh
-	@echo "$< options :"
-	@MAKE=$(MAKE) $(BASH) $< --help
 	@echo "Makefile targets :"
 	@echo "    download"
 	@echo "    all / all-skip-native"

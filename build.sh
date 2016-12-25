@@ -13,14 +13,6 @@ skip_native=0
 for arg in $*
 do
 	case $arg in
-	-h|--help)
-	echo "Usage : $0 [options] <target cpu list>"
-	echo "Options :"
-	echo "   --help :        display this help"
-	echo "   --skip-native : do not build native compiler(s)"
-	echo "   --all:          build for all CPU targets (${CPU_CPUS[*]})"
-	exit 0
-	;;
 	--skip-native)
 	skip_native=1
 	;;
@@ -45,7 +37,7 @@ do
 done
 
 if [ -z "$indices" ] ; then
-	echo "No CPU to build. use $0 --help"
+	echo "No CPU to build."
 	exit 1
 fi
 

@@ -35,13 +35,14 @@ DOWNLOADS	= binutils-${VERSION_BINUTILS}.tar.bz2 gcc-${VERSION_GCC}.tar.bz2 \
 
 # display help
 
-help:	./build.sh
+help: ./build.sh
 	@echo "Makefile targets :"
 	@echo "    download"
-	@echo "    all / all-skip-native"
-	@echo "    m68000 / m68000-skip-native"
-	@echo "    m68020-60 / m68020-60-skip-native"
-	@echo "    5475 / 5475-skip-native"
+	@echo "    clean (same as clean-all)"
+	@echo "    [clean-]all       / [clean-]all-skip-native"
+	@echo "    [clean-]m68000    / [clean-]m68000-skip-native"
+	@echo "    [clean-]m68020-60 / [clean-]m68020-60-skip-native"
+	@echo "    [clean-]5475      / [clean-]5475-skip-native"
 
 # "real" targets
 
@@ -68,6 +69,32 @@ m68020-60-skip-native: ./build.sh $(DOWNLOADS)
 
 5475-skip-native: ./build.sh $(DOWNLOADS)
 	MAKE=$(MAKE) $(BASH) $< --skip-native 5475
+
+clean: clean-all
+
+clean-all: ./build.sh clean-source
+	MAKE=$(MAKE) $(BASH) $< --clean --all
+
+clean-all-skip-native: ./build.sh clean-source
+	MAKE=$(MAKE) $(BASH) $< --clean --all --skip-native
+
+clean-m68000: ./build.sh clean-source
+	MAKE=$(MAKE) $(BASH) $< --clean m68000
+
+clean-m68000-skip-native: ./build.sh clean-source
+	MAKE=$(MAKE) $(BASH) $< --clean --skip-native m68000
+
+clean-m68020-60: ./build.sh clean-source
+	MAKE=$(MAKE) $(BASH) $< --clean m68020-60
+
+clean-m68020-60-skip-native: ./build.sh clean-source
+	MAKE=$(MAKE) $(BASH) $< --clean --skip-native m68020-60
+
+clean-5475: ./build.sh clean-source
+	MAKE=$(MAKE) $(BASH) $< --clean 5475
+
+clean-5475-skip-native: ./build.sh clean-source
+	MAKE=$(MAKE) $(BASH) $< --clean --skip-native 5475
 
 download: $(DOWNLOADS)
 
@@ -136,7 +163,7 @@ mintbin-CVS-${VERSION_MINTBIN}: mintbin-CVS-${VERSION_MINTBIN}.tar.gz
 	tar xzf mintbin-CVS-${VERSION_MINTBIN}.tar.gz
 	cd $@ && patch -p1 < ../mintbin.patch
 	touch $@
-	
+
 pml-${VERSION_PML}: pml-${VERSION_PML}.tar.bz2 pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2
 	tar xjf pml-${VERSION_PML}.tar.bz2
 	cd $@ && bzcat ../pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2 | patch -p1
@@ -251,20 +278,23 @@ gcc-atari: mpc-atari gcc-${VERSION_GCC}-${CPU}-atari
 
 # Cleaning
 
-clean:
+clean-source:
 	rm -rf binutils-${VERSION_BINUTILS}
-	rm -rf binutils-${VERSION_BINUTILS}-${CPU}-cross
 	rm -rf gmp-${VERSION_GMP}
-	rm -rf gmp-${VERSION_GMP}-${CPU}-cross
 	rm -rf mpfr-${VERSION_MPFR}
-	rm -rf mpfr-${VERSION_MPFR}-${CPU}-cross
 	rm -rf mpc-${VERSION_MPC}
-	rm -rf mpc-${VERSION_MPC}-${CPU}-cross
 	rm -rf gcc-${VERSION_GCC}
-	rm -rf gcc-${VERSION_GCC}-${CPU}-cross
 	rm -rf mintlib-CVS-${VERSION_MINTLIB}
 	rm -rf pml-${VERSION_PML}
 	rm -rf mintbin-CVS-${VERSION_MINTBIN}
+	rm -f *~
+
+clean-cross:
+	rm -rf binutils-${VERSION_BINUTILS}-${CPU}-cross
+	rm -rf gmp-${VERSION_GMP}-${CPU}-cross
+	rm -rf mpfr-${VERSION_MPFR}-${CPU}-cross
+	rm -rf mpc-${VERSION_MPC}-${CPU}-cross
+	rm -rf gcc-${VERSION_GCC}-${CPU}-cross
 
 pack-atari:
 	for dir in binutils-${VERSION_BINUTILS} gmp-${VERSION_GMP} mpfr-${VERSION_MPFR} mpc-${VERSION_MPC} gcc-${VERSION_GCC}; \

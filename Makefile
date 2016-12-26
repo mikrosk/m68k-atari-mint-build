@@ -1,7 +1,7 @@
 # Atari cross- and native-binutils/gcc toolchain build Makefile
 # Miro Kropacek aka MiKRO / Mystic Bytes
 # miro.kropacek@gmail.com
-# version 2.0.x (2016/12/23)
+# version 2.1.0 (2016/12/26)
 
 # please note you need the bash shell for correct compilation of mintlib.
 

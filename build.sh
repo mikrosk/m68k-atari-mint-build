@@ -1,6 +1,9 @@
 #!/bin/bash
 
-INSTALL_DIR="$HOME/gnu-tools"
+if [ -z "${INSTALL_DIR}" ] ; then
+	INSTALL_DIR="$HOME/gnu-tools"
+fi
+
 CPU_DIRS=("m68000"	"m68020-60"	"m5475")	# target directory
 CPU_OPTS=("m68000"	"m68020-60"	"mcpu=5475")	# gcc command line
 CPU_CPUS=("m68000"	"m68020-60"	"5475")		# --with-cpu=

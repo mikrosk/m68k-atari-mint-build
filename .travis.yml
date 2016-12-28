@@ -25,5 +25,8 @@ env:
     - TARGET_CPU=m68020-60
     - TARGET_CPU=5475
 
+before_install:
+  - 'if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update > /dev/null && brew install libmpc ; fi'
+
 script:
   - 'make download && make ${TARGET_CPU}-skip-native OUT="> /dev/null"'

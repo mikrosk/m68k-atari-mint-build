@@ -211,7 +211,7 @@ mintbin: mintbin-CVS-${VERSION_MINTBIN}
 	cd $< && PATH=${INSTALL_DIR}/bin:$$PATH ./configure --target=m68k-atari-mint --prefix=${INSTALL_DIR} --disable-nls
 	cd $< && $(MAKE) OUT= $(OUT)
 	cd $< && $(MAKE) OUT= install $(OUT)
-	mv ${INSTALL_DIR}/m68k-atari-mint/bin/m68k-atari-mint-* ${INSTALL_DIR}/bin
+	mv -v ${INSTALL_DIR}/m68k-atari-mint/bin/m68k-atari-mint-* ${INSTALL_DIR}/bin
 
 pml: pml-${VERSION_PML}
 	cd pml-${VERSION_PML}/pmlsrc && \

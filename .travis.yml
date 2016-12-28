@@ -27,6 +27,7 @@ env:
 
 before_install:
   - 'if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update > /dev/null && brew install libmpc ; fi'
+  - 'if [ "$TRAVIS_OS_NAME" = "osx" ] && [ "$CC" == "gcc" ] ; then CC=gcc-4.9; fi'
 
 script:
   - 'make download && make ${TARGET_CPU}-skip-native OUT="> /dev/null"'

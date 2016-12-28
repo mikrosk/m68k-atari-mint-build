@@ -20,6 +20,8 @@ VERSION_PML		= 2.03
 VERSION_MINTLIB		= $(shell date +"%Y%m%d")
 VERSION_MINTBIN		= 20110527
 
+GCC_BUILD_DIR = ${PWD}/gcc-${VERSION_GCC}-${CPU}-cross
+
 BASH	= $(shell which bash)
 URLGET	= $(shell which wget || echo "`which curl` -O")
 
@@ -188,7 +190,8 @@ gcc-${VERSION_GCC}-${CPU}-cross: gcc-${VERSION_GCC}
 	mkdir -p $@
 	cd $@ && PATH=${INSTALL_DIR}/bin:$$PATH ../$</configure --target=m68k-atari-mint --prefix=${INSTALL_DIR} --enable-languages="c,c++" --disable-nls --disable-libstdcxx-pch CFLAGS_FOR_TARGET="-O2 -fomit-frame-pointer" CXXFLAGS_FOR_TARGET="-O2 -fomit-frame-pointer" --with-cpu=${CPU}
 	cd $@ && $(MAKE) all-target-libgcc $(OUT)
-	cat $</gcc/limitx.h $</gcc/glimits.h $</gcc/limity.h > $@/gcc/include-fixed/limits.h # Dirty hack to fix the PATH_MAX issue. The good solution would be to configure gcc using --with-headers
+	# Dirty hack to fix the PATH_MAX issue. The good solution would be to configure gcc using --with-headers
+	cat $</gcc/limitx.h $</gcc/glimits.h $</gcc/limity.h > $@/gcc/include-fixed/limits.h
 
 # Shortcuts
 
@@ -199,12 +202,11 @@ gcc-multilib-patch: gcc-${VERSION_GCC}
 gcc-preliminary: gcc-${VERSION_GCC}-${CPU}-cross
 
 mintlib: mintlib-CVS-${VERSION_MINTLIB}
-	cd mintlib-CVS-${VERSION_MINTLIB} && \
-	$(MAKE) OUT= clean $(OUT)
-	cd mintlib-CVS-${VERSION_MINTLIB} && \
-	export GCC_BUILD_DIR="${PWD}/gcc-${VERSION_GCC}-${CPU}-cross" && export PATH=${INSTALL_DIR}/bin:$$PATH && \
-	echo "$$GCC_BUILD_DIR/gcc/include -I$$GCC_BUILD_DIR/gcc/include-fixed" > includepath && \
-	$(MAKE) SHELL=$(BASH) CROSS=yes WITH_020_LIB=no WITH_V4E_LIB=no CC="$$GCC_BUILD_DIR/gcc/xgcc -B$$GCC_BUILD_DIR/gcc/ -B${INSTALL_DIR}/bin/ -B${INSTALL_DIR}/lib/ -isystem ${INSTALL_DIR}/include -isystem ${INSTALL_DIR}/sys-include" HOST_CC="$(CC)" OUT= $(OUT) && \
+	cd mintlib-CVS-${VERSION_MINTLIB} && $(MAKE) OUT= clean $(OUT)
+	echo "$(GCC_BUILD_DIR)/gcc/include -I$(GCC_BUILD_DIR)/gcc/include-fixed" > mintlib-CVS-${VERSION_MINTLIB}/includepath
+	cd mintlib-CVS-${VERSION_MINTLIB} && PATH=${INSTALL_DIR}/bin:$$PATH \
+	$(MAKE) SHELL=$(BASH) CROSS=yes WITH_020_LIB=no WITH_V4E_LIB=no CC="$(GCC_BUILD_DIR)/gcc/xgcc -B$(GCC_BUILD_DIR)/gcc/ -B${INSTALL_DIR}/bin/ -B${INSTALL_DIR}/lib/ -isystem ${INSTALL_DIR}/include -isystem ${INSTALL_DIR}/sys-include" HOST_CC="$(CC)" OUT= $(OUT)
+	cd mintlib-CVS-${VERSION_MINTLIB} && PATH=${INSTALL_DIR}/bin:$$PATH \
 	$(MAKE) SHELL=$(BASH) CROSS=yes WITH_020_LIB=no WITH_V4E_LIB=no OUT= install $(OUT)
 
 mintbin: mintbin-CVS-${VERSION_MINTBIN}
@@ -214,11 +216,11 @@ mintbin: mintbin-CVS-${VERSION_MINTBIN}
 	mv -v ${INSTALL_DIR}/m68k-atari-mint/bin/m68k-atari-mint-* ${INSTALL_DIR}/bin
 
 pml: pml-${VERSION_PML}
-	cd pml-${VERSION_PML}/pmlsrc && \
-	$(MAKE) clean LIB="$(DIR)" $(OUT) && \
-	export GCC_BUILD_DIR="${PWD}/gcc-${VERSION_GCC}-${CPU}-cross" && export PATH=${INSTALL_DIR}/bin:$$PATH && \
-	$(MAKE) AR="m68k-atari-mint-ar" CC="$$GCC_BUILD_DIR/gcc/xgcc -B$$GCC_BUILD_DIR/gcc/ -B${INSTALL_DIR}/m68k-atari-mint/bin/ -B${INSTALL_DIR}/m68k-atari-mint/lib/ -isystem ${INSTALL_DIR}/m68k-atari-mint/include" CPU="$(OPTS)" CROSSDIR="${INSTALL_DIR}/m68k-atari-mint" LIB="$(DIR)" $(OUT) && \
-	$(MAKE) install AR="m68k-atari-mint-ar" CC="$$GCC_BUILD_DIR/gcc/xgcc -B$$GCC_BUILD_DIR/gcc/ -B${INSTALL_DIR}/m68k-atari-mint/bin/ -B${INSTALL_DIR}/m68k-atari-mint/lib/ -isystem ${INSTALL_DIR}/m68k-atari-mint/include" CPU="$(OPTS)" CROSSDIR="${INSTALL_DIR}/m68k-atari-mint" LIB="$(DIR)" $(OUT)
+	cd pml-${VERSION_PML}/pmlsrc && $(MAKE) clean LIB="$(DIR)" $(OUT)
+	cd pml-${VERSION_PML}/pmlsrc && PATH=${INSTALL_DIR}/bin:$$PATH \
+	$(MAKE) AR="m68k-atari-mint-ar" CC="$(GCC_BUILD_DIR)/gcc/xgcc -B$(GCC_BUILD_DIR)/gcc/ -B${INSTALL_DIR}/m68k-atari-mint/bin/ -B${INSTALL_DIR}/m68k-atari-mint/lib/ -isystem ${INSTALL_DIR}/m68k-atari-mint/include" CPU="$(OPTS)" CROSSDIR="${INSTALL_DIR}/m68k-atari-mint" LIB="$(DIR)" $(OUT)
+	cd pml-${VERSION_PML}/pmlsrc && PATH=${INSTALL_DIR}/bin:$$PATH \
+	$(MAKE) install AR="m68k-atari-mint-ar" CC="$(GCC_BUILD_DIR)/gcc/xgcc -B$(GCC_BUILD_DIR)/gcc/ -B${INSTALL_DIR}/m68k-atari-mint/bin/ -B${INSTALL_DIR}/m68k-atari-mint/lib/ -isystem ${INSTALL_DIR}/m68k-atari-mint/include" CPU="$(OPTS)" CROSSDIR="${INSTALL_DIR}/m68k-atari-mint" LIB="$(DIR)" $(OUT)
 
 gcc:
 	export PATH=${INSTALL_DIR}/bin:$$PATH && cd gcc-${VERSION_GCC}-${CPU}-cross && $(MAKE) $(OUT)

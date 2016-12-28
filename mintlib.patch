@@ -1,0 +1,31 @@
+diff -ru mintlib-CVS-20161223/syscall/Makefile mintlib-CVS-20161226/syscall/Makefile
+--- mintlib-CVS-20161223/syscall/Makefile	2009-05-22 20:28:32.000000000 +0200
++++ mintlib-CVS-20161226/syscall/Makefile	2016-12-28 17:20:15.062065000 +0100
+@@ -10,6 +10,14 @@
+ 
+ SHELL = /bin/sh
+ 
++HOST_CC = gcc
++OS = $(shell uname -s)
++ifeq ($(OS), Darwin)
++FLEXLIB = -ll
++else
++FLEXLIB = -lfl
++endif
++
+ srcdir = .
+ top_srcdir = ..
+ subdir = syscall
+@@ -44,10 +52,10 @@
+ 	touch $@
+ 
+ gen-syscall0:
+-	$(MAKE) gen-syscall CC="gcc" CFLAGS="-O -Wall" COMPILE="gcc -O -Wall"
++	$(MAKE) gen-syscall CC="$(HOST_CC)" CFLAGS="-O -Wall" COMPILE="$(HOST_CC) -O -Wall"
+ 
+ gen-syscall: $(gen_objs)
+-	$(CC) $(gen_objs) -o $@ -lfl
++	$(CC) $(gen_objs) -o $@ $(FLEXLIB)
+ 
+ %.c: %.y
+ 	bison -d --output=$@ $<

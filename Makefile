@@ -29,7 +29,9 @@ OUT=
 
 DOWNLOADS	= binutils-${VERSION_BINUTILS}.tar.bz2 gcc-${VERSION_GCC}.tar.bz2 \
 		  gmp-${VERSION_GMP}.tar.lz mpfr-${VERSION_MPFR}.tar.bz2 mpc-${VERSION_MPC}.tar.gz \
-		  pml-${VERSION_PML}.tar.bz2 binutils-${VERSION_BINUTILS}-mint-${PATCH_BINUTILS}.patch.bz2 \
+		  pml-${VERSION_PML}.tar.bz2 \
+		  mintbin-CVS-${VERSION_MINTBIN}.tar.gz \
+		  binutils-${VERSION_BINUTILS}-mint-${PATCH_BINUTILS}.patch.bz2 \
 		  gcc-${VERSION_GCC}-mint-${PATCH_GCC}.patch.bz2 pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2
 
 

@@ -181,7 +181,7 @@ pml-${VERSION_PML}: pml-${VERSION_PML}.tar.bz2 pml-${VERSION_PML}-mint-${PATCH_P
 binutils-${VERSION_BINUTILS}-${CPU}-cross: binutils-${VERSION_BINUTILS}
 	mkdir -p $@
 	cd $@ && PATH=${INSTALL_DIR}/bin:$$PATH ../$</configure --target=m68k-atari-mint --prefix=${INSTALL_DIR} --disable-nls --disable-werror
-	cd $@ && $(MAKE) $(OUT)
+	cd $@ && $(MAKE) -j 3 $(OUT)
 	cd $@ && $(MAKE) install-strip $(OUT)
 
 binutils: binutils-${VERSION_BINUTILS}-${CPU}-cross
@@ -223,7 +223,7 @@ pml: pml-${VERSION_PML}
 	$(MAKE) install AR="m68k-atari-mint-ar" CC="$(GCC_BUILD_DIR)/gcc/xgcc -B$(GCC_BUILD_DIR)/gcc/ -B${INSTALL_DIR}/m68k-atari-mint/bin/ -B${INSTALL_DIR}/m68k-atari-mint/lib/ -isystem ${INSTALL_DIR}/m68k-atari-mint/include" CPU="$(OPTS)" CROSSDIR="${INSTALL_DIR}/m68k-atari-mint" LIB="$(DIR)" $(OUT)
 
 gcc:
-	export PATH=${INSTALL_DIR}/bin:$$PATH && cd gcc-${VERSION_GCC}-${CPU}-cross && $(MAKE) $(OUT)
+	export PATH=${INSTALL_DIR}/bin:$$PATH && cd gcc-${VERSION_GCC}-${CPU}-cross && $(MAKE) -j 3 $(OUT)
 	export PATH=${INSTALL_DIR}/bin:$$PATH && cd gcc-${VERSION_GCC}-${CPU}-cross && $(MAKE) install-strip $(OUT)
 
 # Atari building

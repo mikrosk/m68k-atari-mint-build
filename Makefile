@@ -286,7 +286,10 @@ clean-source:
 	rm -rf mpfr-${VERSION_MPFR}
 	rm -rf mpc-${VERSION_MPC}
 	rm -rf gcc-${VERSION_GCC}
-	rm -rf mintlib-CVS-${VERSION_MINTLIB}
+	for dir in $$(ls | grep mintlib-CVS-????????); \
+	do \
+		rm -rf $$dir; \
+	done
 	rm -rf pml-${VERSION_PML}
 	rm -rf mintbin-CVS-${VERSION_MINTBIN}
 	rm -f *~

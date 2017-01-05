@@ -8,7 +8,7 @@ packages for Atari and FireBee range of computers running on m68k/ColdFire
 CPUs.
 
 After successful end (which takes about half an hour on modern PCs and takes
-about 3.8 GB of disk space) you will get:
+about 5 GB of disk space) you will get:
 
 - three cross compilers (host to m68000/m68020-60/m5475; installed in
   $INSTALL_DIR/\<cpu\>, INSTALL_DIR is defined in build.sh)

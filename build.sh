@@ -11,6 +11,7 @@ CPU_CPUS=("m68000"	"m68020-60"	"5475")		# --with-cpu=
 indices=""
 indices_all=$(seq 0 $((${#CPU_DIRS[@]} - 1)))
 skip_native=0
+native_only=0
 clean=0
 
 # parse command line
@@ -19,6 +20,9 @@ do
 	case $arg in
 	--skip-native)
 	skip_native=1
+	;;
+	--native-only)
+	native_only=1
 	;;
 	--all)
 	indices=$indices_all
@@ -54,25 +58,27 @@ do
 	cpu="${CPU_CPUS[i]}"
 
 	if [ $clean -eq 0 ]; then
-		multilib_opts="$(echo "${CPU_OPTS[@]}" | sed "s/${CPU_OPTS[i]}//;" | xargs | tr ' ' '/') mshort"
-		multilib_dirs="$(echo "${CPU_DIRS[@]}" | sed "s/${CPU_DIRS[i]}//;" | xargs) mshort"
-		${MAKE} gcc-multilib-patch OPTS="$multilib_opts" DIRS="$multilib_dirs" || exit 1
+		if [ $native_only -eq 0 ] ; then
+			multilib_opts="$(echo "${CPU_OPTS[@]}" | sed "s/${CPU_OPTS[i]}//;" | xargs | tr ' ' '/') mshort"
+			multilib_dirs="$(echo "${CPU_DIRS[@]}" | sed "s/${CPU_DIRS[i]}//;" | xargs) mshort"
+			${MAKE} gcc-multilib-patch OPTS="$multilib_opts" DIRS="$multilib_dirs" || exit 1
 
-		${MAKE} binutils gcc-preliminary INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
+			${MAKE} binutils gcc-preliminary mintbin INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
 
-		# build mintlib and pml for all targets
-		for j in $indices_all
-		do
-			target="${CPU_DIRS[j]}"
-			prefix="$INSTALL_DIR/$dir/m68k-atari-mint"
-			if [ "$target" == "$dir" ]
-			then
-				target=""
-			fi
-			${MAKE} mintlib prefix="$prefix" libdir="$prefix/lib/$target" cflags="-${CPU_OPTS[j]}" INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
-			${MAKE} pml OPTS="-${CPU_OPTS[j]}" DIR="$target" INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
-		done
-		${MAKE} gcc mintbin INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
+			# build mintlib and pml for all targets
+			for j in $indices_all
+			do
+				target="${CPU_DIRS[j]}"
+				prefix="$INSTALL_DIR/$dir/m68k-atari-mint"
+				if [ "$target" == "$dir" ]
+				then
+					target=""
+				fi
+				${MAKE} mintlib prefix="$prefix" libdir="$prefix/lib/$target" cflags="-${CPU_OPTS[j]}" INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
+				${MAKE} pml OPTS="-${CPU_OPTS[j]}" DIR="$target" INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
+			done
+			${MAKE} gcc INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
+		fi
 
 		if [ $skip_native -eq 0 ] ; then
 			${MAKE} binutils-atari INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
@@ -85,7 +91,9 @@ do
 			${MAKE} gcc-atari ASSEMBLY="$assembly" INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
 		fi
 	else
-		${MAKE} clean-cross CPU="$cpu" || exit 1
+		if [ $native_only -eq 0 ] ; then
+			${MAKE} clean-cross CPU="$cpu" || exit 1
+		fi
 
 		if [ $skip_native -eq 0 ] ; then
 			${MAKE} clean-atari CPU="$cpu" || exit 1

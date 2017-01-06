@@ -1,17 +1,20 @@
-#!/bin/bash
+#!/bin/sh
 
 if [ -z "${INSTALL_DIR}" ] ; then
 	INSTALL_DIR="$HOME/gnu-tools"
 fi
 
-CPU_DIRS=("m68000"	"m68020-60"	"m5475")	# target directory
-CPU_OPTS=("m68000"	"m68020-60"	"mcpu=5475")	# gcc command line
-CPU_CPUS=("m68000"	"m68020-60"	"5475")		# --with-cpu=
+CPU_DIRS="m68000 m68020-60 m5475"	# target directory
+CPU_OPTS="m68000 m68020-60 mcpu=5475"	# gcc command line
+CPU_CPUS="m68000 m68020-60 5475"		# --with-cpu=
+CPU_COUNT=$(echo ${CPU_DIRS} | tr ' ' '\n' | wc -l)
 
 indices=""
 indices_all=""
-for ((i=0; i<${#CPU_DIRS[@]}; i++)) do
+i=1
+while [ "$i" -le "${CPU_COUNT}" ] ; do
 	indices_all="$indices_all $i"
+	i=$((i + 1))
 done
 skip_native=0
 native_only=0
@@ -35,15 +38,18 @@ do
 	;;
 	*)
 	ok=0
-	for ((i=0; i<${#CPU_DIRS[@]}; i++)) do
-		if [ "$arg" == "${CPU_CPUS[i]}" ] ; then
+	i=1
+	while [ "$i" -le "${CPU_COUNT}" ] ; do
+		cpu=$(echo $CPU_CPUS | cut -d ' ' -f $i)
+		if [ "$arg" = "$cpu" ] ; then
 			indices="$indices $i"
 			ok=1
 		fi
+		i=$((i + 1))
 	done
 	if [ $ok -eq 0 ] ; then
 		echo "Error : $arg is not a valid CPU."
-		echo "Valid CPU are : ${CPU_CPUS[*]}"
+		echo "Valid CPU are : ${CPU_CPUS}"
 		exit 1
 	fi
 	;;
@@ -57,8 +63,8 @@ fi
 
 for i in $indices
 do
-	dir="${CPU_DIRS[i]}"
-	cpu="${CPU_CPUS[i]}"
+	dir=$(echo $CPU_DIRS | cut -d ' ' -f $i)
+	cpu=$(echo $CPU_CPUS | cut -d ' ' -f $i)
 
 	if [ $clean -eq 0 ]; then
 		if [ $native_only -eq 0 ] ; then
@@ -71,14 +77,15 @@ do
 			# build mintlib and pml for all targets
 			for j in $indices_all
 			do
-				target="${CPU_DIRS[j]}"
+				target=$(echo $CPU_DIRS | cut -d ' ' -f $j)
 				prefix="$INSTALL_DIR/$dir/m68k-atari-mint"
 				if [ "$target" == "$dir" ]
 				then
 					target=""
 				fi
-				${MAKE} mintlib prefix="$prefix" libdir="$prefix/lib/$target" cflags="-${CPU_OPTS[j]}" INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
-				${MAKE} pml OPTS="-${CPU_OPTS[j]}" DIR="$target" INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
+				opts=$(echo $CPU_OPTS | cut -d ' ' -f $j)
+				${MAKE} mintlib prefix="$prefix" libdir="$prefix/lib/$target" cflags="-$opts" INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
+				${MAKE} pml OPTS="-$opts" DIR="$target" INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
 			done
 			${MAKE} gcc INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
 		fi
@@ -106,12 +113,12 @@ done
 
 if [ $skip_native -eq 0 ] && [ $clean -eq 0 ] ; then
 	# use either 'strip'
-	i=$(echo $indices | cut -d " " -f 1)
-	${MAKE} strip-atari INSTALL_DIR="$INSTALL_DIR/${CPU_DIRS[i]}"
+	dir1=$(echo $CPU_DIRS | cut -d " " -f 1)
+	${MAKE} strip-atari INSTALL_DIR="$INSTALL_DIR/$dir1"
 
 	for i in $indices
 	do
-		cpu="${CPU_CPUS[i]}"
+		cpu=$(echo $CPU_CPUS | cut -d ' ' -f $i)
 		${MAKE} pack-atari INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
 	done
 

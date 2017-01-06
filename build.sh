@@ -9,7 +9,10 @@ CPU_OPTS=("m68000"	"m68020-60"	"mcpu=5475")	# gcc command line
 CPU_CPUS=("m68000"	"m68020-60"	"5475")		# --with-cpu=
 
 indices=""
-indices_all=$(seq 0 $((${#CPU_DIRS[@]} - 1)))
+indices_all=""
+for ((i=0; i<${#CPU_DIRS[@]}; i++)) do
+	indices_all="$indices_all $i"
+done
 skip_native=0
 native_only=0
 clean=0
@@ -32,7 +35,7 @@ do
 	;;
 	*)
 	ok=0
-	for i in $(seq 0 $((${#CPU_DIRS[@]} - 1))) ; do
+	for ((i=0; i<${#CPU_DIRS[@]}; i++)) do
 		if [ "$arg" == "${CPU_CPUS[i]}" ] ; then
 			indices="$indices $i"
 			ok=1

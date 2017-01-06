@@ -23,6 +23,7 @@ VERSION_MINTLIB		= $(shell date +"%Y%m%d")
 VERSION_MINTBIN		= 20110527
 
 SH      = $(shell which sh)
+BASH    = $(shell which bash)
 URLGET	= $(shell which wget || echo "`which curl` -O")
 
 # set to something like "> /dev/null" or ">> /tmp/mint-build.log"
@@ -293,9 +294,9 @@ gcc-preliminary: gcc-${VERSION_GCC}-${CPU}-cross-preliminary
 mintlib: libc-${TARGET}
 	cd mintlib-CVS-${VERSION_MINTLIB} && $(MAKE) OUT= clean $(OUT)
 	cd mintlib-CVS-${VERSION_MINTLIB} && PATH=${INSTALL_DIR}/bin:$$PATH \
-		$(MAKE) SHELL=$(SH) CROSS=yes WITH_020_LIB=no WITH_V4E_LIB=no CC="${TARGET}-gcc" HOST_CC="$(CC)" OUT= $(OUT)
+		$(MAKE) SHELL=$(BASH) CROSS=yes WITH_020_LIB=no WITH_V4E_LIB=no CC="${TARGET}-gcc" HOST_CC="$(CC)" OUT= $(OUT)
 	cd mintlib-CVS-${VERSION_MINTLIB} && PATH=${INSTALL_DIR}/bin:$$PATH \
-		$(MAKE) SHELL=$(SH) CROSS=yes WITH_020_LIB=no WITH_V4E_LIB=no OUT= install $(OUT)
+		$(MAKE) SHELL=$(BASH) CROSS=yes WITH_020_LIB=no WITH_V4E_LIB=no OUT= install $(OUT)
 
 mintbin: libc-${TARGET}
 	cd mintbin-CVS-${VERSION_MINTBIN} && PATH=${INSTALL_DIR}/bin:$$PATH ./configure --target=${TARGET} --prefix=${INSTALL_DIR} --disable-nls

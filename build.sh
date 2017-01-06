@@ -65,11 +65,12 @@ for i in $indices
 do
 	dir=$(echo $CPU_DIRS | cut -d ' ' -f $i)
 	cpu=$(echo $CPU_CPUS | cut -d ' ' -f $i)
+	opt=$(echo $CPU_OPTS | cut -d ' ' -f $i)
 
 	if [ $clean -eq 0 ]; then
 		if [ $native_only -eq 0 ] ; then
-			multilib_opts="$(echo "${CPU_OPTS[@]}" | sed "s/${CPU_OPTS[i]}//;" | xargs | tr ' ' '/') mshort"
-			multilib_dirs="$(echo "${CPU_DIRS[@]}" | sed "s/${CPU_DIRS[i]}//;" | xargs) mshort"
+			multilib_opts="$(echo $CPU_OPTS | sed "s/${opt}//;" | xargs | tr ' ' '/') mshort"
+			multilib_dirs="$(echo $CPU_DIRS | sed "s/${dir}//;" | xargs) mshort"
 			${MAKE} gcc-multilib-patch OPTS="$multilib_opts" DIRS="$multilib_dirs" || exit 1
 
 			${MAKE} binutils gcc-preliminary mintbin INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1

@@ -22,7 +22,7 @@ VERSION_PML		= 2.03
 VERSION_MINTLIB		= $(shell date +"%Y%m%d")
 VERSION_MINTBIN		= 20110527
 
-SH      = $(which sh)
+SH      = $(shell which sh)
 URLGET	= $(shell which wget || echo "`which curl` -O")
 
 # set to something like "> /dev/null" or ">> /tmp/mint-build.log"

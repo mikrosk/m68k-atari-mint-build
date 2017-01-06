@@ -79,7 +79,7 @@ do
 			do
 				target=$(echo $CPU_DIRS | cut -d ' ' -f $j)
 				prefix="$INSTALL_DIR/$dir/m68k-atari-mint"
-				if [ "$target" == "$dir" ]
+				if [ "$target" = "$dir" ]
 				then
 					target=""
 				fi
@@ -92,7 +92,7 @@ do
 
 		if [ $skip_native -eq 0 ] ; then
 			${MAKE} binutils-atari INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
-			if [ "$cpu" == "5475" ]
+			if [ "$cpu" = "5475" ]
 			then
 				assembly="--disable-assembly"
 			else

@@ -19,10 +19,11 @@ VERSION_MPFR		= 3.1.5
 VERSION_MPC		= 1.0.3
 
 VERSION_PML		= 2.03
-VERSION_MINTLIB		= $(shell date +"%Y%m%d")
+VERSION_MINTLIB		:= $(shell date +"%Y%m%d")
 VERSION_MINTBIN		= 20110527
 
-BASH	= $(shell which bash)
+SH      = $(shell which sh)
+BASH    = $(shell which bash)
 URLGET	= $(shell which wget || echo "`which curl` -O")
 
 # set to something like "> /dev/null" or ">> /tmp/mint-build.log"
@@ -67,78 +68,78 @@ help: ./build.sh
 # "real" targets
 
 all: ./build.sh $(DOWNLOADS_ALL)
-	MAKE=$(MAKE) $(BASH) $< --all
+	MAKE=$(MAKE) $(SH) $< --all
 
 all-skip-native: ./build.sh $(DOWNLOADS_CROSS)
-	MAKE=$(MAKE) $(BASH) $< --all --skip-native
+	MAKE=$(MAKE) $(SH) $< --all --skip-native
 
 all-native: ./build.sh $(DOWNLOADS_NATIVE)
-	MAKE=$(MAKE) $(BASH) $< --all --native-only
+	MAKE=$(MAKE) $(SH) $< --all --native-only
 
 m68000: ./build.sh $(DOWNLOADS_ALL)
-	MAKE=$(MAKE) $(BASH) $< m68000
+	MAKE=$(MAKE) $(SH) $< m68000
 
 m68000-skip-native: ./build.sh $(DOWNLOADS_CROSS)
-	MAKE=$(MAKE) $(BASH) $< --skip-native m68000
+	MAKE=$(MAKE) $(SH) $< --skip-native m68000
 
 m68000-native: ./build.sh $(DOWNLOADS_NATIVE)
-	MAKE=$(MAKE) $(BASH) $< --native-only m68000
+	MAKE=$(MAKE) $(SH) $< --native-only m68000
 
 m68020-60: ./build.sh $(DOWNLOADS_ALL)
-	MAKE=$(MAKE) $(BASH) $< m68020-60
+	MAKE=$(MAKE) $(SH) $< m68020-60
 
 m68020-60-skip-native: ./build.sh $(DOWNLOADS_CROSS)
-	MAKE=$(MAKE) $(BASH) $< --skip-native m68020-60
+	MAKE=$(MAKE) $(SH) $< --skip-native m68020-60
 
 m68020-60-native: ./build.sh $(DOWNLOADS_NATIVE)
-	MAKE=$(MAKE) $(BASH) $< --native-only m68020-60
+	MAKE=$(MAKE) $(SH) $< --native-only m68020-60
 
 5475: ./build.sh $(DOWNLOADS_ALL)
-	MAKE=$(MAKE) $(BASH) $< 5475
+	MAKE=$(MAKE) $(SH) $< 5475
 
 5475-skip-native: ./build.sh $(DOWNLOADS_CROSS)
-	MAKE=$(MAKE) $(BASH) $< --skip-native 5475
+	MAKE=$(MAKE) $(SH) $< --skip-native 5475
 
 5475-native: ./build.sh $(DOWNLOADS_NATIVE)
-	MAKE=$(MAKE) $(BASH) $< --native-only 5475
+	MAKE=$(MAKE) $(SH) $< --native-only 5475
 
 clean: clean-all
 
 clean-all: ./build.sh clean-source
-	MAKE=$(MAKE) $(BASH) $< --clean --all
+	MAKE=$(MAKE) $(SH) $< --clean --all
 
 clean-all-skip-native: ./build.sh clean-source
-	MAKE=$(MAKE) $(BASH) $< --clean --all --skip-native
+	MAKE=$(MAKE) $(SH) $< --clean --all --skip-native
 
 clean-all-native: ./build.sh clean-source
-	MAKE=$(MAKE) $(BASH) $< --clean --all --native-only
+	MAKE=$(MAKE) $(SH) $< --clean --all --native-only
 
 clean-m68000: ./build.sh clean-source
-	MAKE=$(MAKE) $(BASH) $< --clean m68000
+	MAKE=$(MAKE) $(SH) $< --clean m68000
 
 clean-m68000-skip-native: ./build.sh clean-source
-	MAKE=$(MAKE) $(BASH) $< --clean --skip-native m68000
+	MAKE=$(MAKE) $(SH) $< --clean --skip-native m68000
 
 clean-m68000-native: ./build.sh clean-source
-	MAKE=$(MAKE) $(BASH) $< --clean --native-only m68000
+	MAKE=$(MAKE) $(SH) $< --clean --native-only m68000
 
 clean-m68020-60: ./build.sh clean-source
-	MAKE=$(MAKE) $(BASH) $< --clean m68020-60
+	MAKE=$(MAKE) $(SH) $< --clean m68020-60
 
 clean-m68020-60-skip-native: ./build.sh clean-source
-	MAKE=$(MAKE) $(BASH) $< --clean --skip-native m68020-60
+	MAKE=$(MAKE) $(SH) $< --clean --skip-native m68020-60
 
 clean-m68020-60-native: ./build.sh clean-source
-	MAKE=$(MAKE) $(BASH) $< --clean --native-only m68020-60
+	MAKE=$(MAKE) $(SH) $< --clean --native-only m68020-60
 
 clean-5475: ./build.sh clean-source
-	MAKE=$(MAKE) $(BASH) $< --clean 5475
+	MAKE=$(MAKE) $(SH) $< --clean 5475
 
 clean-5475-skip-native: ./build.sh clean-source
-	MAKE=$(MAKE) $(BASH) $< --clean --skip-native 5475
+	MAKE=$(MAKE) $(SH) $< --clean --skip-native 5475
 
 clean-5475-native: ./build.sh clean-source
-	MAKE=$(MAKE) $(BASH) $< --clean --native-only 5475
+	MAKE=$(MAKE) $(SH) $< --clean --native-only 5475
 
 download: $(DOWNLOADS_ALL)
 

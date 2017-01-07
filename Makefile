@@ -19,7 +19,7 @@ VERSION_MPFR		= 3.1.5
 VERSION_MPC		= 1.0.3
 
 VERSION_PML		= 2.03
-VERSION_MINTLIB		= $(shell date +"%Y%m%d")
+VERSION_MINTLIB		:= $(shell date +"%Y%m%d")
 VERSION_MINTBIN		= 20110527
 
 SH      = $(shell which sh)

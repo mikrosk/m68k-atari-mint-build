@@ -36,7 +36,6 @@ DOWNLOADS_COMMON = binutils-${VERSION_BINUTILS}.tar.bz2 \
 		   gcc-${VERSION_GCC}-mint-${PATCH_GCC}.patch.bz2
 
 DOWNLOADS_CROSS  = $(DOWNLOADS_COMMON) \
-		   mintlib-CVS-${VERSION_MINTLIB} \
 		   pml-${VERSION_PML}.tar.bz2 \
 		   mintbin-CVS-${VERSION_MINTBIN}.tar.gz \
 		   pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2
@@ -163,10 +162,6 @@ mpc-${VERSION_MPC}.tar.gz:
 pml-${VERSION_PML}.tar.bz2:
 	$(URLGET) http://vincent.riviere.free.fr/soft/m68k-atari-mint/archives/$@
 
-mintlib-CVS-${VERSION_MINTLIB}:
-	CVSROOT=:pserver:cvsanon:cvsanon@sparemint.org:/mint cvs checkout -d mintlib-CVS-${VERSION_MINTLIB} mintlib $(OUT)
-	cd $@ && patch -p1 < ../mintlib.patch
-
 mintbin-CVS-${VERSION_MINTBIN}.tar.gz:
 	$(URLGET) http://vincent.riviere.free.fr/soft/m68k-atari-mint/archives/$@
 
@@ -187,66 +182,66 @@ pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2:
 
 .PHONY: binutils-m68k-atari-mint gcc-m68k-atari-mint libc-m68k-atari-mint gmp-m68k-atari-mint mpfr-m68k-atari-mint mpc-m68k-atari-mint
 
-binutils-m68k-atari-mint: binutils-${VERSION_BINUTILS}-mint-${PATCH_BINUTILS}.patch.bz2 binutils-${VERSION_BINUTILS}
-	if [ ! -f binutils-${VERSION_BINUTILS}/.patched ]; \
-	then \
-		cd binutils-${VERSION_BINUTILS} && bzcat ../binutils-${VERSION_BINUTILS}-mint-${PATCH_BINUTILS}.patch.bz2 | patch -p1 && \
-		touch .patched; \
-	fi
+binutils-m68k-atari-mint: binutils-${VERSION_BINUTILS}.ok
 
-gcc-m68k-atari-mint: gcc-${VERSION_GCC}-mint-${PATCH_GCC}.patch.bz2 gcc-${VERSION_GCC}
-	if [ ! -f gcc-${VERSION_GCC}/.patched ]; \
-	then \
-		cd gcc-${VERSION_GCC} && bzcat ../gcc-${VERSION_GCC}-mint-${PATCH_GCC}.patch.bz2 | patch -p1 && \
-		touch .patched; \
-	fi
+gcc-m68k-atari-mint: gcc-${VERSION_GCC}.ok
 
-libc-m68k-atari-mint: mintlib-CVS-${VERSION_MINTLIB} pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2 pml-${VERSION_PML} mintbin-CVS-${VERSION_MINTBIN}
-	if [ ! -f pml-${VERSION_PML}/.patched ]; \
-	then \
-		cd pml-${VERSION_PML} && \
-		bzcat ../pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2 | patch -p1 && \
-		cat ../pml.patch | patch -p1 && \
-		touch .patched; \
-	fi
+libc-m68k-atari-mint: pml-${VERSION_PML}.ok mintbin-CVS-${VERSION_MINTBIN}.ok mintlib-CVS-${VERSION_MINTLIB}.ok
 
-gmp-m68k-atari-mint: gmp-${VERSION_GMP}
+gmp-m68k-atari-mint: gmp-${VERSION_GMP}.ok
 	# nothing else to do
-mpfr-m68k-atari-mint: mpfr-${VERSION_MPFR}
+mpfr-m68k-atari-mint: mpfr-${VERSION_MPFR}.ok
 	# nothing else to do
-mpc-m68k-atari-mint: mpc-${VERSION_MPC}
+mpc-m68k-atari-mint: mpc-${VERSION_MPC}.ok
 	# nothing else to do
 
-# Depacking
+# Depacking and patching
 
-binutils-${VERSION_BINUTILS}: binutils-${VERSION_BINUTILS}.tar.bz2
+binutils-${VERSION_BINUTILS}.ok: binutils-${VERSION_BINUTILS}.tar.bz2 binutils-${VERSION_BINUTILS}-mint-${PATCH_BINUTILS}.patch.bz2
+	rm -rf binutils-${VERSION_BINUTILS} $@
 	tar xjf binutils-${VERSION_BINUTILS}.tar.bz2
+	cd binutils-${VERSION_BINUTILS} && bzcat ../binutils-${VERSION_BINUTILS}-mint-${PATCH_BINUTILS}.patch.bz2 | patch -p1
 	touch $@
 
-gcc-${VERSION_GCC}: gcc-${VERSION_GCC}.tar.bz2
+gcc-${VERSION_GCC}.ok: gcc-${VERSION_GCC}.tar.bz2 gcc.patch gcc-${VERSION_GCC}-mint-${PATCH_GCC}.patch.bz2
+	rm -rf gcc-${VERSION_GCC}.ok $@
 	tar xjf gcc-${VERSION_GCC}.tar.bz2
-	cd $@ && patch -p1 < ../gcc.patch
+	cd gcc-${VERSION_GCC} && patch -p1 < ../gcc.patch
+	cd gcc-${VERSION_GCC} && bzcat ../gcc-${VERSION_GCC}-mint-${PATCH_GCC}.patch.bz2 | patch -p1
 	touch $@
 
-gmp-${VERSION_GMP}: gmp-${VERSION_GMP}.tar.lz
+gmp-${VERSION_GMP}.ok: gmp-${VERSION_GMP}.tar.lz
+	rm -rf gmp-${VERSION_GMP}.ok $@
 	tar --extract --lzip --file gmp-${VERSION_GMP}.tar.lz
 	touch $@
 
-mpfr-${VERSION_MPFR}: mpfr-${VERSION_MPFR}.tar.bz2
+mpfr-${VERSION_MPFR}.ok: mpfr-${VERSION_MPFR}.tar.bz2
+	rm -rf mpfr-${VERSION_MPFR} $@
 	tar xjf mpfr-${VERSION_MPFR}.tar.bz2
 	touch $@
 
-mpc-${VERSION_MPC}: mpc-${VERSION_MPC}.tar.gz
+mpc-${VERSION_MPC}.ok: mpc-${VERSION_MPC}.tar.gz
+	rm -rf mpc-${VERSION_MPC} $@.patched
 	tar xzf mpc-${VERSION_MPC}.tar.gz
 	touch $@
 
-mintbin-CVS-${VERSION_MINTBIN}: mintbin-CVS-${VERSION_MINTBIN}.tar.gz
-	tar xzf mintbin-CVS-${VERSION_MINTBIN}.tar.gz
-	cd $@ && patch -p1 < ../mintbin.patch
+mintlib-CVS-${VERSION_MINTLIB}.ok:	mintlib.patch
+	rm -rf $@ mintlib-CVS-${VERSION_MINTLIB}
+	CVSROOT=:pserver:cvsanon:cvsanon@sparemint.org:/mint cvs checkout -d mintlib-CVS-${VERSION_MINTLIB} mintlib $(OUT)
+	cd mintlib-CVS-${VERSION_MINTLIB} && patch -p1 < ../mintlib.patch
 	touch $@
 
-pml-${VERSION_PML}: pml-${VERSION_PML}.tar.bz2 pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2
+mintbin-CVS-${VERSION_MINTBIN}.ok: mintbin-CVS-${VERSION_MINTBIN}.tar.gz mintbin.patch
+	rm -rf $@ mintbin-CVS-${VERSION_MINTBIN}
+	tar xzf mintbin-CVS-${VERSION_MINTBIN}.tar.gz
+	cd mintbin-CVS-${VERSION_MINTBIN} && patch -p1 < ../mintbin.patch
+	touch $@
+
+pml-${VERSION_PML}.ok: pml-${VERSION_PML}.tar.bz2 pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2 pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2
+	rm -rf pml-${VERSION_PML} $@
 	tar xjf pml-${VERSION_PML}.tar.bz2
+	cd pml-${VERSION_PML} && bzcat ../pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2 | patch -p1
+	cd pml-${VERSION_PML} && cat ../pml.patch | patch -p1
 	touch $@
 
 # Building
@@ -404,6 +399,7 @@ clean-source:
 	done
 	rm -rf pml-${VERSION_PML}
 	rm -rf mintbin-CVS-${VERSION_MINTBIN}
+	rm -f *.ok
 	rm -f *~
 
 clean-cross:

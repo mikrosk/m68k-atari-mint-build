@@ -325,6 +325,11 @@ gcc: gcc-${VERSION_GCC}-${CPU}-cross-final
 
 # Atari building
 
+check-target-gcc:
+	export PATH=${INSTALL_DIR}/bin:$$PATH && \
+	multi_dir=`${TARGET}-gcc -${OPT} -print-multi-directory` && \
+	if [ $$multi_dir != "." ]; then echo "\n${TARGET}-gcc is not configured for default ${CPU} output\n"; exit 1; fi
+
 binutils-${VERSION_BINUTILS}-${CPU}-atari: binutils-${TARGET}
 	mkdir -p $@
 	cd $@ && \
@@ -333,7 +338,7 @@ binutils-${VERSION_BINUTILS}-${CPU}-atari: binutils-${TARGET}
 	$(MAKE) $(OUT) && \
 	$(MAKE) install DESTDIR=${PWD}/binary-package/${CPU}/binutils-${VERSION_BINUTILS}	# make install-strip doesn't work properly
 
-binutils-atari: binutils-${VERSION_BINUTILS}-${CPU}-atari
+binutils-atari: check-target-gcc binutils-${VERSION_BINUTILS}-${CPU}-atari
 
 gmp-${VERSION_GMP}-${CPU}-atari: gmp-${TARGET}
 	mkdir -p $@
@@ -383,7 +388,7 @@ gcc-${VERSION_GCC}-${CPU}-atari: gcc-${TARGET}
 	cd $@ && $(MAKE) -j3 $(OUT)
 	cd $@ && $(MAKE) install-strip DESTDIR=${PWD}/binary-package/${CPU}/gcc-${VERSION_GCC} $(OUT)
 
-gcc-atari: mpc-atari gcc-${VERSION_GCC}-${CPU}-atari
+gcc-atari: check-target-gcc mpc-atari gcc-${VERSION_GCC}-${CPU}-atari
 
 # Cleaning
 

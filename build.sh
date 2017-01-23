@@ -92,14 +92,14 @@ do
 		fi
 
 		if [ $skip_native -eq 0 ] ; then
-			${MAKE} binutils-atari INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
+			${MAKE} binutils-atari INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" OPT="$opt" || exit 1
 			if [ "$cpu" = "5475" ]
 			then
 				assembly="--disable-assembly"
 			else
 				assembly=""
 			fi
-			${MAKE} gcc-atari ASSEMBLY="$assembly" INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
+			${MAKE} gcc-atari ASSEMBLY="$assembly" INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" OPT="$opt" || exit 1
 		fi
 	else
 		if [ $native_only -eq 0 ] ; then

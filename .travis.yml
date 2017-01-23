@@ -33,3 +33,4 @@ before_install:
 script:
   - 'make download'
   - 'make ${TARGET_CPU}-skip-native OUT="> /dev/null"'
+  - 'make ${TARGET_CPU}-native OUT="> /dev/null"'

@@ -67,12 +67,15 @@ do
 	cpu=$(echo $CPU_CPUS | cut -d ' ' -f $i)
 	opt=$(echo $CPU_OPTS | cut -d ' ' -f $i)
 
-	if [ $clean -eq 0 ]; then
-		if [ $native_only -eq 0 ] ; then
-			multilib_opts="$(echo $CPU_OPTS | sed "s/${opt}//;" | xargs | tr ' ' '/') mshort"
-			multilib_dirs="$(echo $CPU_DIRS | sed "s/${dir}//;" | xargs) mshort"
-			${MAKE} gcc-multilib-patch OPTS="$multilib_opts" DIRS="$multilib_dirs" || exit 1
+	simple_cpu=$(echo $cpu | cut -d '-' -f 1)
 
+	if [ $clean -eq 0 ]; then
+		multilib_opts="$(echo $CPU_OPTS | sed "s/${opt}//;" | xargs | tr ' ' '/') mshort"
+		multilib_dirs="$(echo $CPU_DIRS | sed "s/${dir}//;" | xargs) mshort"
+		${MAKE} gcc-multilib-patch OPTS="$multilib_opts" DIRS="$multilib_dirs" || exit 1
+
+		if [ $native_only -eq 0 ] ; then
+            ${MAKE} gcc-gmp-patch CPU='$$1' || exit 1
 			${MAKE} binutils gcc-preliminary mintbin INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
 
 			# build mintlib and pml for all targets
@@ -93,13 +96,8 @@ do
 
 		if [ $skip_native -eq 0 ] ; then
 			${MAKE} binutils-atari INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" OPT="$opt" || exit 1
-			if [ "$cpu" = "5475" ]
-			then
-				assembly="--disable-assembly"
-			else
-				assembly=""
-			fi
-			${MAKE} gcc-atari ASSEMBLY="$assembly" INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" OPT="$opt" || exit 1
+			${MAKE} gcc-gmp-patch  CPU="$simple_cpu" || exit 1
+			${MAKE} gcc-atari      INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" OPT="$opt" || exit 1
 		fi
 	else
 		if [ $native_only -eq 0 ] ; then

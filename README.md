@@ -16,11 +16,10 @@ about 5 GB of disk space) you will get:
   the 'binary-packages' folder)
 - supporting tools and libraries for the above
 
-Don't forget to install the gcc prerequisities: texinfo, libgmp(-dev),
-libmpfr(-dev), libmpc(-dev), autotools, bison, flex etc. If something fails,
-check out the error message, fix it, delete all intermediate directories and
-start over -- it's the safest path. Don't forget to install lzip, it's used
-by libgmp.
+Don't forget to install the gcc prerequisities: texinfo, autotools, bison,
+flex etc. In theory, the build system is mature enough to recover from any
+error but if you're seeing strange things, feel free to do `make clean` and
+start all over again.
 
 *IMPORTANT: make sure you have textinfo 6.1 or lower installed. 6.2 and above is
 buggy and the build process will fail with it.*

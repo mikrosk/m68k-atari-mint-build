@@ -1,7 +1,7 @@
 # Atari cross- and native-binutils/gcc toolchain build Makefile
 # Miro Kropacek aka MiKRO / Mystic Bytes
 # miro.kropacek@gmail.com
-# version 3.0.0 (2017/01/04)
+# version 3.0.1 (2017/02/13)
 
 # please note you need the bash shell for correct compilation of mintlib.
 
@@ -168,7 +168,7 @@ gcc-m68k-atari-mint.ok: gcc-${VERSION_GCC}.ok
 	# target specific patches here
 	touch $@
 
-libc-m68k-atari-mint.ok: pml-${VERSION_PML}.ok mintbin-CVS-${VERSION_MINTBIN}.ok mintlib-CVS-${VERSION_MINTLIB}.ok
+libc-m68k-atari-mint.ok: pml-${VERSION_PML}.ok mintbin-CVS-${VERSION_MINTBIN}.ok mintlib-git-${VERSION_MINTLIB}.ok
 	# target specific patches here
 	touch $@
 
@@ -189,10 +189,10 @@ gcc-${VERSION_GCC}.ok: gcc-${VERSION_GCC}.tar.bz2 gcc.patch gmp.patch gcc-${VERS
 	cd gcc-${VERSION_GCC} && bzcat ../gcc-${VERSION_GCC}-mint-${PATCH_GCC}.patch.bz2 | patch -p1
 	touch $@
 
-mintlib-CVS-${VERSION_MINTLIB}.ok: mintlib.patch
-	rm -rf $@ mintlib-CVS-${VERSION_MINTLIB}
-	CVSROOT=:pserver:cvsanon:cvsanon@sparemint.org:/mint cvs checkout -d mintlib-CVS-${VERSION_MINTLIB} mintlib $(OUT)
-	cd mintlib-CVS-${VERSION_MINTLIB} && patch -p1 < ../mintlib.patch
+mintlib-git-${VERSION_MINTLIB}.ok: mintlib.patch
+	rm -rf $@ mintlib-git-${VERSION_MINTLIB}
+	git clone https://github.com/freemint/mintlib.git mintlib-git-${VERSION_MINTLIB} $(OUT)
+	cd mintlib-git-${VERSION_MINTLIB} && patch -p1 < ../mintlib.patch
 	touch $@
 
 mintbin-CVS-${VERSION_MINTBIN}.ok: mintbin-CVS-${VERSION_MINTBIN}.tar.gz mintbin.patch
@@ -263,11 +263,11 @@ gcc-gmp-patch: gcc-${TARGET}.ok
 gcc-preliminary: gcc-${VERSION_GCC}-${CPU}-cross-preliminary.ok
 
 mintlib: libc-${TARGET}.ok
-	cd mintlib-CVS-${VERSION_MINTLIB} && $(MAKE) OUT= clean $(OUT)
-	cd mintlib-CVS-${VERSION_MINTLIB} && \
+	cd mintlib-git-${VERSION_MINTLIB} && $(MAKE) OUT= clean $(OUT)
+	cd mintlib-git-${VERSION_MINTLIB} && \
 		export PATH=${INSTALL_DIR}/bin:$$PATH && \
 		$(MAKE) SHELL=$(BASH) CROSS=yes WITH_020_LIB=no WITH_V4E_LIB=no CC="${TARGET}-gcc" HOST_CC="$(CC)" OUT= $(OUT)
-	cd mintlib-CVS-${VERSION_MINTLIB} && \
+	cd mintlib-git-${VERSION_MINTLIB} && \
 		export PATH=${INSTALL_DIR}/bin:$$PATH && \
 		$(MAKE) SHELL=$(BASH) CROSS=yes WITH_020_LIB=no WITH_V4E_LIB=no OUT= install $(OUT)
 
@@ -356,7 +356,7 @@ gcc-atari: check-target-gcc gcc-${VERSION_GCC}-${CPU}-atari.ok
 clean-source:
 	rm -rf binutils-${VERSION_BINUTILS}
 	rm -rf gcc-${VERSION_GCC}
-	for dir in $$(ls | grep mintlib-CVS-????????); \
+	for dir in $$(ls | grep mintlib-git-????????); \
 	do \
 		rm -rf $$dir; \
 	done

@@ -9,7 +9,6 @@ sudo: false
 addons:
   apt:
     packages:
-    - cvs
     - texinfo
 
 compiler:
@@ -22,8 +21,6 @@ env:
     - TARGET_CPU=5475
 
 before_install:
-  - 'if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update > /dev/null ; fi'
-  - 'if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install cvs ; fi'
   - 'if [ "$TRAVIS_OS_NAME" = "osx" ] && [ "$CC" == "gcc" ] ; then CC=gcc-4.9; fi'
 
 script:

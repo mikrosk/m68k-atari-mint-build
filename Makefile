@@ -1,37 +1,50 @@
 # Atari cross- and native-binutils/gcc toolchain build Makefile
 # Miro Kropacek aka MiKRO / Mystic Bytes
 # miro.kropacek@gmail.com
-# version 3.0.1 (2017/02/13)
+# version 3.1.0 (2017/09/22)
 
 # please note you need the bash shell for correct compilation of mintlib.
 
-TARGET			= m68k-atari-mint
+REPOSITORY_BINUTILS	= m68k-atari-mint-binutils-gdb
+REPOSITORY_GCC		= m68k-atari-mint-gcc
+REPOSITORY_MINTLIB	= mintlib
 
-PATCH_BINUTILS		= 20160320
-PATCH_GCC		= 20130415
+GITHUB_URL_BINUTILS	= https://github.com/mikrosk/${REPOSITORY_BINUTILS}/archive
+GITHUB_URL_GCC		= https://github.com/mikrosk/${REPOSITORY_GCC}/archive
+GITHUB_URL_MINTLIB	= https://github.com/freemint/${REPOSITORY_MINTLIB}/archive
+
+BRANCH_BINUTILS		= binutils-2_28-mint
+BRANCH_GCC		= gcc-4_6-mint
+BRANCH_MINTLIB		= master
+
+ARCHIVE_BINUTILS	= ${BRANCH_BINUTILS}.zip
+ARCHIVE_GCC		= ${BRANCH_GCC}.zip
+ARCHIVE_MINTLIB		= ${BRANCH_MINTLIB}.zip
+
+FOLDER_BINUTILS		= ${REPOSITORY_BINUTILS}-${BRANCH_BINUTILS}
+FOLDER_GCC		= ${REPOSITORY_GCC}-${BRANCH_GCC}
+FOLDER_MINTLIB		= ${REPOSITORY_MINTLIB}-${BRANCH_MINTLIB}
+
 PATCH_PML		= 20110207
 
-VERSION_BINUTILS	= 2.26
+VERSION_BINUTILS	= 2.28
 VERSION_GCC		= 4.6.4
 
 VERSION_PML		= 2.03
-VERSION_MINTLIB		:= $(shell date +"%Y%m%d")
 VERSION_MINTBIN		= 20110527
 
 SH      = $(shell which sh)
 BASH    = $(shell which bash)
 URLGET	= $(shell which wget || echo "`which curl` -O")
+UNZIP	= $(shell (which 7za > /dev/null && echo "`which 7za` x") || which unzip)
 
 # set to something like "> /dev/null" or ">> /tmp/mint-build.log"
 # to redirect compilation standard output
 OUT =
 
-DOWNLOADS = binutils-${VERSION_BINUTILS}.tar.bz2 \
-	    gcc-${VERSION_GCC}.tar.bz2 \
+DOWNLOADS = ${ARCHIVE_BINUTILS} ${ARCHIVE_GCC} ${ARCHIVE_MINTLIB} \
 	    pml-${VERSION_PML}.tar.bz2 \
 	    mintbin-CVS-${VERSION_MINTBIN}.tar.gz \
-	    binutils-${VERSION_BINUTILS}-mint-${PATCH_BINUTILS}.patch.bz2 \
-	    gcc-${VERSION_GCC}-mint-${PATCH_GCC}.patch.bz2 \
 	    pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2
 
 .PHONY: help download clean \
@@ -131,11 +144,14 @@ download: $(DOWNLOADS)
 
 # Download libraries
 
-binutils-${VERSION_BINUTILS}.tar.bz2:
-	$(URLGET) http://ftp.gnu.org/gnu/binutils/$@
+${ARCHIVE_BINUTILS}:
+	$(URLGET) ${GITHUB_URL_BINUTILS}/$@
 
-gcc-${VERSION_GCC}.tar.bz2:
-	$(URLGET) http://ftp.gnu.org/gnu/gcc/gcc-${VERSION_GCC}/$@
+${ARCHIVE_GCC}:
+	$(URLGET) ${GITHUB_URL_GCC}/$@
+
+${ARCHIVE_MINTLIB}:
+	$(URLGET) ${GITHUB_URL_MINTLIB}/$@
 
 pml-${VERSION_PML}.tar.bz2:
 	$(URLGET) http://vincent.riviere.free.fr/soft/m68k-atari-mint/archives/$@
@@ -144,12 +160,6 @@ mintbin-CVS-${VERSION_MINTBIN}.tar.gz:
 	$(URLGET) http://vincent.riviere.free.fr/soft/m68k-atari-mint/archives/$@
 
 # Download ${TARGET}-specific patches
-
-binutils-${VERSION_BINUTILS}-mint-${PATCH_BINUTILS}.patch.bz2:
-	$(URLGET) http://vincent.riviere.free.fr/soft/m68k-atari-mint/archives/$@
-
-gcc-${VERSION_GCC}-mint-${PATCH_GCC}.patch.bz2:
-	$(URLGET) http://vincent.riviere.free.fr/soft/m68k-atari-mint/archives/$@
 
 pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2:
 	$(URLGET) http://vincent.riviere.free.fr/soft/m68k-atari-mint/archives/$@
@@ -168,31 +178,28 @@ gcc-m68k-atari-mint.ok: gcc-${VERSION_GCC}.ok
 	# target specific patches here
 	touch $@
 
-libc-m68k-atari-mint.ok: pml-${VERSION_PML}.ok mintbin-CVS-${VERSION_MINTBIN}.ok mintlib-git-${VERSION_MINTLIB}.ok
+libc-m68k-atari-mint.ok: pml-${VERSION_PML}.ok mintbin-CVS-${VERSION_MINTBIN}.ok mintlib.ok
 	# target specific patches here
 	touch $@
 
 # Depacking and patching
 
-binutils-${VERSION_BINUTILS}.ok: binutils-${VERSION_BINUTILS}.tar.bz2 binutils-${VERSION_BINUTILS}-mint-${PATCH_BINUTILS}.patch.bz2
-	rm -rf $@ binutils-${VERSION_BINUTILS}
-	tar xjf binutils-${VERSION_BINUTILS}.tar.bz2
-	cd binutils-${VERSION_BINUTILS} && bzcat ../binutils-${VERSION_BINUTILS}-mint-${PATCH_BINUTILS}.patch.bz2 | patch -p1
+binutils-${VERSION_BINUTILS}.ok: ${ARCHIVE_BINUTILS}
+	rm -rf $@ ${FOLDER_BINUTILS}
+	$(UNZIP) ${ARCHIVE_BINUTILS} > /dev/null
 	touch $@
 
-gcc-${VERSION_GCC}.ok: gcc-${VERSION_GCC}.tar.bz2 gcc.patch gmp.patch gcc-${VERSION_GCC}-mint-${PATCH_GCC}.patch.bz2
-	rm -rf $@ gcc-${VERSION_GCC}
-	tar xjf gcc-${VERSION_GCC}.tar.bz2
-	cd gcc-${VERSION_GCC} && contrib/download_prerequisites
-	cd gcc-${VERSION_GCC} && patch -p1 < ../gcc.patch
-	cd gcc-${VERSION_GCC} && patch -p1 < ../gmp.patch
-	cd gcc-${VERSION_GCC} && bzcat ../gcc-${VERSION_GCC}-mint-${PATCH_GCC}.patch.bz2 | patch -p1
+gcc-${VERSION_GCC}.ok: ${ARCHIVE_GCC} gmp.patch
+	rm -rf $@ ${FOLDER_GCC}
+	$(UNZIP) ${ARCHIVE_GCC} > /dev/null
+	cd ${FOLDER_GCC} && contrib/download_prerequisites
+	cd ${FOLDER_GCC} && patch -p1 < ../gmp.patch
 	touch $@
 
-mintlib-git-${VERSION_MINTLIB}.ok: mintlib.patch
-	rm -rf $@ mintlib-git-${VERSION_MINTLIB}
-	git clone https://github.com/freemint/mintlib.git mintlib-git-${VERSION_MINTLIB} $(OUT)
-	cd mintlib-git-${VERSION_MINTLIB} && patch -p1 < ../mintlib.patch
+mintlib.ok: ${ARCHIVE_MINTLIB} mintlib.patch
+	rm -rf $@ ${FOLDER_MINTLIB}
+	$(UNZIP) ${ARCHIVE_MINTLIB} > /dev/null
+	cd ${FOLDER_MINTLIB} && patch -p1 < ../mintlib.patch
 	touch $@
 
 mintbin-CVS-${VERSION_MINTBIN}.ok: mintbin-CVS-${VERSION_MINTBIN}.tar.gz mintbin.patch
@@ -211,11 +218,12 @@ pml-${VERSION_PML}.ok: pml-${VERSION_PML}.tar.bz2 pml-${VERSION_PML}-mint-${PATC
 # Preliminary build
 
 binutils-${VERSION_BINUTILS}-${CPU}-cross.ok: binutils-${TARGET}.ok
-	rm -rf $@ binutils-${VERSION_BINUTILS}-${CPU}-cross
-	mkdir -p binutils-${VERSION_BINUTILS}-${CPU}-cross
-	cd binutils-${VERSION_BINUTILS}-${CPU}-cross && \
+	rm -rf $@ ${FOLDER_BINUTILS}-${CPU}-cross
+	mkdir -p ${FOLDER_BINUTILS}-${CPU}-cross
+	cd ${FOLDER_BINUTILS}-${CPU}-cross && \
 	export PATH=${INSTALL_DIR}/bin:$$PATH && \
-	../binutils-${VERSION_BINUTILS}/configure --target=${TARGET} --prefix=${INSTALL_DIR} --disable-nls --disable-werror && \
+	../${FOLDER_BINUTILS}/configure --target=${TARGET} --prefix=${INSTALL_DIR} --disable-nls --disable-werror \
+					--disable-gdb --disable-libdecnumber --disable-readline --disable-sim && \
 	$(MAKE) -j3 $(OUT) && \
 	$(MAKE) install-strip $(OUT)
 	touch $@
@@ -223,12 +231,12 @@ binutils-${VERSION_BINUTILS}-${CPU}-cross.ok: binutils-${TARGET}.ok
 binutils: binutils-${VERSION_BINUTILS}-${CPU}-cross.ok
 
 gcc-${VERSION_GCC}-${CPU}-cross-preliminary.ok: gcc-${TARGET}.ok
-	rm -rf $@ gcc-${VERSION_GCC}-${CPU}-cross-preliminary
-	mkdir -p gcc-${VERSION_GCC}-${CPU}-cross-preliminary
+	rm -rf $@ ${FOLDER_GCC}-${CPU}-cross-preliminary
+	mkdir -p ${FOLDER_GCC}-${CPU}-cross-preliminary
 	ln -sfv . ${INSTALL_DIR}/${TARGET}/usr
-	cd gcc-${VERSION_GCC}-${CPU}-cross-preliminary && \
+	cd ${FOLDER_GCC}-${CPU}-cross-preliminary && \
 	export PATH=${INSTALL_DIR}/bin:$$PATH && \
-	../gcc-${VERSION_GCC}/configure \
+	../${FOLDER_GCC}/configure \
 		--prefix=${INSTALL_DIR} \
 		--target=${TARGET} \
 		--with-sysroot=${INSTALL_DIR}/${TARGET} \
@@ -253,23 +261,23 @@ gcc-${VERSION_GCC}-${CPU}-cross-preliminary.ok: gcc-${TARGET}.ok
 # Shortcuts
 
 gcc-multilib-patch: gcc-${TARGET}.ok
-	sed -e "s:\(MULTILIB_OPTIONS =\).*:\1 ${OPTS}:" -e "s:\(MULTILIB_DIRNAMES =\).*:\1 ${DIRS}:" gcc-${VERSION_GCC}/gcc/config/m68k/t-mint > t-mint.patched
-	mv t-mint.patched gcc-${VERSION_GCC}/gcc/config/m68k/t-mint
+	sed -e "s:\(MULTILIB_OPTIONS =\).*:\1 ${OPTS}:" -e "s:\(MULTILIB_DIRNAMES =\).*:\1 ${DIRS}:" ${FOLDER_GCC}/gcc/config/m68k/t-mint > t-mint.patched
+	mv t-mint.patched ${FOLDER_GCC}/gcc/config/m68k/t-mint
 
 gcc-gmp-patch: gcc-${TARGET}.ok
-	sed -e 's/^host_cpu=.*$$/host_cpu=${CPU}/;' gcc-${VERSION_GCC}/gmp/configure > configure.patched
-	mv configure.patched gcc-${VERSION_GCC}/gmp/configure
+	sed -e 's/^host_cpu=.*$$/host_cpu=${CPU}/;' ${FOLDER_GCC}/gmp/configure > configure.patched
+	mv configure.patched ${FOLDER_GCC}/gmp/configure
 
 gcc-preliminary: gcc-${VERSION_GCC}-${CPU}-cross-preliminary.ok
 
 mintlib: libc-${TARGET}.ok
-	cd mintlib-git-${VERSION_MINTLIB} && $(MAKE) OUT= clean $(OUT)
-	cd mintlib-git-${VERSION_MINTLIB} && \
+	cd ${FOLDER_MINTLIB} && $(MAKE) OUT= clean $(OUT)
+	cd ${FOLDER_MINTLIB} && \
 		export PATH=${INSTALL_DIR}/bin:$$PATH && \
-		$(MAKE) SHELL=$(BASH) CROSS=yes WITH_020_LIB=no WITH_V4E_LIB=no CC="${TARGET}-gcc" HOST_CC="$(CC)" OUT= $(OUT)
-	cd mintlib-git-${VERSION_MINTLIB} && \
+		$(MAKE) OUT= toolprefix=${TARGET}- SHELL=$(BASH) CROSS=yes WITH_020_LIB=no WITH_V4E_LIB=no CC="${TARGET}-gcc" HOST_CC="$(CC)" $(OUT)
+	cd ${FOLDER_MINTLIB} && \
 		export PATH=${INSTALL_DIR}/bin:$$PATH && \
-		$(MAKE) SHELL=$(BASH) CROSS=yes WITH_020_LIB=no WITH_V4E_LIB=no OUT= install $(OUT)
+		$(MAKE) OUT= toolprefix=${TARGET}- SHELL=$(BASH) CROSS=yes WITH_020_LIB=no WITH_V4E_LIB=no install $(OUT)
 
 mintbin: libc-${TARGET}.ok
 	cd mintbin-CVS-${VERSION_MINTBIN} && \
@@ -291,11 +299,11 @@ pml: libc-${TARGET}.ok
 # Full build
 
 gcc-${VERSION_GCC}-${CPU}-cross-final.ok: ${INSTALL_DIR}/${TARGET}/lib/libc.a ${INSTALL_DIR}/${TARGET}/lib/libm.a
-	rm -rf $@ gcc-${VERSION_GCC}-${CPU}-cross-final
-	mkdir -p gcc-${VERSION_GCC}-${CPU}-cross-final
-	cd gcc-${VERSION_GCC}-${CPU}-cross-final && \
+	rm -rf $@ ${FOLDER_GCC}-${CPU}-cross-final
+	mkdir -p ${FOLDER_GCC}-${CPU}-cross-final
+	cd ${FOLDER_GCC}-${CPU}-cross-final && \
 	export PATH=${INSTALL_DIR}/bin:$$PATH CFLAGS_FOR_TARGET="-O2 -fomit-frame-pointer" CXXFLAGS_FOR_TARGET="-O2 -fomit-frame-pointer" && \
-	../gcc-${VERSION_GCC}/configure \
+	../${FOLDER_GCC}/configure \
 		--prefix=${INSTALL_DIR} \
 		--target=${TARGET} \
 		--with-sysroot=${INSTALL_DIR}/${TARGET} \
@@ -319,11 +327,12 @@ check-target-gcc:
 	if [ $$multi_dir != "." ]; then echo "\n${TARGET}-gcc is not configured for default ${CPU} output\n"; exit 1; fi
 
 binutils-${VERSION_BINUTILS}-${CPU}-atari.ok: binutils-${TARGET}.ok
-	rm -rf $@ binutils-${VERSION_BINUTILS}-${CPU}
-	mkdir -p binutils-${VERSION_BINUTILS}-${CPU}
-	cd binutils-${VERSION_BINUTILS}-${CPU} && \
+	rm -rf $@ ${FOLDER_BINUTILS}-${CPU}-atari
+	mkdir -p ${FOLDER_BINUTILS}-${CPU}-atari
+	cd ${FOLDER_BINUTILS}-${CPU}-atari && \
 	export PATH=${INSTALL_DIR}/bin:$$PATH CFLAGS="-O2 -fomit-frame-pointer" CXXFLAGS="-O2 -fomit-frame-pointer" && \
-	../binutils-${VERSION_BINUTILS}/configure --target=${TARGET} --host=${TARGET} --disable-nls --prefix=/usr && \
+	../${FOLDER_BINUTILS}/configure --target=${TARGET} --host=${TARGET} --disable-nls --prefix=/usr \
+					--disable-gdb --disable-libdecnumber --disable-readline --disable-sim && \
 	$(MAKE) -j3 $(OUT) && \
 	$(MAKE) install DESTDIR=${PWD}/binary-package/${CPU}/binutils-${VERSION_BINUTILS}	# make install-strip doesn't work properly
 	touch $@
@@ -331,11 +340,11 @@ binutils-${VERSION_BINUTILS}-${CPU}-atari.ok: binutils-${TARGET}.ok
 binutils-atari: check-target-gcc binutils-${VERSION_BINUTILS}-${CPU}-atari.ok
 
 gcc-${VERSION_GCC}-${CPU}-atari.ok: gcc-${TARGET}.ok
-	rm -rf $@ gcc-${VERSION_GCC}-${CPU}-atari
-	mkdir -p gcc-${VERSION_GCC}-${CPU}-atari
-	cd gcc-${VERSION_GCC}-${CPU}-atari && \
+	rm -rf $@ ${FOLDER_GCC}-${CPU}-atari
+	mkdir -p ${FOLDER_GCC}-${CPU}-atari
+	cd ${FOLDER_GCC}-${CPU}-atari && \
 	export PATH=${INSTALL_DIR}/bin:$$PATH CFLAGS="-O2 -fomit-frame-pointer" CXXFLAGS="-O2 -fomit-frame-pointer" && \
-	../gcc-${VERSION_GCC}/configure \
+	../${FOLDER_GCC}/configure \
 		--prefix=/usr \
 		--host=${TARGET} \
 		--target=${TARGET} \
@@ -354,21 +363,18 @@ gcc-atari: check-target-gcc gcc-${VERSION_GCC}-${CPU}-atari.ok
 # Cleaning
 
 clean-source:
-	rm -rf binutils-${VERSION_BINUTILS}
-	rm -rf gcc-${VERSION_GCC}
-	for dir in $$(ls | grep mintlib-git-????????); \
-	do \
-		rm -rf $$dir; \
-	done
+	rm -rf ${FOLDER_BINUTILS}
+	rm -rf ${FOLDER_GCC}
+	rm -rf ${FOLDER_MINTLIB}
 	rm -rf pml-${VERSION_PML}
 	rm -rf mintbin-CVS-${VERSION_MINTBIN}
 	rm -f *.ok
 	rm -f *~
 
 clean-cross:
-	rm -rf binutils-${VERSION_BINUTILS}-${CPU}-cross
-	rm -rf gcc-${VERSION_GCC}-${CPU}-cross-preliminary
-	rm -rf gcc-${VERSION_GCC}-${CPU}-cross-final
+	rm -rf ${FOLDER_BINUTILS}-${CPU}-cross
+	rm -rf ${FOLDER_GCC}-${CPU}-cross-preliminary
+	rm -rf ${FOLDER_GCC}-${CPU}-cross-final
 
 pack-atari:
 	for dir in binutils-${VERSION_BINUTILS} gcc-${VERSION_GCC}; \
@@ -381,6 +387,6 @@ strip-atari:
 	find ${PWD}/binary-package -type f -name '*.a' -exec ${TARGET}-strip -S -X -w -N '.L[0-9]*' {} \;
 
 clean-atari:
-	rm -rf binutils-${VERSION_BINUTILS}-${CPU}-atari
-	rm -rf gcc-${VERSION_GCC}-${CPU}-atari
+	rm -rf ${FOLDER_BINUTILS}-${CPU}-atari
+	rm -rf ${FOLDER_GCC}-${CPU}-atari
 	rm -rf binary-package

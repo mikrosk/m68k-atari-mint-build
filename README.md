@@ -21,9 +21,6 @@ flex etc. In theory, the build system is mature enough to recover from any
 error but if you're seeing strange things, feel free to do `make clean` and
 start all over again.
 
-*IMPORTANT: make sure you have textinfo 6.1 or lower installed. 6.2 and above is
-buggy and the build process will fail with it.*
-
 When it comes to the cross compilers, there's very little difference -- all
 of them produce m68k/ColdFire code, the only difference is which one is
 produced by default (this has meaning only if you want to compile a native

@@ -1,5 +1,9 @@
 #!/bin/sh
 
+set -e
+
+target=m68k-atari-mint
+
 if [ -z "${INSTALL_DIR}" ] ; then
 	INSTALL_DIR="$HOME/gnu-tools"
 fi
@@ -72,40 +76,40 @@ do
 	if [ $clean -eq 0 ]; then
 		multilib_opts="$(echo $CPU_OPTS | sed "s/${opt}//;" | xargs | tr ' ' '/') mshort"
 		multilib_dirs="$(echo $CPU_DIRS | sed "s/${dir}//;" | xargs) mshort"
-		${MAKE} gcc-multilib-patch OPTS="$multilib_opts" DIRS="$multilib_dirs" || exit 1
+		${MAKE} TARGET=$target gcc-multilib-patch OPTS="$multilib_opts" DIRS="$multilib_dirs" || exit 1
 
 		if [ $native_only -eq 0 ] ; then
-            ${MAKE} gcc-gmp-patch CPU='$$1' || exit 1
-			${MAKE} binutils gcc-preliminary mintbin INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
+			${MAKE} TARGET=$target gcc-gmp-patch CPU='$$1' || exit 1
+			${MAKE} TARGET=$target binutils gcc-preliminary mintbin INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
 
 			# build mintlib and pml for all targets
 			for j in $indices_all
 			do
-				target=$(echo $CPU_DIRS | cut -d ' ' -f $j)
-				prefix="$INSTALL_DIR/$dir/m68k-atari-mint"
-				if [ "$target" = "$dir" ]
+				target_dir=$(echo $CPU_DIRS | cut -d ' ' -f $j)
+				prefix="$INSTALL_DIR/$dir/$target"
+				if [ "$target_dir" = "$dir" ]
 				then
-					target=""
+					target_dir=""
 				fi
 				opts=$(echo $CPU_OPTS | cut -d ' ' -f $j)
-				${MAKE} mintlib prefix="$prefix" libdir="$prefix/lib/$target" cflags="-$opts" INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
-				${MAKE} pml OPTS="-$opts" DIR="$target" INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
+				${MAKE} TARGET=$target mintlib prefix="$prefix" libdir="$prefix/lib/$target_dir" cflags="-$opts" INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
+				${MAKE} TARGET=$target pml OPTS="-$opts" DIR="$target_dir" INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
 			done
-			${MAKE} gcc INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
+			${MAKE} TARGET=$target gcc INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
 		fi
 
 		if [ $skip_native -eq 0 ] ; then
-			${MAKE} binutils-atari INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" OPT="$opt" || exit 1
-			${MAKE} gcc-gmp-patch  CPU="$simple_cpu" || exit 1
-			${MAKE} gcc-atari      INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" OPT="$opt" || exit 1
+			${MAKE} TARGET=$target binutils-atari INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" OPT="$opt" || exit 1
+			${MAKE} TARGET=$target gcc-gmp-patch  CPU="$simple_cpu" || exit 1
+			${MAKE} TARGET=$target gcc-atari      INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" OPT="$opt" || exit 1
 		fi
 	else
 		if [ $native_only -eq 0 ] ; then
-			${MAKE} clean-cross CPU="$cpu" || exit 1
+			${MAKE} TARGET=$target clean-cross CPU="$cpu" || exit 1
 		fi
 
 		if [ $skip_native -eq 0 ] ; then
-			${MAKE} clean-atari CPU="$cpu" || exit 1
+			${MAKE} TARGET=$target clean-atari CPU="$cpu" || exit 1
 		fi
 	fi
 done
@@ -114,12 +118,12 @@ if [ $skip_native -eq 0 ] && [ $clean -eq 0 ] ; then
 	# use either 'strip'
 	i=$(echo $indices | cut -d " " -f 1)
 	dir=$(echo $CPU_DIRS | cut -d " " -f $i)
-	${MAKE} strip-atari INSTALL_DIR="$INSTALL_DIR/$dir"
+	${MAKE} TARGET=$target strip-atari INSTALL_DIR="$INSTALL_DIR/$dir"
 
 	for i in $indices
 	do
 		cpu=$(echo $CPU_CPUS | cut -d ' ' -f $i)
-		${MAKE} pack-atari INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
+		${MAKE} TARGET=$target pack-atari INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
 	done
 
 fi

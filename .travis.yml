@@ -23,6 +23,9 @@ env:
 before_install:
   - 'if [ "$TRAVIS_OS_NAME" = "osx" ] && [ "$CC" == "gcc" ] ; then CC=gcc-4.9; fi'
 
+install:
+  - 'if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install p7zip; fi'
+
 script:
   - 'make download'
   - 'make ${TARGET_CPU}-skip-native OUT="> /dev/null"'

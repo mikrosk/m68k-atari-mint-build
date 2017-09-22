@@ -1,7 +1,7 @@
-diff -ru gcc-4.6.4.orig/gmp/config.in gcc-4.6.4/gmp/config.in
---- gcc-4.6.4.orig/gmp/config.in	2010-01-08 06:09:40.000000000 +1000
-+++ gcc-4.6.4/gmp/config.in	2017-01-26 13:11:53.335253298 +1000
-@@ -144,6 +144,7 @@
+diff -ru gmp.orig/config.in gmp/config.in
+--- gmp.orig/config.in	2017-08-17 11:28:54.995856912 +1000
++++ gmp/config.in	2017-08-17 11:29:09.012738014 +1000
+@@ -162,6 +162,7 @@
  #undef HAVE_HOST_CPU_m68040
  #undef HAVE_HOST_CPU_m68060
  #undef HAVE_HOST_CPU_m68360
@@ -9,10 +9,10 @@ diff -ru gcc-4.6.4.orig/gmp/config.in gcc-4.6.4/gmp/config.in
  #undef HAVE_HOST_CPU_powerpc604
  #undef HAVE_HOST_CPU_powerpc604e
  #undef HAVE_HOST_CPU_powerpc750
-diff -ru gcc-4.6.4.orig/gmp/configure gcc-4.6.4/gmp/configure
---- gcc-4.6.4.orig/gmp/configure	2010-01-08 06:09:40.000000000 +1000
-+++ gcc-4.6.4/gmp/configure	2017-01-26 13:11:12.037922507 +1000
-@@ -3375,28 +3375,10 @@
+diff -ru gmp.orig/configure gmp/configure
+--- gmp.orig/configure	2017-08-17 11:28:54.999190295 +1000
++++ gmp/configure	2017-08-17 11:29:09.019404783 +1000
+@@ -4555,28 +4555,10 @@
  
  echo "include_mpn(\`m68k/m68k-defs.m4')" >> $gmp_tmpconfigm4i
  
@@ -44,15 +44,15 @@ diff -ru gcc-4.6.4.orig/gmp/configure gcc-4.6.4/gmp/configure
      esac
      ;;
  
-diff -ru gcc-4.6.4.orig/gmp/gmp-impl.h gcc-4.6.4/gmp/gmp-impl.h
---- gcc-4.6.4.orig/gmp/gmp-impl.h	2010-01-08 06:09:02.000000000 +1000
-+++ gcc-4.6.4/gmp/gmp-impl.h	2017-01-26 13:11:12.041255893 +1000
-@@ -2941,7 +2941,7 @@
+diff -ru gmp.orig/gmp-impl.h gmp/gmp-impl.h
+--- gmp.orig/gmp-impl.h	2017-08-17 11:28:54.999190295 +1000
++++ gmp/gmp-impl.h	2017-08-17 11:29:09.019404783 +1000
+@@ -3448,7 +3448,7 @@
  
  /* As per glibc. */
  #if defined (__GNUC__) && ! defined (NO_ASM)                    \
--  && HAVE_HOST_CPU_FAMILY_m68k && BITS_PER_MP_LIMB == 32
-+  && HAVE_HOST_CPU_FAMILY_m68k && ! HAVE_HOST_CPU_5475 && BITS_PER_MP_LIMB == 32
+-  && HAVE_HOST_CPU_FAMILY_m68k && GMP_LIMB_BITS == 32
++  && HAVE_HOST_CPU_FAMILY_m68k && ! HAVE_HOST_CPU_5475 && GMP_LIMB_BITS == 32
  #define BSWAP_LIMB(dst, src)						\
    do {									\
      mp_limb_t  __bswapl_src = (src);					\

@@ -1,7 +1,7 @@
 # Atari cross- and native-binutils/gcc toolchain build Makefile
 # Miro Kropacek aka MiKRO / Mystic Bytes
 # miro.kropacek@gmail.com
-# version 3.1.0 (2017/09/22)
+# version 4.0.0 (2017/09/22)
 
 # please note you need the bash shell for correct compilation of mintlib.
 
@@ -14,7 +14,7 @@ GITHUB_URL_GCC		= https://github.com/mikrosk/${REPOSITORY_GCC}/archive
 GITHUB_URL_MINTLIB	= https://github.com/freemint/${REPOSITORY_MINTLIB}/archive
 
 BRANCH_BINUTILS		= binutils-2_28-mint
-BRANCH_GCC		= gcc-4_6-mint
+BRANCH_GCC		= gcc-7-mint
 BRANCH_MINTLIB		= master
 
 ARCHIVE_BINUTILS	= ${BRANCH_BINUTILS}.zip
@@ -28,7 +28,7 @@ FOLDER_MINTLIB		= ${REPOSITORY_MINTLIB}-${BRANCH_MINTLIB}
 PATCH_PML		= 20110207
 
 VERSION_BINUTILS	= 2.28
-VERSION_GCC		= 4.6.4
+VERSION_GCC		= 7.1.0
 
 VERSION_PML		= 2.03
 VERSION_MINTBIN		= 20110527
@@ -43,7 +43,7 @@ UNZIP	= $(shell (which 7za > /dev/null && echo "`which 7za` x") || which unzip)
 OUT =
 
 DOWNLOADS = ${ARCHIVE_BINUTILS} ${ARCHIVE_GCC} ${ARCHIVE_MINTLIB} \
-	    pml-${VERSION_PML}.tar.bz2 \
+        pml-${VERSION_PML}.tar.bz2 \
 	    mintbin-CVS-${VERSION_MINTBIN}.tar.gz \
 	    pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2
 
@@ -193,7 +193,7 @@ gcc-${VERSION_GCC}.ok: ${ARCHIVE_GCC} gmp.patch
 	rm -rf $@ ${FOLDER_GCC}
 	$(UNZIP) ${ARCHIVE_GCC} > /dev/null
 	cd ${FOLDER_GCC} && contrib/download_prerequisites
-	cd ${FOLDER_GCC} && patch -p1 < ../gmp.patch
+	cd ${FOLDER_GCC} && patch -p0 < ../gmp.patch
 	touch $@
 
 mintlib.ok: ${ARCHIVE_MINTLIB} mintlib.patch
@@ -266,7 +266,7 @@ gcc-multilib-patch: gcc-${TARGET}.ok
 
 gcc-gmp-patch: gcc-${TARGET}.ok
 	sed -e 's/^host_cpu=.*$$/host_cpu=${CPU}/;' ${FOLDER_GCC}/gmp/configure > configure.patched
-	mv configure.patched ${FOLDER_GCC}/gmp/configure
+	mv configure.patched ${FOLDER_GCC}/gmp/configure  && chmod +x ${FOLDER_GCC}/gmp/configure
 
 gcc-preliminary: gcc-${VERSION_GCC}-${CPU}-cross-preliminary.ok
 
@@ -308,10 +308,9 @@ gcc-${VERSION_GCC}-${CPU}-cross-final.ok: ${INSTALL_DIR}/${TARGET}/lib/libc.a ${
 		--target=${TARGET} \
 		--with-sysroot=${INSTALL_DIR}/${TARGET} \
 		--disable-nls \
-		--enable-languages=c,c++ \
-		--enable-c99 \
-		--enable-long-long \
+		--enable-languages="c,c++" \
 		--disable-libstdcxx-pch \
+		--disable-libgomp \
 		--with-cpu=${CPU} && \
 	$(MAKE) -j3 $(OUT) && \
 	$(MAKE) install-strip $(OUT)
@@ -339,10 +338,11 @@ binutils-${VERSION_BINUTILS}-${CPU}-atari.ok: binutils-${TARGET}.ok
 
 binutils-atari: check-target-gcc binutils-${VERSION_BINUTILS}-${CPU}-atari.ok
 
-gcc-${VERSION_GCC}-${CPU}-atari.ok: gcc-${TARGET}.ok
+gcc-${VERSION_GCC}-${CPU}-atari.ok: gcc-${TARGET}.ok disable_ftw.sh
 	rm -rf $@ ${FOLDER_GCC}-${CPU}-atari
 	mkdir -p ${FOLDER_GCC}-${CPU}-atari
 	cd ${FOLDER_GCC}-${CPU}-atari && \
+	../disable_ftw.sh && \
 	export PATH=${INSTALL_DIR}/bin:$$PATH CFLAGS="-O2 -fomit-frame-pointer" CXXFLAGS="-O2 -fomit-frame-pointer" && \
 	../${FOLDER_GCC}/configure \
 		--prefix=/usr \
@@ -350,10 +350,9 @@ gcc-${VERSION_GCC}-${CPU}-atari.ok: gcc-${TARGET}.ok
 		--target=${TARGET} \
 		--disable-nls \
 		--enable-languages="c,c++" \
-		--enable-c99 \
-		--enable-long-long \
 		--disable-libstdcxx-pch \
-		 --with-cpu=${CPU} && \
+		--disable-libgomp \
+		--with-cpu=${CPU} && \
 	$(MAKE) -j3 $(OUT) && \
 	$(MAKE) install-strip DESTDIR=${PWD}/binary-package/${CPU}/gcc-${VERSION_GCC} $(OUT)
 	touch $@
@@ -383,8 +382,8 @@ pack-atari:
 	done
 
 strip-atari:
-	find ${PWD}/binary-package -type f -perm -a=x -exec ${TARGET}-strip -s {} \;
-	find ${PWD}/binary-package -type f -name '*.a' -exec ${TARGET}-strip -S -X -w -N '.L[0-9]*' {} \;
+	PATH=${INSTALL_DIR}/bin:$$PATH find ${PWD}/binary-package -type f -perm -a=x -exec ${TARGET}-strip -s {} \;
+	PATH=${INSTALL_DIR}/bin:$$PATH find ${PWD}/binary-package -type f -name '*.a' -exec ${TARGET}-strip -S -X -w -N '.L[0-9]*' {} \;
 
 clean-atari:
 	rm -rf ${FOLDER_BINUTILS}-${CPU}-atari

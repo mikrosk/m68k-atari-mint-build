@@ -9,7 +9,7 @@ REPOSITORY_BINUTILS	= m68k-atari-mint-binutils-gdb
 REPOSITORY_GCC		= m68k-atari-mint-gcc
 REPOSITORY_MINTLIB	= mintlib
 
-GITHUB_URL_BINUTILS	= https://github.com/mikrosk/${REPOSITORY_BINUTILS}/archive
+GITHUB_URL_BINUTILS	= https://github.com/freemint/${REPOSITORY_BINUTILS}/archive
 GITHUB_URL_GCC		= https://github.com/mikrosk/${REPOSITORY_GCC}/archive
 GITHUB_URL_MINTLIB	= https://github.com/freemint/${REPOSITORY_MINTLIB}/archive
 
@@ -28,7 +28,7 @@ FOLDER_MINTLIB		= ${REPOSITORY_MINTLIB}-${BRANCH_MINTLIB}
 PATCH_PML		= 20110207
 
 VERSION_BINUTILS	= 2.28
-VERSION_GCC		= 7.1.0
+VERSION_GCC		= 7.2.0
 
 VERSION_PML		= 2.03
 VERSION_MINTBIN		= 20110527

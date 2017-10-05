@@ -1,15 +1,3 @@
-diff --git a/configvars b/configvars
---- a/configvars
-+++ b/configvars
-@@ -121,7 +121,7 @@ RANLIB=$(toolprefix)ranlib
- # ATTENTION: You have to optimize at least with -O, otherwise some
- # extern inlines will not work and will cause unresolved references
- # in certain modules.
--CFLAGS=-O2 -fomit-frame-pointer
-+CFLAGS=-O2 -fomit-frame-pointer -fgnu89-inline
-
- # Flags for building executables
- LDFLAGS=
 diff -ru mintlib-CVS-20161223/syscall/Makefile mintlib-CVS-20161226/syscall/Makefile
 --- mintlib-CVS-20161223/syscall/Makefile	2009-05-22 20:28:32.000000000 +0200
 +++ mintlib-CVS-20161226/syscall/Makefile	2016-12-28 17:20:15.062065000 +0100

@@ -3,10 +3,13 @@
 *.tar.gz
 *.patch.bz2
 
-binutils-*.*/
-gcc-*.*/
+binutils-*
+m68k-atari-mint-binutils-gdb-*/
+gcc-*
+m68k-atari-mint-gcc-*/
+master.zip
+mintlib-master
 mintbin-CVS-????????/
-mintlib-git-????????/
 pml-2.03/
 binary-package/
 gmp-*.*/

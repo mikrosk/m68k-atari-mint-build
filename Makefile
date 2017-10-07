@@ -196,10 +196,11 @@ gcc-${VERSION_GCC}.ok: ${ARCHIVE_GCC} gmp.patch
 	cd ${FOLDER_GCC} && patch -p1 < ../gmp.patch
 	touch $@
 
-mintlib.ok: ${ARCHIVE_MINTLIB} mintlib.patch
+mintlib.ok: ${ARCHIVE_MINTLIB} mintlib.patch ctype.patch
 	rm -rf $@ ${FOLDER_MINTLIB}
 	$(UNZIP) ${ARCHIVE_MINTLIB} > /dev/null
 	cd ${FOLDER_MINTLIB} && patch -p1 < ../mintlib.patch
+	cd ${FOLDER_MINTLIB} && patch -p1 < ../ctype.patch
 	touch $@
 
 mintbin-CVS-${VERSION_MINTBIN}.ok: mintbin-CVS-${VERSION_MINTBIN}.tar.gz mintbin.patch

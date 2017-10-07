@@ -1,4 +1,5 @@
-[![Build Status](https://travis-ci.org/mikrosk/m68k-atari-mint-build.svg?branch=master)](https://travis-ci.org/mikrosk/m68k-atari-mint-build)
+[![Build
+Status](https://travis-ci.org/mikrosk/m68k-atari-mint-build.svg?branch=gcc-4.6.4)](https://travis-ci.org/mikrosk/m68k-atari-mint-build)
 
 binutils, gcc, mintlib, pml and mintbin for m68k-atari-mint
 ===========================================================

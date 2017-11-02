@@ -35,7 +35,7 @@ VERSION_MINTBIN		= 20110527
 
 SH      = $(shell which sh)
 BASH    = $(shell which bash)
-URLGET	= $(shell which wget || echo "`which curl` -O")
+URLGET	= $(shell which wget || echo "`which curl` -L -O")
 UNZIP	= $(shell (which 7za > /dev/null && echo "`which 7za` x") || which unzip)
 
 # set to something like "> /dev/null" or ">> /tmp/mint-build.log"

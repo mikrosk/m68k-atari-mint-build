@@ -17,9 +17,9 @@ BRANCH_BINUTILS		= binutils-2_28-mint
 BRANCH_GCC		= gcc-7-mint
 BRANCH_MINTLIB		= master
 
-ARCHIVE_BINUTILS	= ${BRANCH_BINUTILS}.zip
-ARCHIVE_GCC		= ${BRANCH_GCC}.zip
-ARCHIVE_MINTLIB		= ${BRANCH_MINTLIB}.zip
+ARCHIVE_BINUTILS	= ${BRANCH_BINUTILS}.tar.gz
+ARCHIVE_GCC		= ${BRANCH_GCC}.tar.gz
+ARCHIVE_MINTLIB		= ${BRANCH_MINTLIB}.tar.gz
 
 FOLDER_BINUTILS		= ${REPOSITORY_BINUTILS}-${BRANCH_BINUTILS}
 FOLDER_GCC		= ${REPOSITORY_GCC}-${BRANCH_GCC}
@@ -36,7 +36,7 @@ VERSION_MINTBIN		= 20110527
 SH      = $(shell which sh)
 BASH    = $(shell which bash)
 URLGET	= $(shell which wget || echo "`which curl` -L -O")
-UNZIP	= $(shell (which 7za > /dev/null && echo "`which 7za` x") || which unzip)
+UNTAR	= $(shell echo "`which tar` xzf")
 
 # set to something like "> /dev/null" or ">> /tmp/mint-build.log"
 # to redirect compilation standard output
@@ -186,19 +186,19 @@ libc-m68k-atari-mint.ok: pml-${VERSION_PML}.ok mintbin-CVS-${VERSION_MINTBIN}.ok
 
 binutils-${VERSION_BINUTILS}.ok: ${ARCHIVE_BINUTILS}
 	rm -rf $@ ${FOLDER_BINUTILS}
-	$(UNZIP) ${ARCHIVE_BINUTILS} > /dev/null
+	$(UNTAR) ${ARCHIVE_BINUTILS} > /dev/null
 	touch $@
 
 gcc-${VERSION_GCC}.ok: ${ARCHIVE_GCC} gmp.patch
 	rm -rf $@ ${FOLDER_GCC}
-	$(UNZIP) ${ARCHIVE_GCC} > /dev/null
+	$(UNTAR) ${ARCHIVE_GCC} > /dev/null
 	cd ${FOLDER_GCC} && contrib/download_prerequisites
 	cd ${FOLDER_GCC} && patch -p0 < ../gmp.patch
 	touch $@
 
 mintlib.ok: ${ARCHIVE_MINTLIB} mintlib.patch
 	rm -rf $@ ${FOLDER_MINTLIB}
-	$(UNZIP) ${ARCHIVE_MINTLIB} > /dev/null
+	$(UNTAR) ${ARCHIVE_MINTLIB} > /dev/null
 	cd ${FOLDER_MINTLIB} && patch -p1 < ../mintlib.patch
 	touch $@
 

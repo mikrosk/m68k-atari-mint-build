@@ -76,7 +76,7 @@ do
 	if [ $clean -eq 0 ]; then
 		multilib_opts="$(echo $CPU_OPTS | sed "s/${opt}//;" | xargs | tr ' ' '/') mshort"
 		multilib_dirs="$(echo $CPU_DIRS | sed "s/${dir}//;" | xargs) mshort"
-		${MAKE} TARGET=$target gcc-multilib-patch OPTS="$multilib_opts" DIRS="$multilib_dirs" || exit 1
+		${MAKE} TARGET=$target gcc-multilib-patch OPTS="$multilib_opts" DIRS="$multilib_dirs" || more config.log
 
 		if [ $native_only -eq 0 ] ; then
 			${MAKE} TARGET=$target gcc-gmp-patch CPU='$$1' || exit 1

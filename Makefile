@@ -224,7 +224,7 @@ binutils-${VERSION_BINUTILS}-${CPU}-cross.ok: binutils-${TARGET}.ok
 	export PATH=${INSTALL_DIR}/bin:$$PATH && \
 	../${FOLDER_BINUTILS}/configure --target=${TARGET} --prefix=${INSTALL_DIR} --disable-nls --disable-werror \
 					--disable-gdb --disable-libdecnumber --disable-readline --disable-sim && \
-	$(MAKE) -j3 $(OUT) && \
+	$(MAKE) -j $(OUT) && \
 	$(MAKE) install-strip $(OUT)
 	touch $@
 
@@ -254,7 +254,7 @@ gcc-${VERSION_GCC}-${CPU}-cross-preliminary.ok: gcc-${TARGET}.ok
 		--enable-languages=c \
 		--disable-multilib \
 		--disable-libstdcxx-pch && \
-	$(MAKE) -j3 all-gcc all-target-libgcc $(OUT) && \
+	$(MAKE) -j all-gcc all-target-libgcc $(OUT) && \
 	$(MAKE) install-gcc install-target-libgcc $(OUT)
 	touch $@
 
@@ -312,7 +312,7 @@ gcc-${VERSION_GCC}-${CPU}-cross-final.ok: ${INSTALL_DIR}/${TARGET}/lib/libc.a ${
 		--disable-libstdcxx-pch \
 		--disable-libgomp \
 		--with-cpu=${CPU} && \
-	$(MAKE) -j3 $(OUT) && \
+	$(MAKE) -j $(OUT) && \
 	$(MAKE) install-strip $(OUT)
 	touch $@
 
@@ -332,7 +332,7 @@ binutils-${VERSION_BINUTILS}-${CPU}-atari.ok: binutils-${TARGET}.ok
 	export PATH=${INSTALL_DIR}/bin:$$PATH CFLAGS="-O2 -fomit-frame-pointer" CXXFLAGS="-O2 -fomit-frame-pointer" && \
 	../${FOLDER_BINUTILS}/configure --target=${TARGET} --host=${TARGET} --disable-nls --prefix=/usr \
 					--disable-gdb --disable-libdecnumber --disable-readline --disable-sim && \
-	$(MAKE) -j3 $(OUT) && \
+	$(MAKE) -j $(OUT) && \
 	$(MAKE) install DESTDIR=${PWD}/binary-package/${CPU}/binutils-${VERSION_BINUTILS}	# make install-strip doesn't work properly
 	touch $@
 
@@ -353,7 +353,7 @@ gcc-${VERSION_GCC}-${CPU}-atari.ok: gcc-${TARGET}.ok disable_ftw.sh
 		--disable-libstdcxx-pch \
 		--disable-libgomp \
 		--with-cpu=${CPU} && \
-	$(MAKE) -j3 $(OUT) && \
+	$(MAKE) -j $(OUT) && \
 	$(MAKE) install-strip DESTDIR=${PWD}/binary-package/${CPU}/gcc-${VERSION_GCC} $(OUT)
 	touch $@
 

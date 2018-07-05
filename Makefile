@@ -1,7 +1,7 @@
 # Atari cross- and native-binutils/gcc toolchain build Makefile
 # Miro Kropacek aka MiKRO / Mystic Bytes
 # miro.kropacek@gmail.com
-# version 4.0.0 (2017/09/22)
+# version 4.0.1 (2018/05/17)
 
 # please note you need the bash shell for correct compilation of mintlib.
 
@@ -13,7 +13,7 @@ GITHUB_URL_BINUTILS	= https://github.com/freemint/${REPOSITORY_BINUTILS}/archive
 GITHUB_URL_GCC		= https://github.com/freemint/${REPOSITORY_GCC}/archive
 GITHUB_URL_MINTLIB	= https://github.com/freemint/${REPOSITORY_MINTLIB}/archive
 
-BRANCH_BINUTILS		= binutils-2_28-mint
+BRANCH_BINUTILS		= binutils-2_30-mint
 BRANCH_GCC		= gcc-7-mint
 BRANCH_MINTLIB		= master
 
@@ -27,7 +27,7 @@ FOLDER_MINTLIB		= ${REPOSITORY_MINTLIB}-${BRANCH_MINTLIB}
 
 PATCH_PML		= 20110207
 
-VERSION_BINUTILS	= 2.28
+VERSION_BINUTILS	= 2.30
 VERSION_GCC		= 7.2.0
 
 VERSION_PML		= 2.03

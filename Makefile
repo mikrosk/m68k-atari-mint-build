@@ -10,7 +10,7 @@ REPOSITORY_GCC		= m68k-atari-mint-gcc
 REPOSITORY_MINTLIB	= mintlib
 
 GITHUB_URL_BINUTILS	= https://github.com/freemint/${REPOSITORY_BINUTILS}/archive
-GITHUB_URL_GCC		= https://github.com/mikrosk/${REPOSITORY_GCC}/archive
+GITHUB_URL_GCC		= https://github.com/freemint/${REPOSITORY_GCC}/archive
 GITHUB_URL_MINTLIB	= https://github.com/freemint/${REPOSITORY_MINTLIB}/archive
 
 BRANCH_BINUTILS		= binutils-2_30-mint

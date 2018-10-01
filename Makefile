@@ -1,29 +1,37 @@
 # Atari cross- and native-binutils/gcc toolchain build Makefile
 # Miro Kropacek aka MiKRO / Mystic Bytes
 # miro.kropacek@gmail.com
-# version 4.0.1 (2018/05/17)
+# version 4.1.0 (2018/10/03)
 
 # please note you need the bash shell for correct compilation of mintlib.
 
 REPOSITORY_BINUTILS	= m68k-atari-mint-binutils-gdb
 REPOSITORY_GCC		= m68k-atari-mint-gcc
 REPOSITORY_MINTLIB	= mintlib
+REPOSITORY_MINTBIN	= mintbin
 
 GITHUB_URL_BINUTILS	= https://github.com/freemint/${REPOSITORY_BINUTILS}/archive
-GITHUB_URL_GCC		= https://github.com/mikrosk/${REPOSITORY_GCC}/archive
+GITHUB_URL_GCC		= https://github.com/freemint/${REPOSITORY_GCC}/archive
 GITHUB_URL_MINTLIB	= https://github.com/freemint/${REPOSITORY_MINTLIB}/archive
+GITHUB_URL_MINTBIN	= https://github.com/freemint/${REPOSITORY_MINTBIN}/archive
 
 BRANCH_BINUTILS		= binutils-2_30-mint
 BRANCH_GCC		= gcc-7-mint
 BRANCH_MINTLIB		= master
+BRANCH_MINTBIN		= master
 
 ARCHIVE_BINUTILS	= ${BRANCH_BINUTILS}.tar.gz
 ARCHIVE_GCC		= ${BRANCH_GCC}.tar.gz
 ARCHIVE_MINTLIB		= ${BRANCH_MINTLIB}.tar.gz
+ARCHIVE_MINTBIN		= ${BRANCH_MINTBIN}.tar.gz
 
 FOLDER_BINUTILS		= ${REPOSITORY_BINUTILS}-${BRANCH_BINUTILS}
 FOLDER_GCC		= ${REPOSITORY_GCC}-${BRANCH_GCC}
 FOLDER_MINTLIB		= ${REPOSITORY_MINTLIB}-${BRANCH_MINTLIB}
+FOLDER_MINTBIN		= ${REPOSITORY_MINTBIN}-${BRANCH_MINTBIN}
+
+ARCHIVE_PATH_MINTLIB	= tmp-${REPOSITORY_MINTLIB}
+ARCHIVE_PATH_MINTBIN	= tmp-${REPOSITORY_MINTBIN}
 
 PATCH_PML		= 20110207
 
@@ -31,7 +39,6 @@ VERSION_BINUTILS	= 2.30
 VERSION_GCC		= 7.3.0
 
 VERSION_PML		= 2.03
-VERSION_MINTBIN		= 20110527
 
 SH      = $(shell which sh)
 BASH    = $(shell which bash)
@@ -42,10 +49,8 @@ UNTAR	= $(shell echo "`which tar` xzf")
 # to redirect compilation standard output
 OUT =
 
-DOWNLOADS = ${ARCHIVE_BINUTILS} ${ARCHIVE_GCC} ${ARCHIVE_MINTLIB} \
-        pml-${VERSION_PML}.tar.bz2 \
-	    mintbin-CVS-${VERSION_MINTBIN}.tar.gz \
-	    pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2
+DOWNLOADS = ${ARCHIVE_BINUTILS} ${ARCHIVE_GCC} ${ARCHIVE_PATH_MINTLIB}/${ARCHIVE_MINTLIB} ${ARCHIVE_PATH_MINTBIN}/${ARCHIVE_MINTBIN} \
+        pml-${VERSION_PML}.tar.bz2 pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2
 
 .PHONY: help download clean \
 	clean-all       clean-all-skip-native       clean-native           all       all-skip-native       all-native \
@@ -150,13 +155,19 @@ ${ARCHIVE_BINUTILS}:
 ${ARCHIVE_GCC}:
 	$(URLGET) ${GITHUB_URL_GCC}/$@
 
-${ARCHIVE_MINTLIB}:
-	$(URLGET) ${GITHUB_URL_MINTLIB}/$@
+${ARCHIVE_PATH_MINTLIB}/${ARCHIVE_MINTLIB}:
+	rm -rf ${ARCHIVE_PATH_MINTLIB} && \
+	mkdir -p ${ARCHIVE_PATH_MINTLIB} && \
+	cd ${ARCHIVE_PATH_MINTLIB} && \
+	$(URLGET) ${GITHUB_URL_MINTLIB}/${ARCHIVE_MINTLIB}
+
+${ARCHIVE_PATH_MINTBIN}/${ARCHIVE_MINTBIN}:
+	rm -rf ${ARCHIVE_PATH_MINTBIN} && \
+	mkdir -p ${ARCHIVE_PATH_MINTBIN} && \
+	cd ${ARCHIVE_PATH_MINTBIN} && \
+	$(URLGET) ${GITHUB_URL_MINTBIN}/${ARCHIVE_MINTBIN}
 
 pml-${VERSION_PML}.tar.bz2:
-	$(URLGET) http://vincent.riviere.free.fr/soft/m68k-atari-mint/archives/$@
-
-mintbin-CVS-${VERSION_MINTBIN}.tar.gz:
 	$(URLGET) http://vincent.riviere.free.fr/soft/m68k-atari-mint/archives/$@
 
 # Download ${TARGET}-specific patches
@@ -178,7 +189,7 @@ gcc-m68k-atari-mint.ok: gcc-${VERSION_GCC}.ok
 	# target specific patches here
 	touch $@
 
-libc-m68k-atari-mint.ok: pml-${VERSION_PML}.ok mintbin-CVS-${VERSION_MINTBIN}.ok mintlib.ok
+libc-m68k-atari-mint.ok: pml-${VERSION_PML}.ok mintbin.ok mintlib.ok
 	# target specific patches here
 	touch $@
 
@@ -189,23 +200,21 @@ binutils-${VERSION_BINUTILS}.ok: ${ARCHIVE_BINUTILS}
 	$(UNTAR) ${ARCHIVE_BINUTILS} > /dev/null
 	touch $@
 
-gcc-${VERSION_GCC}.ok: ${ARCHIVE_GCC} gmp.patch
+gcc-${VERSION_GCC}.ok: ${ARCHIVE_GCC}
 	rm -rf $@ ${FOLDER_GCC}
 	$(UNTAR) ${ARCHIVE_GCC} > /dev/null
 	cd ${FOLDER_GCC} && contrib/download_prerequisites
-	cd ${FOLDER_GCC} && patch -p0 < ../gmp.patch
 	touch $@
 
-mintlib.ok: ${ARCHIVE_MINTLIB} mintlib.patch
+mintlib.ok: ${ARCHIVE_PATH_MINTLIB}/${ARCHIVE_MINTLIB} mintlib.patch
 	rm -rf $@ ${FOLDER_MINTLIB}
-	$(UNTAR) ${ARCHIVE_MINTLIB} > /dev/null
+	$(UNTAR) ${ARCHIVE_PATH_MINTLIB}/${ARCHIVE_MINTLIB} > /dev/null
 	cd ${FOLDER_MINTLIB} && patch -p1 < ../mintlib.patch
 	touch $@
 
-mintbin-CVS-${VERSION_MINTBIN}.ok: mintbin-CVS-${VERSION_MINTBIN}.tar.gz mintbin.patch
-	rm -rf $@ mintbin-CVS-${VERSION_MINTBIN}
-	tar xzf mintbin-CVS-${VERSION_MINTBIN}.tar.gz
-	cd mintbin-CVS-${VERSION_MINTBIN} && patch -p1 < ../mintbin.patch
+mintbin.ok: ${ARCHIVE_PATH_MINTBIN}/${ARCHIVE_MINTBIN}
+	rm -rf $@ ${FOLDER_MINTBIN}
+	$(UNTAR) ${ARCHIVE_PATH_MINTBIN}/${ARCHIVE_MINTBIN} > /dev/null
 	touch $@
 
 pml-${VERSION_PML}.ok: pml-${VERSION_PML}.tar.bz2 pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2 pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2
@@ -224,7 +233,7 @@ binutils-${VERSION_BINUTILS}-${CPU}-cross.ok: binutils-${TARGET}.ok
 	export PATH=${INSTALL_DIR}/bin:$$PATH && \
 	../${FOLDER_BINUTILS}/configure --target=${TARGET} --prefix=${INSTALL_DIR} --disable-nls --disable-werror \
 					--disable-gdb --disable-libdecnumber --disable-readline --disable-sim && \
-	$(MAKE) -j $(OUT) && \
+	$(MAKE) -j3 $(OUT) && \
 	$(MAKE) install-strip $(OUT)
 	touch $@
 
@@ -254,19 +263,11 @@ gcc-${VERSION_GCC}-${CPU}-cross-preliminary.ok: gcc-${TARGET}.ok
 		--enable-languages=c \
 		--disable-multilib \
 		--disable-libstdcxx-pch && \
-	$(MAKE) -j all-gcc all-target-libgcc $(OUT) && \
+	$(MAKE) -j3 all-gcc all-target-libgcc $(OUT) && \
 	$(MAKE) install-gcc install-target-libgcc $(OUT)
 	touch $@
 
 # Shortcuts
-
-gcc-multilib-patch: gcc-${TARGET}.ok
-	sed -e "s:\(MULTILIB_OPTIONS =\).*:\1 ${OPTS}:" -e "s:\(MULTILIB_DIRNAMES =\).*:\1 ${DIRS}:" ${FOLDER_GCC}/gcc/config/m68k/t-mint > t-mint.patched
-	mv t-mint.patched ${FOLDER_GCC}/gcc/config/m68k/t-mint
-
-gcc-gmp-patch: gcc-${TARGET}.ok
-	sed -e 's/^host_cpu=.*$$/host_cpu=${CPU}/;' ${FOLDER_GCC}/gmp/configure > configure.patched
-	mv configure.patched ${FOLDER_GCC}/gmp/configure  && chmod +x ${FOLDER_GCC}/gmp/configure
 
 gcc-preliminary: gcc-${VERSION_GCC}-${CPU}-cross-preliminary.ok
 
@@ -280,12 +281,12 @@ mintlib: libc-${TARGET}.ok
 		$(MAKE) OUT= toolprefix=${TARGET}- SHELL=$(BASH) CROSS=yes WITH_020_LIB=no WITH_V4E_LIB=no install $(OUT)
 
 mintbin: libc-${TARGET}.ok
-	cd mintbin-CVS-${VERSION_MINTBIN} && \
+	-cd ${FOLDER_MINTBIN} && $(MAKE) OUT= distclean $(OUT)
+	cd ${FOLDER_MINTBIN} && \
 		export PATH=${INSTALL_DIR}/bin:$$PATH && \
 		./configure --target=${TARGET} --prefix=${INSTALL_DIR} --disable-nls
-	cd mintbin-CVS-${VERSION_MINTBIN} && $(MAKE) OUT= $(OUT)
-	cd mintbin-CVS-${VERSION_MINTBIN} && $(MAKE) OUT= install $(OUT)
-	mv -v ${INSTALL_DIR}/${TARGET}/bin/${TARGET}-* ${INSTALL_DIR}/bin
+	cd ${FOLDER_MINTBIN} && $(MAKE) OUT= $(OUT)
+	cd ${FOLDER_MINTBIN} && $(MAKE) OUT= install $(OUT)
 
 pml: libc-${TARGET}.ok
 	cd pml-${VERSION_PML}/pmlsrc && $(MAKE) clean LIB="$(DIR)" $(OUT)
@@ -312,7 +313,7 @@ gcc-${VERSION_GCC}-${CPU}-cross-final.ok: ${INSTALL_DIR}/${TARGET}/lib/libc.a ${
 		--disable-libstdcxx-pch \
 		--disable-libgomp \
 		--with-cpu=${CPU} && \
-	$(MAKE) -j $(OUT) && \
+	$(MAKE) -j3 $(OUT) && \
 	$(MAKE) install-strip $(OUT)
 	touch $@
 
@@ -332,17 +333,16 @@ binutils-${VERSION_BINUTILS}-${CPU}-atari.ok: binutils-${TARGET}.ok
 	export PATH=${INSTALL_DIR}/bin:$$PATH CFLAGS="-O2 -fomit-frame-pointer" CXXFLAGS="-O2 -fomit-frame-pointer" && \
 	../${FOLDER_BINUTILS}/configure --target=${TARGET} --host=${TARGET} --disable-nls --prefix=/usr \
 					--disable-gdb --disable-libdecnumber --disable-readline --disable-sim && \
-	$(MAKE) -j $(OUT) && \
-	$(MAKE) install DESTDIR=${PWD}/binary-package/${CPU}/binutils-${VERSION_BINUTILS}	# make install-strip doesn't work properly
+	$(MAKE) -j3 $(OUT) && \
+	$(MAKE) install-strip DESTDIR=${PWD}/binary-package/${CPU}/binutils-${VERSION_BINUTILS}
 	touch $@
 
 binutils-atari: check-target-gcc binutils-${VERSION_BINUTILS}-${CPU}-atari.ok
 
-gcc-${VERSION_GCC}-${CPU}-atari.ok: gcc-${TARGET}.ok disable_ftw.sh
+gcc-${VERSION_GCC}-${CPU}-atari.ok: gcc-${TARGET}.ok
 	rm -rf $@ ${FOLDER_GCC}-${CPU}-atari
 	mkdir -p ${FOLDER_GCC}-${CPU}-atari
 	cd ${FOLDER_GCC}-${CPU}-atari && \
-	../disable_ftw.sh && \
 	export PATH=${INSTALL_DIR}/bin:$$PATH CFLAGS="-O2 -fomit-frame-pointer" CXXFLAGS="-O2 -fomit-frame-pointer" && \
 	../${FOLDER_GCC}/configure \
 		--prefix=/usr \
@@ -353,7 +353,7 @@ gcc-${VERSION_GCC}-${CPU}-atari.ok: gcc-${TARGET}.ok disable_ftw.sh
 		--disable-libstdcxx-pch \
 		--disable-libgomp \
 		--with-cpu=${CPU} && \
-	$(MAKE) -j $(OUT) && \
+	$(MAKE) -j3 $(OUT) && \
 	$(MAKE) install-strip DESTDIR=${PWD}/binary-package/${CPU}/gcc-${VERSION_GCC} $(OUT)
 	touch $@
 
@@ -366,7 +366,8 @@ clean-source:
 	rm -rf ${FOLDER_GCC}
 	rm -rf ${FOLDER_MINTLIB}
 	rm -rf pml-${VERSION_PML}
-	rm -rf mintbin-CVS-${VERSION_MINTBIN}
+	rm -rf ${FOLDER_MINTBIN}
+	rm -rf ${ARCHIVE_PATH_MINTLIB} ${ARCHIVE_PATH_MINTBIN}
 	rm -f *.ok
 	rm -f *~
 

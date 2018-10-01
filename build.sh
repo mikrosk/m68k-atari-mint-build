@@ -74,12 +74,7 @@ do
 	simple_cpu=$(echo $cpu | cut -d '-' -f 1)
 
 	if [ $clean -eq 0 ]; then
-		multilib_opts="$(echo $CPU_OPTS | sed "s/${opt}//;" | xargs | tr ' ' '/') mshort"
-		multilib_dirs="$(echo $CPU_DIRS | sed "s/${dir}//;" | xargs) mshort"
-		${MAKE} TARGET=$target gcc-multilib-patch OPTS="$multilib_opts" DIRS="$multilib_dirs" || more config.log
-
 		if [ $native_only -eq 0 ] ; then
-			${MAKE} TARGET=$target gcc-gmp-patch CPU='$$1' || exit 1
 			${MAKE} TARGET=$target binutils gcc-preliminary mintbin INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
 
 			# build mintlib and pml for all targets
@@ -100,7 +95,6 @@ do
 
 		if [ $skip_native -eq 0 ] ; then
 			${MAKE} TARGET=$target binutils-atari INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" OPT="$opt" || exit 1
-			${MAKE} TARGET=$target gcc-gmp-patch  CPU="$simple_cpu" || exit 1
 			${MAKE} TARGET=$target gcc-atari      INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" OPT="$opt" || exit 1
 		fi
 	else

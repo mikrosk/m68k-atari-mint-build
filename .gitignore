@@ -7,9 +7,8 @@ binutils-*
 m68k-atari-mint-binutils-gdb-*/
 gcc-*
 m68k-atari-mint-gcc-*/
-master.zip
-mintlib-master
-mintbin-CVS-????????/
+mintlib-master/
+mintbin-master/
 pml-2.03/
 binary-package/
 gmp-*.*/
@@ -17,3 +16,5 @@ mpc-*.*
 mpfr-*.*/
 
 *.ok
+
+*~

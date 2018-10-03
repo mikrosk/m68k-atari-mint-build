@@ -95,6 +95,7 @@ do
 
 		if [ $skip_native -eq 0 ] ; then
 			${MAKE} TARGET=$target binutils-atari INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" OPT="$opt" || exit 1
+			${MAKE} TARGET=$target gcc-gmp-patch  CPU="$simple_cpu" || exit 1
 			${MAKE} TARGET=$target gcc-atari      INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" OPT="$opt" || exit 1
 		fi
 	else

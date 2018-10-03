@@ -11,12 +11,12 @@ REPOSITORY_MINTLIB	= mintlib
 REPOSITORY_MINTBIN	= mintbin
 
 GITHUB_URL_BINUTILS	= https://github.com/freemint/${REPOSITORY_BINUTILS}/archive
-GITHUB_URL_GCC		= https://github.com/freemint/${REPOSITORY_GCC}/archive
+GITHUB_URL_GCC		= https://github.com/mikrosk/${REPOSITORY_GCC}/archive
 GITHUB_URL_MINTLIB	= https://github.com/freemint/${REPOSITORY_MINTLIB}/archive
 GITHUB_URL_MINTBIN	= https://github.com/freemint/${REPOSITORY_MINTBIN}/archive
 
 BRANCH_BINUTILS		= binutils-2_30-mint
-BRANCH_GCC		= gcc-7-mint
+BRANCH_GCC		= gcc-7-mint-asm
 BRANCH_MINTLIB		= master
 BRANCH_MINTBIN		= master
 
@@ -200,10 +200,11 @@ binutils-${VERSION_BINUTILS}.ok: ${ARCHIVE_BINUTILS}
 	$(UNTAR) ${ARCHIVE_BINUTILS} > /dev/null
 	touch $@
 
-gcc-${VERSION_GCC}.ok: ${ARCHIVE_GCC}
+gcc-${VERSION_GCC}.ok: ${ARCHIVE_GCC} gmp.patch
 	rm -rf $@ ${FOLDER_GCC}
 	$(UNTAR) ${ARCHIVE_GCC} > /dev/null
 	cd ${FOLDER_GCC} && contrib/download_prerequisites
+	cd ${FOLDER_GCC} && patch -p0 < ../gmp.patch
 	touch $@
 
 mintlib.ok: ${ARCHIVE_PATH_MINTLIB}/${ARCHIVE_MINTLIB} mintlib.patch
@@ -268,6 +269,10 @@ gcc-${VERSION_GCC}-${CPU}-cross-preliminary.ok: gcc-${TARGET}.ok
 	touch $@
 
 # Shortcuts
+
+gcc-gmp-patch: gcc-${TARGET}.ok
+	sed -e 's/^host_cpu=.*$$/host_cpu=${CPU}/;' ${FOLDER_GCC}/gmp/configure > configure.patched
+	mv configure.patched ${FOLDER_GCC}/gmp/configure  && chmod +x ${FOLDER_GCC}/gmp/configure
 
 gcc-preliminary: gcc-${VERSION_GCC}-${CPU}-cross-preliminary.ok
 

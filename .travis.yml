@@ -1,7 +1,7 @@
 language: c
 
 os:
-  - osx
+#  - osx
   - linux
 
 sudo: false

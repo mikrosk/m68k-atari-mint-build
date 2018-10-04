@@ -200,10 +200,11 @@ binutils-${VERSION_BINUTILS}.ok: ${ARCHIVE_BINUTILS}
 	$(UNTAR) ${ARCHIVE_BINUTILS} > /dev/null
 	touch $@
 
-gcc-${VERSION_GCC}.ok: ${ARCHIVE_GCC}
+gcc-${VERSION_GCC}.ok: ${ARCHIVE_GCC} gmp.patch
 	rm -rf $@ ${FOLDER_GCC}
 	$(UNTAR) ${ARCHIVE_GCC} > /dev/null
 	cd ${FOLDER_GCC} && contrib/download_prerequisites
+	cd ${FOLDER_GCC} && patch -p1 < ../gmp.patch
 	touch $@
 
 mintlib.ok: ${ARCHIVE_PATH_MINTLIB}/${ARCHIVE_MINTLIB} mintlib.patch
@@ -367,7 +368,6 @@ clean-source:
 	rm -rf ${FOLDER_MINTLIB}
 	rm -rf pml-${VERSION_PML}
 	rm -rf ${FOLDER_MINTBIN}
-	rm -rf ${ARCHIVE_PATH_MINTLIB} ${ARCHIVE_PATH_MINTBIN}
 	rm -f *.ok
 	rm -f *~
 

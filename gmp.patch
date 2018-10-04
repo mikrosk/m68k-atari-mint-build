@@ -1,0 +1,94 @@
+diff -ru m68k-atari-mint-gcc-gcc-7-mint.old/Makefile.def m68k-atari-mint-gcc-gcc-7-mint/Makefile.def
+--- m68k-atari-mint-gcc-gcc-7-mint.old/Makefile.def	2018-10-01 19:57:35.000000000 +0200
++++ m68k-atari-mint-gcc-gcc-7-mint/Makefile.def	2018-10-04 09:55:37.387250120 +0200
+@@ -49,7 +49,7 @@
+ 		extra_make_flags="$(EXTRA_GCC_FLAGS)"; };
+ host_modules= { module= gmp; lib_path=.libs; bootstrap=true;
+ 		// Work around in-tree gmp configure bug with missing flex.
+-		extra_configure_flags='--disable-shared LEX="touch lex.yy.c"';
++		extra_configure_flags='--disable-shared LEX="touch lex.yy.c" --disable-assembly';
+ 		extra_make_flags='AM_CFLAGS="-DNO_ASM"';
+ 		no_install= true;
+ 		// none-*-* disables asm optimizations, bootstrap-testing
+diff -ru m68k-atari-mint-gcc-gcc-7-mint.old/Makefile.in m68k-atari-mint-gcc-gcc-7-mint/Makefile.in
+--- m68k-atari-mint-gcc-gcc-7-mint.old/Makefile.in	2018-10-01 19:57:35.000000000 +0200
++++ m68k-atari-mint-gcc-gcc-7-mint/Makefile.in	2018-10-04 10:04:55.000000000 +0200
+@@ -12017,7 +12017,7 @@
+ 	  $$s/$$module_srcdir/configure \
+ 	  --srcdir=$${topdir}/$$module_srcdir \
+ 	  $(HOST_CONFIGARGS) --build=${build_alias} --host=none-${host_vendor}-${host_os} \
+-	  --target=none-${host_vendor}-${host_os} --disable-shared LEX="touch lex.yy.c" \
++	  --target=none-${host_vendor}-${host_os} --disable-shared LEX="touch lex.yy.c" --disable-assembly \
+ 	  || exit 1
+ @endif gmp
+ 
+@@ -12053,7 +12053,7 @@
+ 	  --target=none-${host_vendor}-${host_os} \
+ 	   \
+ 	  $(STAGE1_CONFIGURE_FLAGS) \
+-	  --disable-shared LEX="touch lex.yy.c"
++	  --disable-shared LEX="touch lex.yy.c" --disable-assembly
+ @endif gmp-bootstrap
+ 
+ .PHONY: configure-stage2-gmp maybe-configure-stage2-gmp
+@@ -12087,7 +12087,7 @@
+ 	  --target=none-${host_vendor}-${host_os} \
+ 	  --with-build-libsubdir=$(HOST_SUBDIR) \
+ 	  $(STAGE2_CONFIGURE_FLAGS) \
+-	  --disable-shared LEX="touch lex.yy.c"
++	  --disable-shared LEX="touch lex.yy.c" --disable-assembly
+ @endif gmp-bootstrap
+ 
+ .PHONY: configure-stage3-gmp maybe-configure-stage3-gmp
+@@ -12121,7 +12121,7 @@
+ 	  --target=none-${host_vendor}-${host_os} \
+ 	  --with-build-libsubdir=$(HOST_SUBDIR) \
+ 	  $(STAGE3_CONFIGURE_FLAGS) \
+-	  --disable-shared LEX="touch lex.yy.c"
++	  --disable-shared LEX="touch lex.yy.c" --disable-assembly
+ @endif gmp-bootstrap
+ 
+ .PHONY: configure-stage4-gmp maybe-configure-stage4-gmp
+@@ -12155,7 +12155,7 @@
+ 	  --target=none-${host_vendor}-${host_os} \
+ 	  --with-build-libsubdir=$(HOST_SUBDIR) \
+ 	  $(STAGE4_CONFIGURE_FLAGS) \
+-	  --disable-shared LEX="touch lex.yy.c"
++	  --disable-shared LEX="touch lex.yy.c" --disable-assembly
+ @endif gmp-bootstrap
+ 
+ .PHONY: configure-stageprofile-gmp maybe-configure-stageprofile-gmp
+@@ -12189,7 +12189,7 @@
+ 	  --target=none-${host_vendor}-${host_os} \
+ 	  --with-build-libsubdir=$(HOST_SUBDIR) \
+ 	  $(STAGEprofile_CONFIGURE_FLAGS) \
+-	  --disable-shared LEX="touch lex.yy.c"
++	  --disable-shared LEX="touch lex.yy.c" --disable-assembly
+ @endif gmp-bootstrap
+ 
+ .PHONY: configure-stagefeedback-gmp maybe-configure-stagefeedback-gmp
+@@ -12223,7 +12223,7 @@
+ 	  --target=none-${host_vendor}-${host_os} \
+ 	  --with-build-libsubdir=$(HOST_SUBDIR) \
+ 	  $(STAGEfeedback_CONFIGURE_FLAGS) \
+-	  --disable-shared LEX="touch lex.yy.c"
++	  --disable-shared LEX="touch lex.yy.c" --disable-assembly
+ @endif gmp-bootstrap
+ 
+ .PHONY: configure-stageautoprofile-gmp maybe-configure-stageautoprofile-gmp
+@@ -12257,7 +12257,7 @@
+ 	  --target=none-${host_vendor}-${host_os} \
+ 	  --with-build-libsubdir=$(HOST_SUBDIR) \
+ 	  $(STAGEautoprofile_CONFIGURE_FLAGS) \
+-	  --disable-shared LEX="touch lex.yy.c"
++	  --disable-shared LEX="touch lex.yy.c" --disable-assembly
+ @endif gmp-bootstrap
+ 
+ .PHONY: configure-stageautofeedback-gmp maybe-configure-stageautofeedback-gmp
+@@ -12291,7 +12291,7 @@
+ 	  --target=none-${host_vendor}-${host_os} \
+ 	  --with-build-libsubdir=$(HOST_SUBDIR) \
+ 	  $(STAGEautofeedback_CONFIGURE_FLAGS) \
+-	  --disable-shared LEX="touch lex.yy.c"
++	  --disable-shared LEX="touch lex.yy.c" --disable-assembly
+ @endif gmp-bootstrap

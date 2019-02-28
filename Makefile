@@ -200,9 +200,10 @@ binutils-${VERSION_BINUTILS}.ok: ${ARCHIVE_BINUTILS}
 	$(UNTAR) ${ARCHIVE_BINUTILS} > /dev/null
 	touch $@
 
-gcc-${VERSION_GCC}.ok: ${ARCHIVE_GCC} gmp.patch
+gcc-${VERSION_GCC}.ok: ${ARCHIVE_GCC} gmp.patch download_prerequisites.patch
 	rm -rf $@ ${FOLDER_GCC}
 	$(UNTAR) ${ARCHIVE_GCC} > /dev/null
+	cd ${FOLDER_GCC} && patch -p1 < ../download_prerequisites.patch
 	cd ${FOLDER_GCC} && contrib/download_prerequisites
 	cd ${FOLDER_GCC} && patch -p1 < ../gmp.patch
 	touch $@

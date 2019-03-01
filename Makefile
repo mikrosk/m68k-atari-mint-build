@@ -36,7 +36,7 @@ ARCHIVE_PATH_MINTBIN	= tmp-${REPOSITORY_MINTBIN}
 PATCH_PML		= 20110207
 
 VERSION_BINUTILS	= 2.30
-VERSION_GCC		= 7.3.0
+VERSION_GCC		= 7.4.0
 
 VERSION_PML		= 2.03
 
@@ -317,6 +317,18 @@ gcc-${VERSION_GCC}-${CPU}-cross-final.ok: ${INSTALL_DIR}/${TARGET}/lib/libc.a ${
 		--with-cpu=${CPU} && \
 	$(MAKE) -j3 $(OUT) && \
 	$(MAKE) install-strip $(OUT)
+	cd "${INSTALL_DIR}/lib/gcc/${TARGET}/${VERSION_GCC}/include-fixed" && \
+	for f in $$(find . -type f); \
+	do \
+		case "$$f" in \
+			./README | ./limits.h | ./syslimits.h) ;; \
+			*) echo "Removing fixed include file $$f"; rm "$$f" ;; \
+		esac \
+	done && \
+	for d in $$(find . -depth -type d); \
+	do \
+		test "$$d" = "." || rmdir "$$d"; \
+	done
 	touch $@
 
 gcc: gcc-${VERSION_GCC}-${CPU}-cross-final.ok
@@ -378,14 +390,35 @@ clean-cross:
 	rm -rf ${FOLDER_GCC}-${CPU}-cross-final
 
 pack-atari:
+	cd ${PWD}/binary-package/${CPU}/gcc-${VERSION_GCC}/usr/lib/gcc/${TARGET}/${VERSION_GCC}/include-fixed && \
+	for f in $$(find . -type f); \
+	do \
+		case "$$f" in \
+			./README | ./limits.h | ./syslimits.h) ;; \
+			*) echo "Removing fixed include file $$f"; rm "$$f" ;; \
+		esac \
+	done && \
+	for d in $$(find . -depth -type d); \
+	do \
+		test "$$d" = "." || rmdir "$$d"; \
+	done
 	for dir in binutils-${VERSION_BINUTILS} gcc-${VERSION_GCC}; \
 	do \
 		cd ${PWD}/binary-package/${CPU}/$$dir && tar cjf ../$$dir-${CPU}mint.tar.bz2 usr && cd ..; \
 	done
 
 strip-atari:
-	PATH=${INSTALL_DIR}/bin:$$PATH find ${PWD}/binary-package -type f -perm -a=x -exec ${TARGET}-strip -s {} \;
-	PATH=${INSTALL_DIR}/bin:$$PATH find ${PWD}/binary-package -type f -name '*.a' -exec ${TARGET}-strip -S -X -w -N '.L[0-9]*' {} \;
+	for f in cc1 cc1plus lto1; \
+	do \
+		PATH=${INSTALL_DIR}/bin:$$PATH ${TARGET}-stack --fix=1024k "${PWD}/binary-package/${CPU}/gcc-${VERSION_GCC}/usr/libexec/gcc/${TARGET}/${VERSION_GCC}/$$f"; \
+	done
+	PATH=${INSTALL_DIR}/bin:$$PATH ${TARGET}-stack --fix=192k "${PWD}/binary-package/${CPU}/gcc-${VERSION_GCC}/usr/libexec/gcc/${TARGET}/${VERSION_GCC}/collect2"
+	for f in c++ cpp g++ gcc ${TARGET}-c++ ${TARGET}-g++ ${TARGET}-gcc ${TARGET}-gcc-${VERSION_GCC}; \
+	do \
+		PATH=${INSTALL_DIR}/bin:$$PATH ${TARGET}-stack --fix=192k "${PWD}/binary-package/${CPU}/gcc-${VERSION_GCC}/usr/bin/$$f"; \
+	done
+	PATH=${INSTALL_DIR}/bin:$$PATH find "${PWD}/binary-package/${CPU}" -type f -perm -a=x -exec ${TARGET}-strip -s {} \;
+	PATH=${INSTALL_DIR}/bin:$$PATH find "${PWD}/binary-package/${CPU}" -type f -name '*.a' -exec ${TARGET}-strip -S -X -w -N '.L[0-9]*' {} \;
 
 clean-atari:
 	rm -rf ${FOLDER_BINUTILS}-${CPU}-atari

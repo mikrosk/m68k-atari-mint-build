@@ -96,6 +96,8 @@ do
 		if [ $skip_native -eq 0 ] ; then
 			${MAKE} TARGET=$target binutils-atari INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" OPT="$opt" || exit 1
 			${MAKE} TARGET=$target gcc-atari      INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" OPT="$opt" || exit 1
+			${MAKE} TARGET=$target strip-atari    INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
+			${MAKE} TARGET=$target pack-atari     INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
 		fi
 	else
 		if [ $native_only -eq 0 ] ; then
@@ -107,17 +109,3 @@ do
 		fi
 	fi
 done
-
-if [ $skip_native -eq 0 ] && [ $clean -eq 0 ] ; then
-	# use either 'strip'
-	i=$(echo $indices | cut -d " " -f 1)
-	dir=$(echo $CPU_DIRS | cut -d " " -f $i)
-	${MAKE} TARGET=$target strip-atari INSTALL_DIR="$INSTALL_DIR/$dir"
-
-	for i in $indices
-	do
-		cpu=$(echo $CPU_CPUS | cut -d ' ' -f $i)
-		${MAKE} TARGET=$target pack-atari INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
-	done
-
-fi

@@ -279,8 +279,12 @@ fdlibm: libc-${TARGET}.ok
 	cd ${FOLDER_FDLIBM} && \
 		export PATH=${INSTALL_DIR}/bin:$$PATH && \
 		./configure --host=${TARGET} --prefix=${INSTALL_DIR} --libdir=${libdir}
-	cd ${FOLDER_FDLIBM} && $(MAKE) CPU-FPU-TYPES=68000.soft-float OUT= $(OUT)
-	cd ${FOLDER_FDLIBM} && $(MAKE) CPU-FPU-TYPES=68000.soft-float install OUT= $(OUT)
+	cd ${FOLDER_FDLIBM} && \
+		export PATH=${INSTALL_DIR}/bin:$$PATH && \
+		$(MAKE) CPU-FPU-TYPES=68000.soft-float OUT= $(OUT)
+	cd ${FOLDER_FDLIBM} && \
+		export PATH=${INSTALL_DIR}/bin:$$PATH && \
+		$(MAKE) CPU-FPU-TYPES=68000.soft-float install OUT= $(OUT)
 
 # Full build
 

@@ -219,7 +219,7 @@ mintbin.ok: ${ARCHIVE_PATH_MINTBIN}/${ARCHIVE_MINTBIN}
 	$(UNTAR) ${ARCHIVE_PATH_MINTBIN}/${ARCHIVE_MINTBIN} > /dev/null
 	touch $@
 
-pml-${VERSION_PML}.ok: pml-${VERSION_PML}.tar.bz2 pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2 pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2
+pml-${VERSION_PML}.ok: pml-${VERSION_PML}.tar.bz2 pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2
 	rm -rf $@ pml-${VERSION_PML}
 	tar xjf pml-${VERSION_PML}.tar.bz2
 	cd pml-${VERSION_PML} && bzcat ../pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2 | patch -p1

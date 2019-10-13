@@ -1,7 +1,7 @@
 # Atari cross- and native-binutils/gcc toolchain build Makefile
 # Miro Kropacek aka MiKRO / Mystic Bytes
 # miro.kropacek@gmail.com
-# version 4.1.0 (2018/10/03)
+# version 4.2.0 (2019/10/13)
 
 # please note you need the bash shell for correct compilation of mintlib.
 
@@ -9,48 +9,45 @@ REPOSITORY_BINUTILS	= m68k-atari-mint-binutils-gdb
 REPOSITORY_GCC		= m68k-atari-mint-gcc
 REPOSITORY_MINTLIB	= mintlib
 REPOSITORY_MINTBIN	= mintbin
-
-GITHUB_URL_BINUTILS	= https://github.com/freemint/${REPOSITORY_BINUTILS}/archive
-GITHUB_URL_GCC		= https://github.com/freemint/${REPOSITORY_GCC}/archive
-GITHUB_URL_MINTLIB	= https://github.com/freemint/${REPOSITORY_MINTLIB}/archive
-GITHUB_URL_MINTBIN	= https://github.com/freemint/${REPOSITORY_MINTBIN}/archive
+REPOSITORY_FDLIBM	= fdlibm
 
 BRANCH_BINUTILS		= binutils-2_30-mint
 BRANCH_GCC		= gcc-7-mint
 BRANCH_MINTLIB		= master
 BRANCH_MINTBIN		= master
+BRANCH_FDLIBM		= master
 
-ARCHIVE_BINUTILS	= ${BRANCH_BINUTILS}.tar.gz
-ARCHIVE_GCC		= ${BRANCH_GCC}.tar.gz
-ARCHIVE_MINTLIB		= ${BRANCH_MINTLIB}.tar.gz
-ARCHIVE_MINTBIN		= ${BRANCH_MINTBIN}.tar.gz
+GITHUB_URL_BINUTILS	= https://github.com/freemint/${REPOSITORY_BINUTILS}/archive/${BRANCH_BINUTILS}.tar.gz
+GITHUB_URL_GCC		= https://github.com/freemint/${REPOSITORY_GCC}/archive/${BRANCH_GCC}.tar.gz
+GITHUB_URL_MINTLIB	= https://github.com/freemint/${REPOSITORY_MINTLIB}/archive/${BRANCH_MINTLIB}.tar.gz
+GITHUB_URL_MINTBIN	= https://github.com/freemint/${REPOSITORY_MINTBIN}/archive/${BRANCH_MINTBIN}.tar.gz
+GITHUB_URL_FDLIBM	= https://github.com/freemint/${REPOSITORY_FDLIBM}/archive/${BRANCH_FDLIBM}.tar.gz
+
+ARCHIVE_BINUTILS	= binutils-${VERSION_BINUTILS}.tar.gz
+ARCHIVE_GCC		= gcc-${VERSION_GCC}.tar.gz
+ARCHIVE_MINTLIB		= mintlib-${BRANCH_MINTLIB}.tar.gz
+ARCHIVE_MINTBIN		= mintbin-${BRANCH_MINTBIN}.tar.gz
+ARCHIVE_FDLIBM		= fdlibm-${BRANCH_FDLIBM}.tar.gz
 
 FOLDER_BINUTILS		= ${REPOSITORY_BINUTILS}-${BRANCH_BINUTILS}
 FOLDER_GCC		= ${REPOSITORY_GCC}-${BRANCH_GCC}
 FOLDER_MINTLIB		= ${REPOSITORY_MINTLIB}-${BRANCH_MINTLIB}
 FOLDER_MINTBIN		= ${REPOSITORY_MINTBIN}-${BRANCH_MINTBIN}
-
-ARCHIVE_PATH_MINTLIB	= tmp-${REPOSITORY_MINTLIB}
-ARCHIVE_PATH_MINTBIN	= tmp-${REPOSITORY_MINTBIN}
-
-PATCH_PML		= 20110207
+FOLDER_FDLIBM		= ${REPOSITORY_FDLIBM}-${BRANCH_FDLIBM}
 
 VERSION_BINUTILS	= 2.30
 VERSION_GCC		= 7.4.0
 
-VERSION_PML		= 2.03
-
-SH      = $(shell which sh)
-BASH    = $(shell which bash)
-URLGET	= $(shell which wget || echo "`which curl` -L -O")
-UNTAR	= $(shell echo "`which tar` xzf")
+SH      := $(shell which sh)
+BASH    := $(shell which bash)
+URLGET	:= $(shell if [ -x "`command -v wget`" ]; then echo "wget -O"; else echo "curl -L -o"; fi)
+UNTAR	:= $(shell echo "`which tar` xzf")
 
 # set to something like "> /dev/null" or ">> /tmp/mint-build.log"
 # to redirect compilation standard output
 OUT =
 
-DOWNLOADS = ${ARCHIVE_BINUTILS} ${ARCHIVE_GCC} ${ARCHIVE_PATH_MINTLIB}/${ARCHIVE_MINTLIB} ${ARCHIVE_PATH_MINTBIN}/${ARCHIVE_MINTBIN} \
-        pml-${VERSION_PML}.tar.bz2 pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2
+DOWNLOADS = ${ARCHIVE_BINUTILS} ${ARCHIVE_GCC} ${ARCHIVE_MINTLIB} ${ARCHIVE_MINTBIN} ${ARCHIVE_FDLIBM}
 
 .PHONY: help download clean \
 	clean-all       clean-all-skip-native       clean-native           all       all-skip-native       all-native \
@@ -150,30 +147,19 @@ download: $(DOWNLOADS)
 # Download libraries
 
 ${ARCHIVE_BINUTILS}:
-	$(URLGET) ${GITHUB_URL_BINUTILS}/$@
+	$(URLGET) $@ ${GITHUB_URL_BINUTILS}
 
 ${ARCHIVE_GCC}:
-	$(URLGET) ${GITHUB_URL_GCC}/$@
+	$(URLGET) $@ ${GITHUB_URL_GCC}
 
-${ARCHIVE_PATH_MINTLIB}/${ARCHIVE_MINTLIB}:
-	rm -rf ${ARCHIVE_PATH_MINTLIB} && \
-	mkdir -p ${ARCHIVE_PATH_MINTLIB} && \
-	cd ${ARCHIVE_PATH_MINTLIB} && \
-	$(URLGET) ${GITHUB_URL_MINTLIB}/${ARCHIVE_MINTLIB}
+${ARCHIVE_MINTLIB}:
+	$(URLGET) $@ ${GITHUB_URL_MINTLIB}
 
-${ARCHIVE_PATH_MINTBIN}/${ARCHIVE_MINTBIN}:
-	rm -rf ${ARCHIVE_PATH_MINTBIN} && \
-	mkdir -p ${ARCHIVE_PATH_MINTBIN} && \
-	cd ${ARCHIVE_PATH_MINTBIN} && \
-	$(URLGET) ${GITHUB_URL_MINTBIN}/${ARCHIVE_MINTBIN}
+${ARCHIVE_MINTBIN}:
+	$(URLGET) $@ ${GITHUB_URL_MINTBIN}
 
-pml-${VERSION_PML}.tar.bz2:
-	$(URLGET) http://vincent.riviere.free.fr/soft/m68k-atari-mint/archives/$@
-
-# Download ${TARGET}-specific patches
-
-pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2:
-	$(URLGET) http://vincent.riviere.free.fr/soft/m68k-atari-mint/archives/$@
+${ARCHIVE_FDLIBM}:
+	$(URLGET) $@ ${GITHUB_URL_FDLIBM}
 
 # Target definitions for every new platform (m68k-linux-gnu for instance)
 # right now we don't support building of more than one target in one go so don't forget 'make clean-source'
@@ -189,7 +175,7 @@ gcc-m68k-atari-mint.ok: gcc-${VERSION_GCC}.ok
 	# target specific patches here
 	touch $@
 
-libc-m68k-atari-mint.ok: pml-${VERSION_PML}.ok mintbin.ok mintlib.ok
+libc-m68k-atari-mint.ok: fdlibm.ok mintbin.ok mintlib.ok
 	# target specific patches here
 	touch $@
 
@@ -208,22 +194,20 @@ gcc-${VERSION_GCC}.ok: ${ARCHIVE_GCC} gmp.patch download_prerequisites.patch
 	cd ${FOLDER_GCC} && patch -p1 < ../gmp.patch
 	touch $@
 
-mintlib.ok: ${ARCHIVE_PATH_MINTLIB}/${ARCHIVE_MINTLIB} mintlib.patch
+mintlib.ok: ${ARCHIVE_MINTLIB} mintlib.patch
 	rm -rf $@ ${FOLDER_MINTLIB}
-	$(UNTAR) ${ARCHIVE_PATH_MINTLIB}/${ARCHIVE_MINTLIB} > /dev/null
+	$(UNTAR) ${ARCHIVE_MINTLIB} > /dev/null
 	cd ${FOLDER_MINTLIB} && patch -p1 < ../mintlib.patch
 	touch $@
 
-mintbin.ok: ${ARCHIVE_PATH_MINTBIN}/${ARCHIVE_MINTBIN}
+mintbin.ok: ${ARCHIVE_MINTBIN}
 	rm -rf $@ ${FOLDER_MINTBIN}
-	$(UNTAR) ${ARCHIVE_PATH_MINTBIN}/${ARCHIVE_MINTBIN} > /dev/null
+	$(UNTAR) ${ARCHIVE_MINTBIN} > /dev/null
 	touch $@
-
-pml-${VERSION_PML}.ok: pml-${VERSION_PML}.tar.bz2 pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2
-	rm -rf $@ pml-${VERSION_PML}
-	tar xjf pml-${VERSION_PML}.tar.bz2
-	cd pml-${VERSION_PML} && bzcat ../pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2 | patch -p1
-	cd pml-${VERSION_PML} && cat ../pml.patch | patch -p1
+	
+fdlibm.ok: ${ARCHIVE_FDLIBM}
+	rm -rf $@ ${FOLDER_FDLIBM}
+	$(UNTAR) ${ARCHIVE_FDLIBM} > /dev/null
 	touch $@
 
 # Preliminary build
@@ -290,14 +274,13 @@ mintbin: libc-${TARGET}.ok
 	cd ${FOLDER_MINTBIN} && $(MAKE) OUT= $(OUT)
 	cd ${FOLDER_MINTBIN} && $(MAKE) OUT= install $(OUT)
 
-pml: libc-${TARGET}.ok
-	cd pml-${VERSION_PML}/pmlsrc && $(MAKE) clean LIB="$(DIR)" $(OUT)
-	cd pml-${VERSION_PML}/pmlsrc && \
+fdlibm: libc-${TARGET}.ok
+	-cd ${FOLDER_FDLIBM} && $(MAKE) OUT= distclean $(OUT)
+	cd ${FOLDER_FDLIBM} && \
 		export PATH=${INSTALL_DIR}/bin:$$PATH && \
-		$(MAKE) AR="${TARGET}-ar" CC="${TARGET}-gcc" CPU="$(OPTS)" CROSSDIR="${INSTALL_DIR}/${TARGET}" LIB="$(DIR)" $(OUT)
-	cd pml-${VERSION_PML}/pmlsrc && \
-		export PATH=${INSTALL_DIR}/bin:$$PATH && \
-		$(MAKE) install AR="${TARGET}-ar" CC="${TARGET}-gcc" CPU="$(OPTS)" CROSSDIR="${INSTALL_DIR}/${TARGET}" LIB="$(DIR)" $(OUT)
+		./configure --host=${TARGET} --prefix=${INSTALL_DIR} --libdir=${libdir}
+	cd ${FOLDER_FDLIBM} && $(MAKE) CPU-FPU-TYPES=68000.soft-float OUT= $(OUT)
+	cd ${FOLDER_FDLIBM} && $(MAKE) CPU-FPU-TYPES=68000.soft-float install OUT= $(OUT)
 
 # Full build
 
@@ -379,8 +362,8 @@ clean-source:
 	rm -rf ${FOLDER_BINUTILS}
 	rm -rf ${FOLDER_GCC}
 	rm -rf ${FOLDER_MINTLIB}
-	rm -rf pml-${VERSION_PML}
 	rm -rf ${FOLDER_MINTBIN}
+	rm -rf ${FOLDER_FDLIBM}
 	rm -f *.ok
 	rm -f *~
 

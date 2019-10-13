@@ -10,7 +10,7 @@ fi
 
 CPU_DIRS="m68000 m68020-60 m5475"	# target directory
 CPU_OPTS="m68000 m68020-60 mcpu=5475"	# gcc command line
-CPU_CPUS="m68000 m68020-60 5475"		# --with-cpu=
+CPU_CPUS="m68000 m68020-60 5475"	# --with-cpu=
 CPU_COUNT=$(echo ${CPU_DIRS} | tr ' ' '\n' | wc -l)
 
 indices=""
@@ -72,12 +72,21 @@ do
 	opt=$(echo $CPU_OPTS | cut -d ' ' -f $i)
 
 	simple_cpu=$(echo $cpu | cut -d '-' -f 1)
+	
+	# first index must be native to the compiler
+	while [ "$(echo $indices_all | cut -d ' ' -f 1)" != "$i" ]
+	do
+		first=$(echo $indices_all | cut -d ' ' -f 1)
+		middle=$(echo $indices_all | cut -d ' ' -f 2-$((CPU_COUNT-1)))
+		last=$(echo $indices_all | cut -d ' ' -f "${CPU_COUNT}")
+		indices_all="$middle $last $first"
+	done
 
 	if [ $clean -eq 0 ]; then
 		if [ $native_only -eq 0 ] ; then
 			${MAKE} TARGET=$target binutils gcc-preliminary mintbin INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
 
-			# build mintlib and pml for all targets
+			# build mintlib and fdlibm for all targets
 			for j in $indices_all
 			do
 				target_dir=$(echo $CPU_DIRS | cut -d ' ' -f $j)
@@ -87,8 +96,8 @@ do
 					target_dir=""
 				fi
 				opts=$(echo $CPU_OPTS | cut -d ' ' -f $j)
-				${MAKE} TARGET=$target mintlib prefix="$prefix" libdir="$prefix/lib/$target_dir" cflags="-$opts" INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
-				${MAKE} TARGET=$target pml OPTS="-$opts" DIR="$target_dir" INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
+				${MAKE} TARGET=$target mintlib prefix="$prefix" libdir="$prefix/lib/$target_dir" cflags="-$opts" INSTALL_DIR="$INSTALL_DIR/$dir" || exit 1
+				${MAKE} TARGET=$target fdlibm  prefix="$prefix" libdir="$prefix/lib/$target_dir" CPU="-$opts" INSTALL_DIR="$INSTALL_DIR/$dir" || exit 1
 			done
 			${MAKE} TARGET=$target gcc INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
 		fi

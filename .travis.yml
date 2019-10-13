@@ -27,6 +27,7 @@ before_install:
 
 script:
   - 'make download'
+  - unset CC CXX AR RANLIB LD
   - 'make ${TARGET_CPU}-skip-native OUT="> /dev/null"'
   # on osx it takes too long to build both cross and native toolchains
   - 'if [ "$TRAVIS_OS_NAME" != "osx" ];

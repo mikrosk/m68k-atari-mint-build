@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/mikrosk/m68k-atari-mint-build.svg?branch=master)](https://travis-ci.org/mikrosk/m68k-atari-mint-build)
 
-binutils, gcc, mintlib, pml and mintbin for m68k-atari-mint
-===========================================================
+binutils, gcc, mintlib, fdlibm and mintbin for m68k-atari-mint
+==============================================================
 
 This is a set of patches and scripts to download and build GCC and Binutils
 packages for Atari and FireBee range of computers running on m68k/ColdFire

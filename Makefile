@@ -1,7 +1,7 @@
 # Atari cross- and native-binutils/gcc toolchain build Makefile
 # Miro Kropacek aka MiKRO / Mystic Bytes
 # miro.kropacek@gmail.com
-# version 4.2.0 (2019/10/13)
+# version 4.2.1 (2019/12/30)
 
 # please note you need the bash shell for correct compilation of mintlib.
 
@@ -36,7 +36,7 @@ FOLDER_MINTBIN		= ${REPOSITORY_MINTBIN}-${BRANCH_MINTBIN}
 FOLDER_FDLIBM		= ${REPOSITORY_FDLIBM}-${BRANCH_FDLIBM}
 
 VERSION_BINUTILS	= 2.30
-VERSION_GCC		= 7.4.0
+VERSION_GCC		= 7.5.0
 
 SH      := $(shell which sh)
 BASH    := $(shell which bash)

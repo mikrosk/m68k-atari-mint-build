@@ -9,7 +9,7 @@ gcc-*
 m68k-atari-mint-gcc-*/
 mintlib-master/
 mintbin-master/
-pml-2.03/
+fdlibm-master/
 binary-package/
 gmp-*.*/
 mpc-*.*

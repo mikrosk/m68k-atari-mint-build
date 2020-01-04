@@ -349,6 +349,7 @@ gcc-${VERSION_GCC}-${CPU}-atari.ok: gcc-${TARGET}.ok
 		--prefix=/usr \
 		--host=${TARGET} \
 		--target=${TARGET} \
+		--with-sysroot="${INSTALL_DIR}/${TARGET}" \
 		--disable-nls \
 		--enable-languages="c,c++" \
 		--disable-libstdcxx-pch \

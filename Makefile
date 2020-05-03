@@ -40,7 +40,7 @@ VERSION_GCC		= 7.5.0
 
 SH      := $(shell which sh)
 BASH    := $(shell which bash)
-URLGET	:= $(shell if [ -x "`command -v wget`" ]; then echo "wget -O"; else echo "curl -L -o"; fi)
+URLGET	:= $(shell if [ -x "`command -v wget`" ]; then echo "wget -q -O"; else echo "curl -s -L -o"; fi)
 UNTAR	:= $(shell echo "`which tar` xzf")
 
 # set to something like "> /dev/null" or ">> /tmp/mint-build.log"
@@ -248,7 +248,8 @@ gcc-${VERSION_GCC}-${CPU}-cross-preliminary.ok: gcc-${TARGET}.ok
 		--disable-threads \
 		--enable-languages=c \
 		--disable-multilib \
-		--disable-libstdcxx-pch && \
+		--disable-libstdcxx-pch \
+		--disable-lto && \
 	$(MAKE) -j3 all-gcc all-target-libgcc $(OUT) && \
 	$(MAKE) install-gcc install-target-libgcc $(OUT)
 	touch $@
@@ -301,7 +302,8 @@ gcc-${VERSION_GCC}-${CPU}-cross-final.ok: ${INSTALL_DIR}/${TARGET}/lib/libc.a ${
 		--enable-languages="c,c++" \
 		--disable-libstdcxx-pch \
 		--disable-libgomp \
-		--with-cpu=${CPU} && \
+		--with-cpu=${CPU} \
+		--disable-lto && \
 	$(MAKE) -j3 $(OUT) && \
 	$(MAKE) install-strip $(OUT)
 	cd "${INSTALL_DIR}/lib/gcc/${TARGET}/${VERSION_GCC}/include-fixed" && \
@@ -354,7 +356,8 @@ gcc-${VERSION_GCC}-${CPU}-atari.ok: gcc-${TARGET}.ok
 		--enable-languages="c,c++" \
 		--disable-libstdcxx-pch \
 		--disable-libgomp \
-		--with-cpu=${CPU} && \
+		--with-cpu=${CPU} \
+		--disable-lto && \
 	$(MAKE) -j3 $(OUT) && \
 	$(MAKE) install-strip DESTDIR=${PWD}/binary-package/${CPU}/gcc-${VERSION_GCC} $(OUT)
 	touch $@

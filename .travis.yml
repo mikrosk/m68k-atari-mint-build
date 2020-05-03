@@ -1,15 +1,24 @@
+# default is xcode9.4 which doesn't contain any gcc preinstalled (https://travis-ci.community/t/gcc-cmake-versions-pre-installed-on-osx/4693)
+# gcc-4.9 is the only gcc fast enough to finish under 50 minutes on osx and non-verbose enough to finish on linux
+
 language: c
 
 os:
   - osx
   - linux
 
-sudo: false
-
 addons:
   apt:
+    sources:
+    - ubuntu-toolchain-r-test
     packages:
+    - gcc-4.9
+    - g++-4.9
     - texinfo
+  homebrew:
+    packages:
+    - gcc@4.9
+    update: true
 
 compiler:
   - gcc
@@ -21,14 +30,14 @@ env:
     - TARGET_CPU=5475
 
 before_install:
-  - 'if [ "$TRAVIS_OS_NAME" = "osx" ] && [ "$CC" == "gcc" ] ; then export CC=gcc-4.9 ; export CXX=g++-4.9 ; fi'
+  - export CC=gcc-4.9; export CXX=g++-4.9;
 
 script:
-  - 'make download'
-  - 'make ${TARGET_CPU}-skip-native OUT="> /dev/null"'
+  - make download
+  - make ${TARGET_CPU}-skip-native OUT="> /dev/null"
   # on osx it takes too long to build both cross and native toolchains
   - 'if [ "$TRAVIS_OS_NAME" != "osx" ];
      then
-        unset CC CXX AR RANLIB LD;
-        make ${TARGET_CPU}-native OUT="> /dev/null";
+       unset CC CXX AR RANLIB LD;
+       make ${TARGET_CPU}-native OUT="> /dev/null";
      fi'

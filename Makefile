@@ -33,10 +33,10 @@ VERSION_GCC		= 4.6.4
 VERSION_PML		= 2.03
 VERSION_MINTBIN		= 20110527
 
-SH      = $(shell which sh)
-BASH    = $(shell which bash)
-URLGET	= $(shell which wget || echo "`which curl` -L -O")
-UNTAR	= $(shell echo "`which tar` xzf")
+SH      := $(shell which sh)
+BASH    := $(shell which bash)
+URLGET	:= $(shell if [ -x "`command -v wget`" ]; then echo "wget -q"; else echo "curl -s -L -O"; fi)
+UNTAR	:= tar xzf
 
 # set to something like "> /dev/null" or ">> /tmp/mint-build.log"
 # to redirect compilation standard output
@@ -189,9 +189,10 @@ binutils-${VERSION_BINUTILS}.ok: ${ARCHIVE_BINUTILS}
 	$(UNTAR) ${ARCHIVE_BINUTILS} > /dev/null
 	touch $@
 
-gcc-${VERSION_GCC}.ok: ${ARCHIVE_GCC} gmp.patch
+gcc-${VERSION_GCC}.ok: ${ARCHIVE_GCC} gmp.patch download_prerequisites.patch
 	rm -rf $@ ${FOLDER_GCC}
 	$(UNTAR) ${ARCHIVE_GCC} > /dev/null
+	cd ${FOLDER_GCC} && patch -p1 < ../download_prerequisites.patch
 	cd ${FOLDER_GCC} && contrib/download_prerequisites
 	cd ${FOLDER_GCC} && patch -p1 < ../gmp.patch
 	touch $@
@@ -276,7 +277,7 @@ mintlib: libc-${TARGET}.ok
 	cd ${FOLDER_MINTLIB} && $(MAKE) OUT= clean $(OUT)
 	cd ${FOLDER_MINTLIB} && \
 		export PATH=${INSTALL_DIR}/bin:$$PATH && \
-		$(MAKE) OUT= toolprefix=${TARGET}- SHELL=$(BASH) CROSS=yes WITH_020_LIB=no WITH_V4E_LIB=no CC="${TARGET}-gcc" HOST_CC="$(CC)" $(OUT)
+		$(MAKE) OUT= toolprefix=${TARGET}- SHELL=$(BASH) CROSS=yes WITH_020_LIB=no WITH_V4E_LIB=no $(OUT)
 	cd ${FOLDER_MINTLIB} && \
 		export PATH=${INSTALL_DIR}/bin:$$PATH && \
 		$(MAKE) OUT= toolprefix=${TARGET}- SHELL=$(BASH) CROSS=yes WITH_020_LIB=no WITH_V4E_LIB=no install $(OUT)

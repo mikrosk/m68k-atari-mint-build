@@ -13,7 +13,7 @@ addons:
     - texinfo
   homebrew:
     packages:
-    - gcc@4.9
+    - gcc@7
     update: true
 
 compiler:
@@ -26,7 +26,7 @@ env:
     - TARGET_CPU=5475
 
 before_install:
-  - if [ "$TRAVIS_OS_NAME" = "osx" ] && [ "$CC" == "gcc" ]; then export CC=gcc-4.9; export CXX=g++-4.9; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ] && [ "$CC" == "gcc" ]; then export CC=gcc-7; export CXX=g++-7; fi
 
 script:
   - make download

@@ -256,7 +256,8 @@ gcc-${VERSION_GCC}-${CPU}-cross-preliminary.ok: gcc-${TARGET}.ok
 		--disable-threads \
 		--enable-languages=c \
 		--disable-multilib \
-		--disable-libstdcxx-pch && \
+		--disable-libstdcxx-pch \
+		--disable-lto && \
 	$(MAKE) -j3 all-gcc all-target-libgcc $(OUT) && \
 	$(MAKE) install-gcc install-target-libgcc $(OUT)
 	touch $@
@@ -315,9 +316,22 @@ gcc-${VERSION_GCC}-${CPU}-cross-final.ok: ${INSTALL_DIR}/${TARGET}/lib/libc.a ${
 		--enable-c99 \
 		--enable-long-long \
 		--disable-libstdcxx-pch \
-		--with-cpu=${CPU} && \
+		--with-cpu=${CPU} \
+		--disable-lto && \
 	$(MAKE) -j3 $(OUT) && \
 	$(MAKE) install-strip $(OUT)
+	cd "${INSTALL_DIR}/lib/gcc/${TARGET}/${VERSION_GCC}/include-fixed" && \
+	for f in $$(find . -type f); \
+	do \
+		case "$$f" in \
+			./README | ./limits.h | ./syslimits.h) ;; \
+			*) echo "Removing fixed include file $$f"; rm "$$f" ;; \
+		esac \
+	done && \
+	for d in $$(find . -depth -type d); \
+	do \
+		test "$$d" = "." || rmdir "$$d"; \
+	done
 	touch $@
 
 gcc: gcc-${VERSION_GCC}-${CPU}-cross-final.ok
@@ -351,12 +365,14 @@ gcc-${VERSION_GCC}-${CPU}-atari.ok: gcc-${TARGET}.ok
 		--prefix=/usr \
 		--host=${TARGET} \
 		--target=${TARGET} \
+		--with-sysroot="${INSTALL_DIR}/${TARGET}" \
 		--disable-nls \
 		--enable-languages="c,c++" \
 		--enable-c99 \
 		--enable-long-long \
 		--disable-libstdcxx-pch \
-		 --with-cpu=${CPU} && \
+		--with-cpu=${CPU} \
+		--disable-lto && \
 	$(MAKE) -j3 $(OUT) && \
 	$(MAKE) install-strip DESTDIR=${PWD}/binary-package/${CPU}/gcc-${VERSION_GCC} $(OUT)
 	touch $@
@@ -380,14 +396,35 @@ clean-cross:
 	rm -rf ${FOLDER_GCC}-${CPU}-cross-final
 
 pack-atari:
+	cd ${PWD}/binary-package/${CPU}/gcc-${VERSION_GCC}/usr/lib/gcc/${TARGET}/${VERSION_GCC}/include-fixed && \
+	for f in $$(find . -type f); \
+	do \
+		case "$$f" in \
+			./README | ./limits.h | ./syslimits.h) ;; \
+			*) echo "Removing fixed include file $$f"; rm "$$f" ;; \
+		esac \
+	done && \
+	for d in $$(find . -depth -type d); \
+	do \
+		test "$$d" = "." || rmdir "$$d"; \
+	done
 	for dir in binutils-${VERSION_BINUTILS} gcc-${VERSION_GCC}; \
 	do \
 		cd ${PWD}/binary-package/${CPU}/$$dir && tar cjf ../$$dir-${CPU}mint.tar.bz2 usr && cd ..; \
 	done
 
 strip-atari:
-	find ${PWD}/binary-package -type f -perm -a=x -exec ${TARGET}-strip -s {} \;
-	find ${PWD}/binary-package -type f -name '*.a' -exec ${TARGET}-strip -S -X -w -N '.L[0-9]*' {} \;
+	for f in cc1 cc1plus; \
+	do \
+		PATH=${INSTALL_DIR}/bin:$$PATH ${TARGET}-stack --fix=1024k "${PWD}/binary-package/${CPU}/gcc-${VERSION_GCC}/usr/libexec/gcc/${TARGET}/${VERSION_GCC}/$$f"; \
+	done
+	PATH=${INSTALL_DIR}/bin:$$PATH ${TARGET}-stack --fix=192k "${PWD}/binary-package/${CPU}/gcc-${VERSION_GCC}/usr/libexec/gcc/${TARGET}/${VERSION_GCC}/collect2"
+	for f in c++ cpp g++ gcc ${TARGET}-c++ ${TARGET}-g++ ${TARGET}-gcc ${TARGET}-gcc-${VERSION_GCC}; \
+	do \
+		PATH=${INSTALL_DIR}/bin:$$PATH ${TARGET}-stack --fix=192k "${PWD}/binary-package/${CPU}/gcc-${VERSION_GCC}/usr/bin/$$f"; \
+	done
+	PATH=${INSTALL_DIR}/bin:$$PATH find "${PWD}/binary-package/${CPU}" -type f -perm -a=x -exec ${TARGET}-strip -s {} \;
+	PATH=${INSTALL_DIR}/bin:$$PATH find "${PWD}/binary-package/${CPU}" -type f -name '*.a' -exec ${TARGET}-strip -S -X -w -N '.L[0-9]*' {} \;
 
 clean-atari:
 	rm -rf ${FOLDER_BINUTILS}-${CPU}-atari

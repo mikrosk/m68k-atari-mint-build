@@ -1,7 +1,7 @@
 # Atari cross- and native-binutils/gcc toolchain build Makefile
 # Miro Kropacek aka MiKRO / Mystic Bytes
 # miro.kropacek@gmail.com
-# version 4.2.1 (2019/12/30)
+# version 4.3.0 (2020/05/03)
 
 # please note you need the bash shell for correct compilation of mintlib.
 
@@ -23,12 +23,6 @@ GITHUB_URL_MINTLIB	= https://github.com/freemint/${REPOSITORY_MINTLIB}/archive/$
 GITHUB_URL_MINTBIN	= https://github.com/freemint/${REPOSITORY_MINTBIN}/archive/${BRANCH_MINTBIN}.tar.gz
 GITHUB_URL_FDLIBM	= https://github.com/freemint/${REPOSITORY_FDLIBM}/archive/${BRANCH_FDLIBM}.tar.gz
 
-ARCHIVE_BINUTILS	= binutils-${VERSION_BINUTILS}.tar.gz
-ARCHIVE_GCC		= gcc-${VERSION_GCC}.tar.gz
-ARCHIVE_MINTLIB		= mintlib-${BRANCH_MINTLIB}.tar.gz
-ARCHIVE_MINTBIN		= mintbin-${BRANCH_MINTBIN}.tar.gz
-ARCHIVE_FDLIBM		= fdlibm-${BRANCH_FDLIBM}.tar.gz
-
 FOLDER_BINUTILS		= ${REPOSITORY_BINUTILS}-${BRANCH_BINUTILS}
 FOLDER_GCC		= ${REPOSITORY_GCC}-${BRANCH_GCC}
 FOLDER_MINTLIB		= ${REPOSITORY_MINTLIB}-${BRANCH_MINTLIB}
@@ -40,14 +34,14 @@ VERSION_GCC		= 7.5.0
 
 SH      := $(shell which sh)
 BASH    := $(shell which bash)
-URLGET	:= $(shell if [ -x "`command -v wget`" ]; then echo "wget -q -O"; else echo "curl -s -L -o"; fi)
-UNTAR	:= $(shell echo "`which tar` xzf")
+URLGET	:= $(shell if [ -x "`command -v wget`" ]; then echo "wget -q -O -"; else echo "curl -s -L -o -"; fi)
+UNTAR	:= tar xzf -
 
 # set to something like "> /dev/null" or ">> /tmp/mint-build.log"
 # to redirect compilation standard output
 OUT =
 
-DOWNLOADS = ${ARCHIVE_BINUTILS} ${ARCHIVE_GCC} ${ARCHIVE_MINTLIB} ${ARCHIVE_MINTBIN} ${ARCHIVE_FDLIBM}
+DOWNLOADS = binutils-${VERSION_BINUTILS}.ok gcc-${VERSION_GCC}.ok mintlib.ok mintbin.ok fdlibm.ok
 
 .PHONY: help download clean \
 	clean-all       clean-all-skip-native       clean-native           all       all-skip-native       all-native \
@@ -144,23 +138,6 @@ clean-5475-native: ./build.sh clean-source
 
 download: $(DOWNLOADS)
 
-# Download libraries
-
-${ARCHIVE_BINUTILS}:
-	$(URLGET) $@ ${GITHUB_URL_BINUTILS}
-
-${ARCHIVE_GCC}:
-	$(URLGET) $@ ${GITHUB_URL_GCC}
-
-${ARCHIVE_MINTLIB}:
-	$(URLGET) $@ ${GITHUB_URL_MINTLIB}
-
-${ARCHIVE_MINTBIN}:
-	$(URLGET) $@ ${GITHUB_URL_MINTBIN}
-
-${ARCHIVE_FDLIBM}:
-	$(URLGET) $@ ${GITHUB_URL_FDLIBM}
-
 # Target definitions for every new platform (m68k-linux-gnu for instance)
 # right now we don't support building of more than one target in one go so don't forget 'make clean-source'
 # to be sure a fresh copy of binutils and gcc is used (and possibly patched)
@@ -179,35 +156,35 @@ libc-m68k-atari-mint.ok: fdlibm.ok mintbin.ok mintlib.ok
 	# target specific patches here
 	touch $@
 
-# Depacking and patching
+# Downloading, depacking and patching
 
-binutils-${VERSION_BINUTILS}.ok: ${ARCHIVE_BINUTILS}
+binutils-${VERSION_BINUTILS}.ok:
 	rm -rf $@ ${FOLDER_BINUTILS}
-	$(UNTAR) ${ARCHIVE_BINUTILS} > /dev/null
+	$(URLGET) ${GITHUB_URL_BINUTILS} | $(UNTAR) > /dev/null
 	touch $@
 
-gcc-${VERSION_GCC}.ok: ${ARCHIVE_GCC} gmp.patch download_prerequisites.patch
+gcc-${VERSION_GCC}.ok: gmp.patch download_prerequisites.patch
 	rm -rf $@ ${FOLDER_GCC}
-	$(UNTAR) ${ARCHIVE_GCC} > /dev/null
+	$(URLGET) ${GITHUB_URL_GCC} | $(UNTAR) > /dev/null
 	cd ${FOLDER_GCC} && patch -p1 < ../download_prerequisites.patch
 	cd ${FOLDER_GCC} && contrib/download_prerequisites
 	cd ${FOLDER_GCC} && patch -p1 < ../gmp.patch
 	touch $@
 
-mintlib.ok: ${ARCHIVE_MINTLIB} mintlib.patch
+mintlib.ok: mintlib.patch
 	rm -rf $@ ${FOLDER_MINTLIB}
-	$(UNTAR) ${ARCHIVE_MINTLIB} > /dev/null
+	$(URLGET) ${GITHUB_URL_MINTLIB} | $(UNTAR) > /dev/null
 	cd ${FOLDER_MINTLIB} && patch -p1 < ../mintlib.patch
 	touch $@
 
-mintbin.ok: ${ARCHIVE_MINTBIN}
+mintbin.ok:
 	rm -rf $@ ${FOLDER_MINTBIN}
-	$(UNTAR) ${ARCHIVE_MINTBIN} > /dev/null
+	$(URLGET) ${GITHUB_URL_MINTBIN} | $(UNTAR) > /dev/null
 	touch $@
 	
-fdlibm.ok: ${ARCHIVE_FDLIBM}
+fdlibm.ok:
 	rm -rf $@ ${FOLDER_FDLIBM}
-	$(UNTAR) ${ARCHIVE_FDLIBM} > /dev/null
+	$(URLGET) ${GITHUB_URL_FDLIBM} | $(UNTAR) > /dev/null
 	touch $@
 
 # Preliminary build
@@ -262,7 +239,7 @@ mintlib: libc-${TARGET}.ok
 	cd ${FOLDER_MINTLIB} && $(MAKE) OUT= clean $(OUT)
 	cd ${FOLDER_MINTLIB} && \
 		export PATH=${INSTALL_DIR}/bin:$$PATH && \
-		$(MAKE) OUT= toolprefix=${TARGET}- SHELL=$(BASH) CROSS=yes WITH_020_LIB=no WITH_V4E_LIB=no CC="${TARGET}-gcc" HOST_CC="$(CC)" $(OUT)
+		$(MAKE) OUT= toolprefix=${TARGET}- SHELL=$(BASH) CROSS=yes WITH_020_LIB=no WITH_V4E_LIB=no $(OUT)
 	cd ${FOLDER_MINTLIB} && \
 		export PATH=${INSTALL_DIR}/bin:$$PATH && \
 		$(MAKE) OUT= toolprefix=${TARGET}- SHELL=$(BASH) CROSS=yes WITH_020_LIB=no WITH_V4E_LIB=no install $(OUT)
@@ -279,13 +256,14 @@ fdlibm: libc-${TARGET}.ok
 	-cd ${FOLDER_FDLIBM} && $(MAKE) OUT= distclean $(OUT)
 	cd ${FOLDER_FDLIBM} && \
 		export PATH=${INSTALL_DIR}/bin:$$PATH && \
+		unset CC CXX AR RANLIB LD && \
 		./configure --host=${TARGET} --prefix=${INSTALL_DIR} --libdir=${libdir}
 	cd ${FOLDER_FDLIBM} && \
 		export PATH=${INSTALL_DIR}/bin:$$PATH && \
-		$(MAKE) CPU-FPU-TYPES=68000.soft-float OUT= $(OUT)
+		$(MAKE) OUT= CPU-FPU-TYPES=68000.soft-float $(OUT)
 	cd ${FOLDER_FDLIBM} && \
 		export PATH=${INSTALL_DIR}/bin:$$PATH && \
-		$(MAKE) CPU-FPU-TYPES=68000.soft-float install OUT= $(OUT)
+		$(MAKE) OUT= CPU-FPU-TYPES=68000.soft-float install $(OUT)
 
 # Full build
 
@@ -399,7 +377,7 @@ pack-atari:
 	done
 
 strip-atari:
-	for f in cc1 cc1plus lto1; \
+	for f in cc1 cc1plus; \
 	do \
 		PATH=${INSTALL_DIR}/bin:$$PATH ${TARGET}-stack --fix=1024k "${PWD}/binary-package/${CPU}/gcc-${VERSION_GCC}/usr/libexec/gcc/${TARGET}/${VERSION_GCC}/$$f"; \
 	done

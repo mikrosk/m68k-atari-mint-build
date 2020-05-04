@@ -16,7 +16,7 @@ CPU_COUNT=$(echo ${CPU_DIRS} | tr ' ' '\n' | wc -l)
 indices=""
 indices_all=""
 i=1
-while [ "$i" -le "${CPU_COUNT}" ] ; do
+while [ $i -le $CPU_COUNT ] ; do
 	indices_all="$indices_all $i"
 	i=$((i + 1))
 done
@@ -43,7 +43,7 @@ do
 	*)
 	ok=0
 	i=1
-	while [ "$i" -le "${CPU_COUNT}" ] ; do
+	while [ $i -le $CPU_COUNT ] ; do
 		cpu=$(echo $CPU_CPUS | cut -d ' ' -f $i)
 		if [ "$arg" = "$cpu" ] ; then
 			indices="$indices $i"
@@ -78,7 +78,7 @@ do
 	do
 		first=$(echo $indices_all | cut -d ' ' -f 1)
 		middle=$(echo $indices_all | cut -d ' ' -f 2-$((CPU_COUNT-1)))
-		last=$(echo $indices_all | cut -d ' ' -f "${CPU_COUNT}")
+		last=$(echo $indices_all | cut -d ' ' -f $CPU_COUNT)
 		indices_all="$middle $last $first"
 	done
 

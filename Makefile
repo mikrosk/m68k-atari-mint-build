@@ -205,7 +205,7 @@ binutils: binutils-${VERSION_BINUTILS}-${CPU}-cross.ok
 gcc-${VERSION_GCC}-${CPU}-cross-preliminary.ok: gcc-${TARGET}.ok
 	rm -rf $@ ${FOLDER_GCC}-${CPU}-cross-preliminary
 	mkdir -p ${FOLDER_GCC}-${CPU}-cross-preliminary
-	ln -sfv . ${INSTALL_DIR}/${TARGET}/usr
+	if [ ! -L ${INSTALL_DIR}/${TARGET}/usr ]; then ln -sfv . ${INSTALL_DIR}/${TARGET}/usr; fi
 	cd ${FOLDER_GCC}-${CPU}-cross-preliminary && \
 	export PATH=${INSTALL_DIR}/bin:$$PATH && \
 	../${FOLDER_GCC}/configure \

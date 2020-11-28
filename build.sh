@@ -90,7 +90,7 @@ do
 			for j in $indices_all
 			do
 				target_dir=$(echo $CPU_DIRS | cut -d ' ' -f $j)
-				prefix="$INSTALL_DIR/$dir/$target"
+				prefix="$INSTALL_DIR/$dir/$target/sys-root/usr"
 				if [ "$target_dir" = "$dir" ]
 				then
 					target_dir=""

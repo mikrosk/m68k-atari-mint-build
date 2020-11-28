@@ -1,7 +1,7 @@
 # Atari cross- and native-binutils/gcc toolchain build Makefile
 # Miro Kropacek aka MiKRO / Mystic Bytes
 # miro.kropacek@gmail.com
-# version 4.3.0 (2020/05/03)
+# version 4.3.1 (2020/05/03)
 
 # please note you need the bash shell for correct compilation of mintlib.
 
@@ -187,8 +187,6 @@ fdlibm.ok:
 	$(URLGET) ${GITHUB_URL_FDLIBM} | $(UNTAR) > /dev/null
 	touch $@
 
-# Preliminary build
-
 binutils-${VERSION_BINUTILS}-${CPU}-cross.ok: binutils-${TARGET}.ok
 	rm -rf $@ ${FOLDER_BINUTILS}-${CPU}-cross
 	mkdir -p ${FOLDER_BINUTILS}-${CPU}-cross
@@ -202,16 +200,17 @@ binutils-${VERSION_BINUTILS}-${CPU}-cross.ok: binutils-${TARGET}.ok
 
 binutils: binutils-${VERSION_BINUTILS}-${CPU}-cross.ok
 
+# Preliminary build
+
 gcc-${VERSION_GCC}-${CPU}-cross-preliminary.ok: gcc-${TARGET}.ok
 	rm -rf $@ ${FOLDER_GCC}-${CPU}-cross-preliminary
 	mkdir -p ${FOLDER_GCC}-${CPU}-cross-preliminary
-	if [ ! -L ${INSTALL_DIR}/${TARGET}/usr ]; then ln -sfv . ${INSTALL_DIR}/${TARGET}/usr; fi
 	cd ${FOLDER_GCC}-${CPU}-cross-preliminary && \
 	export PATH=${INSTALL_DIR}/bin:$$PATH && \
 	../${FOLDER_GCC}/configure \
 		--prefix=${INSTALL_DIR} \
 		--target=${TARGET} \
-		--with-sysroot=${INSTALL_DIR}/${TARGET} \
+		--with-sysroot=${INSTALL_DIR}/${TARGET}/sys-root \
 		--disable-nls \
 		--disable-shared \
 		--without-headers \
@@ -267,7 +266,7 @@ fdlibm: libc-${TARGET}.ok
 
 # Full build
 
-gcc-${VERSION_GCC}-${CPU}-cross-final.ok: ${INSTALL_DIR}/${TARGET}/lib/libc.a ${INSTALL_DIR}/${TARGET}/lib/libm.a
+gcc-${VERSION_GCC}-${CPU}-cross-final.ok: ${INSTALL_DIR}/${TARGET}/sys-root/usr/lib/libc.a ${INSTALL_DIR}/${TARGET}/sys-root/usr/lib/libm.a
 	rm -rf $@ ${FOLDER_GCC}-${CPU}-cross-final
 	mkdir -p ${FOLDER_GCC}-${CPU}-cross-final
 	cd ${FOLDER_GCC}-${CPU}-cross-final && \
@@ -275,7 +274,7 @@ gcc-${VERSION_GCC}-${CPU}-cross-final.ok: ${INSTALL_DIR}/${TARGET}/lib/libc.a ${
 	../${FOLDER_GCC}/configure \
 		--prefix=${INSTALL_DIR} \
 		--target=${TARGET} \
-		--with-sysroot=${INSTALL_DIR}/${TARGET} \
+		--with-sysroot=${INSTALL_DIR}/${TARGET}/sys-root \
 		--disable-nls \
 		--enable-languages="c,c++" \
 		--disable-libstdcxx-pch \
@@ -329,7 +328,8 @@ gcc-${VERSION_GCC}-${CPU}-atari.ok: gcc-${TARGET}.ok
 		--prefix=/usr \
 		--host=${TARGET} \
 		--target=${TARGET} \
-		--with-sysroot="${INSTALL_DIR}/${TARGET}" \
+		--with-sysroot="/" \
+		--with-build-sysroot="${INSTALL_DIR}/${TARGET}/sys-root" \
 		--disable-nls \
 		--enable-languages="c,c++" \
 		--disable-libstdcxx-pch \

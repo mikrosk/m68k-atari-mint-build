@@ -1,32 +1,33 @@
 # default is xcode9.4 which doesn't contain any gcc preinstalled (https://travis-ci.community/t/gcc-cmake-versions-pre-installed-on-osx/4693)
-# gcc-4.9 is the only gcc fast enough to finish under 50 minutes on osx
+# let's use xcode10.3 which has gcc-9 (9.1.0) preinstalled
 
 language: c
 
-os:
-  - osx
-  - linux
+matrix:
+  include:
+    - os: osx
+      osx_image: xcode10.3
+      env: TARGET_CPU=m68000 CC=gcc-9 CXX=g++-9
+    - os: osx
+      osx_image: xcode10.3
+      env: TARGET_CPU=m68020-60 CC=gcc-9 CXX=g++-9
+    - os: osx
+      osx_image: xcode10.3
+      env: TARGET_CPU=5475 CC=gcc-9 CXX=g++-9
+    - os: linux
+      env: TARGET_CPU=m68000
+    - os: linux
+      env: TARGET_CPU=m68020-60
+    - os: linux
+      env: TARGET_CPU=5475
 
 addons:
   apt:
     packages:
     - texinfo
-  homebrew:
-    packages:
-    - gcc@7
-    update: true
 
 compiler:
   - gcc
-
-env:
-  matrix:
-    - TARGET_CPU=m68000
-    - TARGET_CPU=m68020-60
-    - TARGET_CPU=5475
-
-before_install:
-  - if [ "$TRAVIS_OS_NAME" = "osx" ] && [ "$CC" == "gcc" ]; then export CC=gcc-7; export CXX=g++-7; fi
 
 script:
   - make download

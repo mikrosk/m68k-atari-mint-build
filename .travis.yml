@@ -1,19 +1,19 @@
 # default is xcode9.4 which doesn't contain any gcc preinstalled (https://travis-ci.community/t/gcc-cmake-versions-pre-installed-on-osx/4693)
-# let's use xcode10.3 which has gcc-9 (9.1.0) preinstalled
+# let's use xcode8 which has gcc-4.9 (4.9.3) preinstalled
 
 language: c
 
 matrix:
   include:
     - os: osx
-      osx_image: xcode10.3
-      env: TARGET_CPU=m68000 CC=gcc-9 CXX=g++-9
+      osx_image: xcode8
+      env: TARGET_CPU=m68000 CC=gcc-4.9 CXX=g++-4.9
     - os: osx
-      osx_image: xcode10.3
-      env: TARGET_CPU=m68020-60 CC=gcc-9 CXX=g++-9
+      osx_image: xcode8
+      env: TARGET_CPU=m68020-60 CC=gcc-4.9 CXX=g++-4.9
     - os: osx
-      osx_image: xcode10.3
-      env: TARGET_CPU=5475 CC=gcc-9 CXX=g++-9
+      osx_image: xcode8
+      env: TARGET_CPU=5475 CC=gcc-4.9 CXX=g++-4.9
     - os: linux
       env: TARGET_CPU=m68000
     - os: linux

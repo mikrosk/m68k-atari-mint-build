@@ -1,5 +1,5 @@
 # default is xcode9.4 which doesn't contain any gcc preinstalled (https://travis-ci.community/t/gcc-cmake-versions-pre-installed-on-osx/4693)
-# let's use latest xcode (so homebrew is happy) but with gcc-6 for speed reasons (gcc-4.9/7 is fast but too verbose)
+# let's use latest xcode (so homebrew is happy) but with gcc-4.9 for speed reasons
 
 language: c
 
@@ -7,13 +7,13 @@ matrix:
   include:
     - os: osx
       osx_image: xcode12.2
-      env: MATRIX_EVAL="export CC=gcc-6 && export CXX=g++-6 && TARGET_CPU=m68000"
+      env: MATRIX_EVAL="export CC=gcc-4.9 && export CXX=g++-4.9 && TARGET_CPU=m68000"
     - os: osx
       osx_image: xcode12.2
-      env: MATRIX_EVAL="export CC=gcc-6 && export CXX=g++-6 && TARGET_CPU=m68020-60"
+      env: MATRIX_EVAL="export CC=gcc-4.9 && export CXX=g++-4.9 && TARGET_CPU=m68020-60"
     - os: osx
       osx_image: xcode12.2
-      env: MATRIX_EVAL="export CC=gcc-6 && export CXX=g++-6 && TARGET_CPU=5475"
+      env: MATRIX_EVAL="export CC=gcc-4.9 && export CXX=g++-4.9 && TARGET_CPU=5475"
     - os: linux
       env: MATRIX_EVAL="TARGET_CPU=m68000"
     - os: linux
@@ -27,7 +27,7 @@ addons:
       - texinfo
   homebrew:
     packages:
-      - gcc@6
+      - gcc@4.9
 
 compiler:
   - gcc

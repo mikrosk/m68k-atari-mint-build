@@ -25,7 +25,7 @@ FOLDER_BINUTILS		= ${REPOSITORY_BINUTILS}-${BRANCH_BINUTILS}
 FOLDER_GCC		= ${REPOSITORY_GCC}-${BRANCH_GCC}
 FOLDER_MINTLIB		= ${REPOSITORY_MINTLIB}-${BRANCH_MINTLIB}
 
-PATCH_PML		= 20110207
+PATCH_PML		= 20191013
 
 VERSION_BINUTILS	= 2.30
 VERSION_GCC		= 4.6.4
@@ -209,12 +209,11 @@ mintbin-CVS-${VERSION_MINTBIN}.ok: mintbin-CVS-${VERSION_MINTBIN}.tar.gz mintbin
 	cd mintbin-CVS-${VERSION_MINTBIN} && patch -p1 < ../mintbin.patch
 	touch $@
 
-pml-${VERSION_PML}.ok: pml-${VERSION_PML}.tar.bz2 pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2 pml.patch pml-mintlib.patch
+pml-${VERSION_PML}.ok: pml-${VERSION_PML}.tar.bz2 pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2 pml.patch
 	rm -rf $@ pml-${VERSION_PML}
 	tar xjf pml-${VERSION_PML}.tar.bz2
 	cd pml-${VERSION_PML} && bzcat ../pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2 | patch -p1
 	cd pml-${VERSION_PML} && cat ../pml.patch | patch -p1
-	cd pml-${VERSION_PML} && cat ../pml-mintlib.patch | patch -p1
 	touch $@
 
 # Preliminary build

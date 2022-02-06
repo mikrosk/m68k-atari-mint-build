@@ -7,23 +7,18 @@
 
 REPOSITORY_BINUTILS	= m68k-atari-mint-binutils-gdb
 REPOSITORY_GCC		= m68k-atari-mint-gcc
-REPOSITORY_MINTLIB	= mintlib
 
 GITHUB_URL_BINUTILS	= https://github.com/freemint/${REPOSITORY_BINUTILS}/archive
 GITHUB_URL_GCC		= https://github.com/freemint/${REPOSITORY_GCC}/archive
-GITHUB_URL_MINTLIB	= https://github.com/freemint/${REPOSITORY_MINTLIB}/archive
 
 BRANCH_BINUTILS		= binutils-2_30-mint
 BRANCH_GCC		= gcc-4_6-mint
-BRANCH_MINTLIB		= master
 
 ARCHIVE_BINUTILS	= ${BRANCH_BINUTILS}.tar.gz
 ARCHIVE_GCC		= ${BRANCH_GCC}.tar.gz
-ARCHIVE_MINTLIB		= ${BRANCH_MINTLIB}.tar.gz
 
 FOLDER_BINUTILS		= ${REPOSITORY_BINUTILS}-${BRANCH_BINUTILS}
 FOLDER_GCC		= ${REPOSITORY_GCC}-${BRANCH_GCC}
-FOLDER_MINTLIB		= ${REPOSITORY_MINTLIB}-${BRANCH_MINTLIB}
 
 PATCH_PML		= 20191013
 
@@ -32,6 +27,7 @@ VERSION_GCC		= 4.6.4
 
 VERSION_PML		= 2.03
 VERSION_MINTBIN		= 20201129
+VERSION_MINTLIB		= 20200504
 
 SH      := $(shell which sh)
 BASH    := $(shell which bash)
@@ -42,7 +38,7 @@ UNTAR	:= tar xzf
 # to redirect compilation standard output
 OUT =
 
-DOWNLOADS = ${ARCHIVE_BINUTILS} ${ARCHIVE_GCC} ${ARCHIVE_MINTLIB} \
+DOWNLOADS = ${ARCHIVE_BINUTILS} ${ARCHIVE_GCC} mintlib-Git-${VERSION_MINTLIB}.tar.gz \
 	    pml-${VERSION_PML}.tar.bz2 \
 	    mintbin-Git-${VERSION_MINTBIN}.tar.gz \
 	    pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2
@@ -150,8 +146,8 @@ ${ARCHIVE_BINUTILS}:
 ${ARCHIVE_GCC}:
 	$(URLGET) ${GITHUB_URL_GCC}/$@
 
-${ARCHIVE_MINTLIB}:
-	$(URLGET) ${GITHUB_URL_MINTLIB}/$@
+mintlib-Git-${VERSION_MINTLIB}.tar.gz:
+	$(URLGET) http://vincent.riviere.free.fr/soft/m68k-atari-mint/archives/$@
 
 pml-${VERSION_PML}.tar.bz2:
 	$(URLGET) http://vincent.riviere.free.fr/soft/m68k-atari-mint/archives/$@
@@ -178,7 +174,7 @@ gcc-m68k-atari-mint.ok: gcc-${VERSION_GCC}.ok
 	# target specific patches here
 	touch $@
 
-libc-m68k-atari-mint.ok: pml-${VERSION_PML}.ok mintbin-Git-${VERSION_MINTBIN}.ok mintlib.ok
+libc-m68k-atari-mint.ok: pml-${VERSION_PML}.ok mintbin-Git-${VERSION_MINTBIN}.ok mintlib-Git-${VERSION_MINTLIB}.ok
 	# target specific patches here
 	touch $@
 
@@ -197,10 +193,10 @@ gcc-${VERSION_GCC}.ok: ${ARCHIVE_GCC} gmp.patch download_prerequisites.patch
 	cd ${FOLDER_GCC} && patch -p1 < ../gmp.patch
 	touch $@
 
-mintlib.ok: ${ARCHIVE_MINTLIB} mintlib.patch
-	rm -rf $@ ${FOLDER_MINTLIB}
-	$(UNTAR) ${ARCHIVE_MINTLIB} > /dev/null
-	cd ${FOLDER_MINTLIB} && patch -p1 < ../mintlib.patch
+mintlib-Git-${VERSION_MINTLIB}.ok: mintlib-Git-${VERSION_MINTLIB}.tar.gz
+	rm -rf $@ mintlib-Git-${VERSION_MINTLIB}
+	tar xzf mintlib-Git-${VERSION_MINTLIB}.tar.gz
+	cd mintlib-Git-${VERSION_MINTLIB} && patch -p1 < ../mintlib.patch
 	touch $@
 
 mintbin-Git-${VERSION_MINTBIN}.ok: mintbin-Git-${VERSION_MINTBIN}.tar.gz mintbin.patch
@@ -273,11 +269,11 @@ gcc-gmp-patch: gcc-${TARGET}.ok
 gcc-preliminary: gcc-${VERSION_GCC}-${CPU}-cross-preliminary.ok
 
 mintlib: libc-${TARGET}.ok
-	cd ${FOLDER_MINTLIB} && $(MAKE) OUT= clean $(OUT)
-	cd ${FOLDER_MINTLIB} && \
+	cd mintlib-Git-${VERSION_MINTLIB} && $(MAKE) OUT= clean $(OUT)
+	cd mintlib-Git-${VERSION_MINTLIB} && \
 		export PATH=${INSTALL_DIR}/bin:$$PATH && \
 		$(MAKE) OUT= toolprefix=${TARGET}- SHELL=$(BASH) CROSS=yes WITH_020_LIB=no WITH_V4E_LIB=no $(OUT)
-	cd ${FOLDER_MINTLIB} && \
+	cd mintlib-Git-${VERSION_MINTLIB} && \
 		export PATH=${INSTALL_DIR}/bin:$$PATH && \
 		$(MAKE) OUT= toolprefix=${TARGET}- SHELL=$(BASH) CROSS=yes WITH_020_LIB=no WITH_V4E_LIB=no install $(OUT)
 
@@ -382,7 +378,7 @@ gcc-atari: check-target-gcc gcc-${VERSION_GCC}-${CPU}-atari.ok
 clean-source:
 	rm -rf ${FOLDER_BINUTILS}
 	rm -rf ${FOLDER_GCC}
-	rm -rf ${FOLDER_MINTLIB}
+	rm -rf mintlib-Git-${VERSION_MINTLIB}
 	rm -rf pml-${VERSION_PML}
 	rm -rf mintbin-Git-${VERSION_MINTBIN}
 	rm -f *.ok

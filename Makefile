@@ -31,7 +31,7 @@ VERSION_BINUTILS	= 2.30
 VERSION_GCC		= 4.6.4
 
 VERSION_PML		= 2.03
-VERSION_MINTBIN		= 20110527
+VERSION_MINTBIN		= 20201129
 
 SH      := $(shell which sh)
 BASH    := $(shell which bash)
@@ -44,7 +44,7 @@ OUT =
 
 DOWNLOADS = ${ARCHIVE_BINUTILS} ${ARCHIVE_GCC} ${ARCHIVE_MINTLIB} \
 	    pml-${VERSION_PML}.tar.bz2 \
-	    mintbin-CVS-${VERSION_MINTBIN}.tar.gz \
+	    mintbin-Git-${VERSION_MINTBIN}.tar.gz \
 	    pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2
 
 .PHONY: help download clean \
@@ -156,7 +156,7 @@ ${ARCHIVE_MINTLIB}:
 pml-${VERSION_PML}.tar.bz2:
 	$(URLGET) http://vincent.riviere.free.fr/soft/m68k-atari-mint/archives/$@
 
-mintbin-CVS-${VERSION_MINTBIN}.tar.gz:
+mintbin-Git-${VERSION_MINTBIN}.tar.gz:
 	$(URLGET) http://vincent.riviere.free.fr/soft/m68k-atari-mint/archives/$@
 
 # Download ${TARGET}-specific patches
@@ -178,7 +178,7 @@ gcc-m68k-atari-mint.ok: gcc-${VERSION_GCC}.ok
 	# target specific patches here
 	touch $@
 
-libc-m68k-atari-mint.ok: pml-${VERSION_PML}.ok mintbin-CVS-${VERSION_MINTBIN}.ok mintlib.ok
+libc-m68k-atari-mint.ok: pml-${VERSION_PML}.ok mintbin-Git-${VERSION_MINTBIN}.ok mintlib.ok
 	# target specific patches here
 	touch $@
 
@@ -203,10 +203,10 @@ mintlib.ok: ${ARCHIVE_MINTLIB} mintlib.patch
 	cd ${FOLDER_MINTLIB} && patch -p1 < ../mintlib.patch
 	touch $@
 
-mintbin-CVS-${VERSION_MINTBIN}.ok: mintbin-CVS-${VERSION_MINTBIN}.tar.gz mintbin.patch
-	rm -rf $@ mintbin-CVS-${VERSION_MINTBIN}
-	tar xzf mintbin-CVS-${VERSION_MINTBIN}.tar.gz
-	cd mintbin-CVS-${VERSION_MINTBIN} && patch -p1 < ../mintbin.patch
+mintbin-Git-${VERSION_MINTBIN}.ok: mintbin-Git-${VERSION_MINTBIN}.tar.gz mintbin.patch
+	rm -rf $@ mintbin-Git-${VERSION_MINTBIN}
+	tar xzf mintbin-Git-${VERSION_MINTBIN}.tar.gz
+	cd mintbin-Git-${VERSION_MINTBIN} && patch -p1 < ../mintbin.patch
 	touch $@
 
 pml-${VERSION_PML}.ok: pml-${VERSION_PML}.tar.bz2 pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2 pml.patch
@@ -282,11 +282,11 @@ mintlib: libc-${TARGET}.ok
 		$(MAKE) OUT= toolprefix=${TARGET}- SHELL=$(BASH) CROSS=yes WITH_020_LIB=no WITH_V4E_LIB=no install $(OUT)
 
 mintbin: libc-${TARGET}.ok
-	cd mintbin-CVS-${VERSION_MINTBIN} && \
+	cd mintbin-Git-${VERSION_MINTBIN} && \
 		export PATH=${INSTALL_DIR}/bin:$$PATH && \
 		./configure --target=${TARGET} --prefix=${INSTALL_DIR} --disable-nls
-	cd mintbin-CVS-${VERSION_MINTBIN} && $(MAKE) OUT= $(OUT)
-	cd mintbin-CVS-${VERSION_MINTBIN} && $(MAKE) OUT= install $(OUT)
+	cd mintbin-Git-${VERSION_MINTBIN} && $(MAKE) OUT= $(OUT)
+	cd mintbin-Git-${VERSION_MINTBIN} && $(MAKE) OUT= install $(OUT)
 	mv -v ${INSTALL_DIR}/${TARGET}/bin/${TARGET}-* ${INSTALL_DIR}/bin
 
 pml: libc-${TARGET}.ok
@@ -384,7 +384,7 @@ clean-source:
 	rm -rf ${FOLDER_GCC}
 	rm -rf ${FOLDER_MINTLIB}
 	rm -rf pml-${VERSION_PML}
-	rm -rf mintbin-CVS-${VERSION_MINTBIN}
+	rm -rf mintbin-Git-${VERSION_MINTBIN}
 	rm -f *.ok
 	rm -f *~
 

@@ -199,10 +199,9 @@ mintlib-Git-${VERSION_MINTLIB}.ok: mintlib-Git-${VERSION_MINTLIB}.tar.gz
 	cd mintlib-Git-${VERSION_MINTLIB} && patch -p1 < ../mintlib.patch
 	touch $@
 
-mintbin-Git-${VERSION_MINTBIN}.ok: mintbin-Git-${VERSION_MINTBIN}.tar.gz mintbin.patch
+mintbin-Git-${VERSION_MINTBIN}.ok: mintbin-Git-${VERSION_MINTBIN}.tar.gz
 	rm -rf $@ mintbin-Git-${VERSION_MINTBIN}
 	tar xzf mintbin-Git-${VERSION_MINTBIN}.tar.gz
-	cd mintbin-Git-${VERSION_MINTBIN} && patch -p1 < ../mintbin.patch
 	touch $@
 
 pml-${VERSION_PML}.ok: pml-${VERSION_PML}.tar.bz2 pml-${VERSION_PML}-mint-${PATCH_PML}.patch.bz2 pml.patch
@@ -283,7 +282,6 @@ mintbin: libc-${TARGET}.ok
 		./configure --target=${TARGET} --prefix=${INSTALL_DIR} --disable-nls
 	cd mintbin-Git-${VERSION_MINTBIN} && $(MAKE) OUT= $(OUT)
 	cd mintbin-Git-${VERSION_MINTBIN} && $(MAKE) OUT= install $(OUT)
-	mv -v ${INSTALL_DIR}/${TARGET}/bin/${TARGET}-* ${INSTALL_DIR}/bin
 
 pml: libc-${TARGET}.ok
 	cd pml-${VERSION_PML}/pmlsrc && $(MAKE) clean LIB="$(DIR)" $(OUT)

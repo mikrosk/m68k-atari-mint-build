@@ -1,7 +1,7 @@
 # Atari cross- and native-binutils/gcc toolchain build Makefile
 # Miro Kropacek aka MiKRO / Mystic Bytes
 # miro.kropacek@gmail.com
-# version 4.3.1 (2020/05/03)
+# version 4.3.2 (2022/06/08)
 
 # please note you need the bash shell for correct compilation of mintlib.
 
@@ -17,11 +17,11 @@ BRANCH_MINTLIB		= master
 BRANCH_MINTBIN		= master
 BRANCH_FDLIBM		= master
 
-GITHUB_URL_BINUTILS	= https://github.com/freemint/${REPOSITORY_BINUTILS}/archive/${BRANCH_BINUTILS}.tar.gz
-GITHUB_URL_GCC		= https://github.com/freemint/${REPOSITORY_GCC}/archive/${BRANCH_GCC}.tar.gz
-GITHUB_URL_MINTLIB	= https://github.com/freemint/${REPOSITORY_MINTLIB}/archive/${BRANCH_MINTLIB}.tar.gz
-GITHUB_URL_MINTBIN	= https://github.com/freemint/${REPOSITORY_MINTBIN}/archive/${BRANCH_MINTBIN}.tar.gz
-GITHUB_URL_FDLIBM	= https://github.com/freemint/${REPOSITORY_FDLIBM}/archive/${BRANCH_FDLIBM}.tar.gz
+GITHUB_URL_BINUTILS	= https://github.com/freemint/${REPOSITORY_BINUTILS}/archive/refs/heads/${BRANCH_BINUTILS}.tar.gz
+GITHUB_URL_GCC		= https://github.com/freemint/${REPOSITORY_GCC}/archive/refs/heads/${BRANCH_GCC}.tar.gz
+GITHUB_URL_MINTLIB	= https://github.com/freemint/${REPOSITORY_MINTLIB}/archive/refs/heads/${BRANCH_MINTLIB}.tar.gz
+GITHUB_URL_MINTBIN	= https://github.com/freemint/${REPOSITORY_MINTBIN}/archive/refs/heads/${BRANCH_MINTBIN}.tar.gz
+GITHUB_URL_FDLIBM	= https://github.com/freemint/${REPOSITORY_FDLIBM}/archive/refs/heads/${BRANCH_FDLIBM}.tar.gz
 
 FOLDER_BINUTILS		= ${REPOSITORY_BINUTILS}-${BRANCH_BINUTILS}
 FOLDER_GCC		= ${REPOSITORY_GCC}-${BRANCH_GCC}
@@ -171,10 +171,9 @@ gcc-${VERSION_GCC}.ok: gmp.patch download_prerequisites.patch
 	cd ${FOLDER_GCC} && patch -p1 < ../gmp.patch
 	touch $@
 
-mintlib.ok: mintlib.patch
+mintlib.ok:
 	rm -rf $@ ${FOLDER_MINTLIB}
 	$(URLGET) ${GITHUB_URL_MINTLIB} | $(UNTAR) > /dev/null
-	cd ${FOLDER_MINTLIB} && patch -p1 < ../mintlib.patch
 	touch $@
 
 mintbin.ok:

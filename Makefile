@@ -8,8 +8,8 @@
 REPOSITORY_BINUTILS	= m68k-atari-mint-binutils-gdb
 REPOSITORY_GCC		= m68k-atari-mint-gcc
 
-GITHUB_URL_BINUTILS	= https://github.com/freemint/${REPOSITORY_BINUTILS}/archive
-GITHUB_URL_GCC		= https://github.com/freemint/${REPOSITORY_GCC}/archive
+GITHUB_URL_BINUTILS	= https://github.com/freemint/${REPOSITORY_BINUTILS}/archive/refs/heads
+GITHUB_URL_GCC		= https://github.com/freemint/${REPOSITORY_GCC}/archive/refs/heads
 
 BRANCH_BINUTILS		= binutils-2_30-mint
 BRANCH_GCC		= gcc-4_6-mint

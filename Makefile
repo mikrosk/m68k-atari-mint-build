@@ -43,13 +43,13 @@ OUT =
 
 DOWNLOADS = binutils-${VERSION_BINUTILS}.ok gcc-${VERSION_GCC}.ok mintlib.ok mintbin.ok fdlibm.ok
 
-.PHONY: help download clean \
+.PHONY: default help download clean \
 	clean-all       clean-all-skip-native       clean-native           all       all-skip-native       all-native \
 	clean-m68000    clean-m68000-skip-native    clean-m68000-native    m68000    m68000-skip-native    m68000-native \
 	clean-m68020-60 clean-m68020-60-skip-native clean-m68020-60-native m68020-60 m68020-60-skip-native m68020-60-native \
 	clean-5475      clean-5475-skip-native      clean-5475-native      5475      5475-skip-native      5475-native
 
-# display help
+default: m68000-skip-native
 
 help: ./build.sh
 	@echo "Makefile targets :"

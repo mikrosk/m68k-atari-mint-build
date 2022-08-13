@@ -61,7 +61,7 @@ do
 done
 
 if [ -z "$indices" ] ; then
-	echo "No CPU to build."
+	echo "Do not invoke this script directly. Type 'make' or 'make help'."
 	exit 1
 fi
 

@@ -2,10 +2,10 @@
 
 set -e
 
-target=m68k-atari-mint
+target=m68k-atari-mintelf
 
 if [ -z "${INSTALL_DIR}" ] ; then
-	INSTALL_DIR="$HOME/gnu-tools"
+	INSTALL_DIR="$HOME/gnu-tools-elf"
 fi
 
 CPU_DIRS="m68000 m68020-60 m5475"	# target directory

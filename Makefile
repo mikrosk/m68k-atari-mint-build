@@ -11,8 +11,8 @@ REPOSITORY_MINTLIB	= mintlib
 REPOSITORY_MINTBIN	= mintbin
 REPOSITORY_FDLIBM	= fdlibm
 
-BRANCH_BINUTILS		= binutils-2_30-mint
-BRANCH_GCC		= gcc-7-mint
+BRANCH_BINUTILS		= binutils-2_41-mintelf
+BRANCH_GCC		= gcc-13-mintelf
 BRANCH_MINTLIB		= master
 BRANCH_MINTBIN		= master
 BRANCH_FDLIBM		= master
@@ -29,8 +29,8 @@ FOLDER_MINTLIB		= ${REPOSITORY_MINTLIB}-${BRANCH_MINTLIB}
 FOLDER_MINTBIN		= ${REPOSITORY_MINTBIN}-${BRANCH_MINTBIN}
 FOLDER_FDLIBM		= ${REPOSITORY_FDLIBM}-${BRANCH_FDLIBM}
 
-VERSION_BINUTILS	= 2.30
-VERSION_GCC		= 7.5.0
+VERSION_BINUTILS	= 2.41
+VERSION_GCC		= 13.2.0
 
 SH      := $(shell which sh)
 BASH    := $(shell which bash)
@@ -142,7 +142,8 @@ download: $(DOWNLOADS)
 # right now we don't support building of more than one target in one go so don't forget 'make clean-source'
 # to be sure a fresh copy of binutils and gcc is used (and possibly patched)
 
-.PHONY: binutils-m68k-atari-mint.ok gcc-m68k-atari-mint.ok libc-m68k-atari-mint.ok
+.PHONY: binutils-m68k-atari-mint.ok gcc-m68k-atari-mint.ok libc-m68k-atari-mint.ok \
+	binutils-m68k-atari-mintelf.ok gcc-m68k-atari-mintelf.ok libc-m68k-atari-mintelf.ok
 
 binutils-m68k-atari-mint.ok: binutils-${VERSION_BINUTILS}.ok
 	# target specific patches here
@@ -156,6 +157,18 @@ libc-m68k-atari-mint.ok: fdlibm.ok mintbin.ok mintlib.ok
 	# target specific patches here
 	touch $@
 
+binutils-m68k-atari-mintelf.ok: binutils-${VERSION_BINUTILS}.ok
+	# target specific patches here
+	touch $@
+
+gcc-m68k-atari-mintelf.ok: gcc-${VERSION_GCC}.ok
+	# target specific patches here
+	touch $@
+
+libc-m68k-atari-mintelf.ok: fdlibm.ok mintbin.ok mintlib.ok
+	# target specific patches here
+	touch $@
+
 # Downloading, depacking and patching
 
 binutils-${VERSION_BINUTILS}.ok:
@@ -163,12 +176,10 @@ binutils-${VERSION_BINUTILS}.ok:
 	$(URLGET) ${GITHUB_URL_BINUTILS} | $(UNTAR) > /dev/null
 	touch $@
 
-gcc-${VERSION_GCC}.ok: gmp.patch download_prerequisites.patch
+gcc-${VERSION_GCC}.ok:
 	rm -rf $@ ${FOLDER_GCC}
 	$(URLGET) ${GITHUB_URL_GCC} | $(UNTAR) > /dev/null
-	cd ${FOLDER_GCC} && patch -p1 < ../download_prerequisites.patch
 	cd ${FOLDER_GCC} && contrib/download_prerequisites
-	cd ${FOLDER_GCC} && patch -p1 < ../gmp.patch
 	touch $@
 
 mintlib.ok:

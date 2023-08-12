@@ -27,7 +27,7 @@ VERSION_GCC		= 4.6.4
 
 VERSION_PML		= 2.03
 VERSION_MINTBIN		= 20201129
-VERSION_MINTLIB		= 20200504
+VERSION_MINTLIB		= 20220821
 
 SH      := $(shell which sh)
 BASH    := $(shell which bash)
@@ -196,7 +196,6 @@ gcc-${VERSION_GCC}.ok: ${ARCHIVE_GCC} gmp.patch download_prerequisites.patch
 mintlib-Git-${VERSION_MINTLIB}.ok: mintlib-Git-${VERSION_MINTLIB}.tar.gz
 	rm -rf $@ mintlib-Git-${VERSION_MINTLIB}
 	tar xzf mintlib-Git-${VERSION_MINTLIB}.tar.gz
-	cd mintlib-Git-${VERSION_MINTLIB} && patch -p1 < ../mintlib.patch
 	touch $@
 
 mintbin-Git-${VERSION_MINTBIN}.ok: mintbin-Git-${VERSION_MINTBIN}.tar.gz
@@ -357,7 +356,8 @@ gcc-${VERSION_GCC}-${CPU}-atari.ok: gcc-${TARGET}.ok
 		--prefix=/usr \
 		--host=${TARGET} \
 		--target=${TARGET} \
-		--with-sysroot="${INSTALL_DIR}/${TARGET}" \
+		--with-sysroot="/" \
+		--with-build-sysroot="${INSTALL_DIR}/${TARGET}" \
 		--disable-nls \
 		--enable-languages="c,c++" \
 		--enable-c99 \

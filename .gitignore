@@ -8,7 +8,7 @@ m68k-atari-mint-binutils-gdb-*/
 gcc-*
 m68k-atari-mint-gcc-*/
 mintlib-master/
-mintbin-master/
+mintbin-mintelf/
 fdlibm-master/
 binary-package/
 gmp-*.*/

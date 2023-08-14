@@ -330,11 +330,10 @@ binutils-${VERSION_BINUTILS}-${CPU}-atari.ok: binutils-${TARGET}.ok
 
 binutils-atari: check-target-gcc binutils-${VERSION_BINUTILS}-${CPU}-atari.ok
 
-gcc-${VERSION_GCC}-${CPU}-atari.ok: gcc-${TARGET}.ok disable_ftw.sh
+gcc-${VERSION_GCC}-${CPU}-atari.ok: gcc-${TARGET}.ok
 	rm -rf $@ ${FOLDER_GCC}-${CPU}-atari
 	mkdir -p ${FOLDER_GCC}-${CPU}-atari
 	cd ${FOLDER_GCC}-${CPU}-atari && \
-	../disable_ftw.sh && \
 	export PATH=${INSTALL_DIR}/bin:$$PATH CFLAGS="-O2 -fomit-frame-pointer" CXXFLAGS="-O2 -fomit-frame-pointer" && \
 	../${FOLDER_GCC}/configure \
 		--prefix=/usr \

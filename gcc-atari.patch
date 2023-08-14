@@ -37,29 +37,6 @@ diff -ruw m68k-atari-mint-gcc-gcc-13-mintelf.old/isl/config.sub m68k-atari-mint-
  				vendor=atari
  				;;
  			-vos*)
-diff -ruw m68k-atari-mint-gcc-gcc-13-mintelf.old/libcody/cody.hh m68k-atari-mint-gcc-gcc-13-mintelf/libcody/cody.hh
---- m68k-atari-mint-gcc-gcc-13-mintelf.old/libcody/cody.hh	2023-08-10 22:06:23.000000000 +0200
-+++ m68k-atari-mint-gcc-gcc-13-mintelf/libcody/cody.hh	2023-08-12 14:14:19.702416435 +0200
-@@ -9,7 +9,7 @@
- // generally only good for requesting no networking
- #if !defined (CODY_NETWORKING)
- // Have a known-good list of networking systems
--#if defined (__unix__) || defined (__MACH__)
-+#if (defined (__unix__) || defined (__MACH__)) && !defined (__MINT__)
- #define CODY_NETWORKING 1
- #else
- #define CODY_NETWORKING 0
-diff -ruw m68k-atari-mint-gcc-gcc-13-mintelf.old/libcody/resolver.cc m68k-atari-mint-gcc-gcc-13-mintelf/libcody/resolver.cc
---- m68k-atari-mint-gcc-gcc-13-mintelf.old/libcody/resolver.cc	2023-08-10 22:06:23.000000000 +0200
-+++ m68k-atari-mint-gcc-gcc-13-mintelf/libcody/resolver.cc	2023-08-12 14:08:59.359089058 +0200
-@@ -11,6 +11,7 @@
- #include <sys/types.h>
- 
- #if ((defined (__unix__)						\
-+      && !defined(__MINT__)						\
-       && defined _POSIX_C_SOURCE					\
-       && (_POSIX_C_SOURCE - 0) >= 200809L)				\
-      || (defined (__Apple__)						\
 diff -ruw m68k-atari-mint-gcc-gcc-13-mintelf.old/mpc/build-aux/config.sub m68k-atari-mint-gcc-gcc-13-mintelf/mpc/build-aux/config.sub
 --- m68k-atari-mint-gcc-gcc-13-mintelf.old/mpc/build-aux/config.sub	2020-10-20 18:26:31.000000000 +0200
 +++ m68k-atari-mint-gcc-gcc-13-mintelf/mpc/build-aux/config.sub	2023-08-12 14:08:59.359089058 +0200

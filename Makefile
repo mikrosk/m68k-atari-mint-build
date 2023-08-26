@@ -224,7 +224,8 @@ gcc-${VERSION_GCC}-${CPU}-cross-preliminary.ok: gcc-${TARGET}.ok
 		--enable-languages=c \
 		--disable-multilib \
 		--disable-libstdcxx-pch \
-		--disable-lto && \
+		--disable-lto \
+		--with-libstdcxx-zoneinfo=no && \
 	$(MAKE) -j16 all-gcc all-target-libgcc $(OUT) && \
 	$(MAKE) install-gcc install-target-libgcc $(OUT)
 	touch $@
@@ -279,7 +280,8 @@ gcc-${VERSION_GCC}-${CPU}-cross-final.ok: ${INSTALL_DIR}/${TARGET}/sys-root/usr/
 		--disable-libstdcxx-pch \
 		--disable-libgomp \
 		--with-cpu=${CPU} \
-		--disable-lto && \
+		--disable-lto \
+		--with-libstdcxx-zoneinfo=no && \
 	$(MAKE) -j16 $(OUT) && \
 	$(MAKE) install-strip $(OUT)
 	cd "${INSTALL_DIR}/lib/gcc/${TARGET}/${VERSION_GCC}/include-fixed" && \

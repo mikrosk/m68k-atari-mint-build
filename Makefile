@@ -250,10 +250,10 @@ mintlib: libc-${TARGET}.ok
 	cd ${FOLDER_MINTLIB} && $(MAKE) OUT= clean $(OUT)
 	cd ${FOLDER_MINTLIB} && \
 		export PATH=${INSTALL_DIR}/bin:$$PATH && \
-		$(MAKE) OUT= toolprefix=${TARGET}- SHELL=$(BASH) CROSS=yes WITH_020_LIB=no WITH_V4E_LIB=no $(OUT)
+		$(MAKE) OUT= toolprefix=${TARGET}- SHELL=$(BASH) CROSS=yes WITH_020_LIB=no WITH_V4E_LIB=no WITH_DEBUG_LIB=no $(OUT)
 	cd ${FOLDER_MINTLIB} && \
 		export PATH=${INSTALL_DIR}/bin:$$PATH && \
-		$(MAKE) OUT= toolprefix=${TARGET}- SHELL=$(BASH) CROSS=yes WITH_020_LIB=no WITH_V4E_LIB=no install $(OUT)
+		$(MAKE) OUT= toolprefix=${TARGET}- SHELL=$(BASH) CROSS=yes WITH_020_LIB=no WITH_V4E_LIB=no WITH_DEBUG_LIB=no install $(OUT)
 
 mintbin: libc-${TARGET}.ok
 	-cd ${FOLDER_MINTBIN} && $(MAKE) OUT= distclean $(OUT)

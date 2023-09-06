@@ -250,10 +250,10 @@ mintlib: libc-${TARGET}.ok
 	cd ${FOLDER_MINTLIB} && $(MAKE) OUT= clean $(OUT)
 	cd ${FOLDER_MINTLIB} && \
 		export PATH=${INSTALL_DIR}/bin:$$PATH && \
-		$(MAKE) OUT= toolprefix=${TARGET}- SHELL=$(BASH) CROSS=yes WITH_020_LIB=no WITH_V4E_LIB=no WITH_DEBUG_LIB=no $(OUT)
+		$(MAKE) OUT= toolprefix=${TARGET}- SHELL=$(BASH) CROSS=yes WITH_020_LIB=yes WITH_V4E_LIB=yes WITH_DEBUG_LIB=no $(OUT)
 	cd ${FOLDER_MINTLIB} && \
 		export PATH=${INSTALL_DIR}/bin:$$PATH && \
-		$(MAKE) OUT= toolprefix=${TARGET}- SHELL=$(BASH) CROSS=yes WITH_020_LIB=no WITH_V4E_LIB=no WITH_DEBUG_LIB=no install $(OUT)
+		$(MAKE) OUT= toolprefix=${TARGET}- SHELL=$(BASH) CROSS=yes WITH_020_LIB=yes WITH_V4E_LIB=yes WITH_DEBUG_LIB=no install $(OUT)
 
 mintbin: libc-${TARGET}.ok
 	-cd ${FOLDER_MINTBIN} && $(MAKE) OUT= distclean $(OUT)
@@ -268,13 +268,13 @@ fdlibm: libc-${TARGET}.ok
 	cd ${FOLDER_FDLIBM} && \
 		export PATH=${INSTALL_DIR}/bin:$$PATH && \
 		unset CC CXX AR RANLIB LD && \
-		./configure --host=${TARGET} --prefix=${INSTALL_DIR} --libdir=${libdir}
+		./configure --host=${TARGET} --prefix=${INSTALL_DIR}
 	cd ${FOLDER_FDLIBM} && \
 		export PATH=${INSTALL_DIR}/bin:$$PATH && \
-		$(MAKE) OUT= CPU-FPU-TYPES=68000.soft-float $(OUT)
+		$(MAKE) OUT= $(OUT)
 	cd ${FOLDER_FDLIBM} && \
 		export PATH=${INSTALL_DIR}/bin:$$PATH && \
-		$(MAKE) OUT= CPU-FPU-TYPES=68000.soft-float install $(OUT)
+		$(MAKE) OUT= install $(OUT)
 
 # Full build
 

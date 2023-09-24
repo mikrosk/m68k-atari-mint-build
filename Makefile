@@ -14,7 +14,7 @@ REPOSITORY_FDLIBM	= fdlibm
 BRANCH_BINUTILS		= binutils-2_41-mintelf
 BRANCH_GCC		= gcc-13-mintelf
 BRANCH_MINTLIB		= master
-BRANCH_MINTBIN		= mintelf
+BRANCH_MINTBIN		= master
 BRANCH_FDLIBM		= master
 
 GITHUB_URL_BINUTILS	= https://github.com/freemint/${REPOSITORY_BINUTILS}/archive/refs/heads/${BRANCH_BINUTILS}.tar.gz

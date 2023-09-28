@@ -288,11 +288,13 @@ gcc-${VERSION_GCC}-${CPU}-cross-final.ok: ${INSTALL_DIR}/${TARGET}/sys-root/usr/
 		--target=${TARGET} \
 		--with-sysroot=${INSTALL_DIR}/${TARGET}/sys-root \
 		--disable-nls \
-		--enable-languages="c,c++" \
+		--enable-lto \
+		--enable-languages="c,c++,lto" \
 		--disable-libstdcxx-pch \
+		--disable-threads \
 		--disable-libgomp \
+		--disable-sjlj-exceptions \
 		--with-cpu=${CPU} \
-		--disable-lto \
 		--with-libstdcxx-zoneinfo=no && \
 	$(MAKE) -j16 $(OUT) && \
 	$(MAKE) install-strip $(OUT)
@@ -344,11 +346,14 @@ gcc-${VERSION_GCC}-${CPU}-atari.ok: gcc-${TARGET}.ok
 		--with-sysroot="/" \
 		--with-build-sysroot="${INSTALL_DIR}/${TARGET}/sys-root" \
 		--disable-nls \
-		--enable-languages="c,c++" \
+		--enable-lto \
+		--enable-languages="c,c++,lto" \
 		--disable-libstdcxx-pch \
+		--disable-threads \
 		--disable-libgomp \
+		--disable-sjlj-exceptions \
 		--with-cpu=${CPU} \
-		--disable-lto && \
+		--with-libstdcxx-zoneinfo=no && \
 	$(MAKE) -j16 $(OUT) && \
 	$(MAKE) install-strip DESTDIR=${PWD}/binary-package/${CPU}/gcc-${VERSION_GCC} $(OUT)
 	touch $@

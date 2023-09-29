@@ -1,3 +1,8 @@
+# docker buildx build --progress plain .
+
+ARG TARGET=m68k-atari-mintelf
+ARG INSTALL_DIR=/usr/${TARGET}
+
 # always latest LTS
 FROM ubuntu:latest AS build
 RUN apt -y update && apt -y upgrade
@@ -5,14 +10,12 @@ RUN apt -y install binutils bison bzip2 file flex gawk gcc g++ m4 make patch tex
 RUN ln -s bash /bin/sh.bash && mv /bin/sh.bash /bin/sh
 WORKDIR /src
 COPY gcc-atari.patch .
-#RUN chmod +x version-check.sh
-#CMD ./version-check.sh
 
-# docker buildx build --progress plain .
+# renew the arguments
+ARG TARGET
+ARG INSTALL_DIR
 
-ENV TARGET              m68k-atari-mintelf
-ENV INSTALL_DIR         /usr/${TARGET}
-
+# used at a few places
 ENV VERSION_BINUTILS	2.41
 ENV VERSION_GCC		    13.2.0
 
@@ -163,3 +166,13 @@ RUN cd ${FOLDER_MINTBIN} \
     && make \
     && make install \
     && cd -
+
+# final build
+FROM ubuntu:latest
+RUN apt -y update && apt -y upgrade
+
+# renew the arguments
+ARG TARGET
+ARG INSTALL_DIR
+
+COPY --from=build ${INSTALL_DIR} ${INSTALL_DIR}

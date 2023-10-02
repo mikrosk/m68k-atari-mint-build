@@ -46,7 +46,7 @@ RUN mkdir build-binutils-preliminary \
         --disable-nls \
         --disable-werror \
         --enable-gprofng=no \
-		--disable-gdb --disable-libdecnumber --disable-readline --disable-sim \
+        --disable-gdb --disable-libdecnumber --disable-readline --disable-sim \
     && make \
     && make install-strip \
     && cd -
@@ -55,25 +55,25 @@ RUN mkdir build-binutils-preliminary \
 RUN mkdir build-gcc-preliminary \
     && cd build-gcc-preliminary \
     && PATH=${INSTALL_DIR}-tmp/bin:$PATH ../${FOLDER_GCC}/configure \
-		--prefix=${INSTALL_DIR}-tmp \
-		--target=${TARGET} \
-		--with-sysroot=${INSTALL_DIR}/${TARGET}/sys-root \
-		--disable-nls \
-		--disable-shared \
-		--without-headers \
-		--with-newlib \
-		--disable-decimal-float \
-		--disable-libgomp \
-		--disable-libmudflap \
-		--disable-libssp \
-		--disable-libatomic \
-		--disable-libquadmath \
-		--disable-threads \
-		--enable-languages=c \
-		--disable-multilib \
-		--disable-lto \
-	&& make all-gcc all-target-libgcc \
-	&& make install-gcc install-target-libgcc \
+        --prefix=${INSTALL_DIR}-tmp \
+        --target=${TARGET} \
+        --with-sysroot=${INSTALL_DIR}/${TARGET}/sys-root \
+        --disable-nls \
+        --disable-shared \
+        --without-headers \
+        --with-newlib \
+        --disable-decimal-float \
+        --disable-libgomp \
+        --disable-libmudflap \
+        --disable-libssp \
+        --disable-libatomic \
+        --disable-libquadmath \
+        --disable-threads \
+        --enable-languages=c \
+        --disable-multilib \
+        --disable-lto \
+    && make all-gcc all-target-libgcc \
+    && make install-gcc install-target-libgcc \
     && cd -
 
 # mintlib download
@@ -122,7 +122,7 @@ RUN mkdir build-binutils \
         --disable-nls \
         --disable-werror \
         --enable-gprofng=no \
-		--disable-gdb --disable-libdecnumber --disable-readline --disable-sim \
+        --disable-gdb --disable-libdecnumber --disable-readline --disable-sim \
     && make \
     && make install-strip \
     && cd -
@@ -132,33 +132,33 @@ RUN mkdir build-gcc \
     && cd build-gcc \
     && PATH=${INSTALL_DIR}/bin:$PATH ../${FOLDER_GCC}/configure \
         --prefix=${INSTALL_DIR} \
-		--target=${TARGET} \
-		--with-sysroot=${INSTALL_DIR}/${TARGET}/sys-root \
-		--disable-nls \
-   		--disable-shared \
+        --target=${TARGET} \
+        --with-sysroot=${INSTALL_DIR}/${TARGET}/sys-root \
+        --disable-nls \
+        --disable-shared \
         --without-newlib \
-		--disable-decimal-float \
-		--disable-libgomp \
-		--enable-languages="c,c++,lto" \
-		--disable-libstdcxx-pch \
-		--enable-lto \
-		--with-libstdcxx-zoneinfo=no \
+        --disable-decimal-float \
+        --disable-libgomp \
+        --enable-languages="c,c++,lto" \
+        --disable-libstdcxx-pch \
+        --with-libstdcxx-zoneinfo=no \
+        --disable-sjlj-exceptions \
     && make \
     && make install-strip \
     && cd -
 
 RUN cd "${INSTALL_DIR}/lib/gcc/${TARGET}/${VERSION_GCC}/include-fixed" && \
     for f in $(find . -type f); \
-	do \
-		case "$f" in \
-			./README | ./limits.h | ./syslimits.h) ;; \
-			*) echo "Removing fixed include file $f"; rm "$f" ;; \
-		esac \
-	done && \
-	for d in $(find . -depth -type d); \
-	do \
-		test "$d" = "." || rmdir "$d"; \
-	done
+    do \
+        case "$f" in \
+            ./README | ./limits.h | ./syslimits.h) ;; \
+            *) echo "Removing fixed include file $f"; rm "$f" ;; \
+        esac \
+    done && \
+    for d in $(find . -depth -type d); \
+    do \
+        test "$d" = "." || rmdir "$d"; \
+    done
 
 # mintbin build
 RUN cd ${FOLDER_MINTBIN} \

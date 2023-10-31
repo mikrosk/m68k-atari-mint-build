@@ -193,7 +193,7 @@ binutils-${VERSION_BINUTILS}-${CPU}-cross.ok: binutils-${TARGET}.ok
 	export PATH=${INSTALL_DIR}/bin:$$PATH && \
 	../${FOLDER_BINUTILS}/configure --target=${TARGET} --prefix=${INSTALL_DIR} --disable-nls --disable-werror \
 					--disable-gdb --disable-libdecnumber --disable-readline --disable-sim && \
-	$(MAKE) -j3 $(OUT) && \
+	$(MAKE) -j16 $(OUT) && \
 	$(MAKE) install-strip $(OUT)
 	touch $@
 
@@ -225,7 +225,7 @@ gcc-${VERSION_GCC}-${CPU}-cross-preliminary.ok: gcc-${TARGET}.ok
 		--disable-multilib \
 		--disable-libstdcxx-pch \
 		--disable-lto && \
-	$(MAKE) -j3 all-gcc all-target-libgcc $(OUT) && \
+	$(MAKE) -j16 all-gcc all-target-libgcc $(OUT) && \
 	$(MAKE) install-gcc install-target-libgcc $(OUT)
 	touch $@
 
@@ -280,7 +280,7 @@ gcc-${VERSION_GCC}-${CPU}-cross-final.ok: ${INSTALL_DIR}/${TARGET}/sys-root/usr/
 		--disable-libgomp \
 		--with-cpu=${CPU} \
 		--disable-lto && \
-	$(MAKE) -j3 $(OUT) && \
+	$(MAKE) -j16 $(OUT) && \
 	$(MAKE) install-strip $(OUT)
 	cd "${INSTALL_DIR}/lib/gcc/${TARGET}/${VERSION_GCC}/include-fixed" && \
 	for f in $$(find . -type f); \
@@ -312,7 +312,7 @@ binutils-${VERSION_BINUTILS}-${CPU}-atari.ok: binutils-${TARGET}.ok
 	export PATH=${INSTALL_DIR}/bin:$$PATH CFLAGS="-O2 -fomit-frame-pointer" CXXFLAGS="-O2 -fomit-frame-pointer" && \
 	../${FOLDER_BINUTILS}/configure --target=${TARGET} --host=${TARGET} --disable-nls --prefix=/usr \
 					--disable-gdb --disable-libdecnumber --disable-readline --disable-sim && \
-	$(MAKE) -j3 $(OUT) && \
+	$(MAKE) -j16 $(OUT) && \
 	$(MAKE) install-strip DESTDIR=${PWD}/binary-package/${CPU}/binutils-${VERSION_BINUTILS}
 	touch $@
 
@@ -335,7 +335,7 @@ gcc-${VERSION_GCC}-${CPU}-atari.ok: gcc-${TARGET}.ok
 		--disable-libgomp \
 		--with-cpu=${CPU} \
 		--disable-lto && \
-	$(MAKE) -j3 $(OUT) && \
+	$(MAKE) -j16 $(OUT) && \
 	$(MAKE) install-strip DESTDIR=${PWD}/binary-package/${CPU}/gcc-${VERSION_GCC} $(OUT)
 	touch $@
 

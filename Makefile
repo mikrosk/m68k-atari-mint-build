@@ -239,7 +239,8 @@ gcc-${VERSION_GCC}-${CPU}-cross-preliminary.ok: gcc-${TARGET}.ok
 		--disable-lto \
 		--with-libstdcxx-zoneinfo=no \
 		--disable-libcc1 \
-		--disable-fixincludes && \
+		--disable-fixincludes \
+		--enable-version-specific-runtime-libs && \
 	$(MAKE) -j16 all-gcc all-target-libgcc $(OUT) && \
 	$(MAKE) install-gcc install-target-libgcc $(OUT)
 	touch $@
@@ -299,7 +300,8 @@ gcc-${VERSION_GCC}-${CPU}-cross-final.ok: ${INSTALL_DIR}/${TARGET}/sys-root/usr/
 		--with-cpu=${CPU} \
 		--with-libstdcxx-zoneinfo=no \
 		--disable-libcc1 \
-		--disable-fixincludes && \
+		--disable-fixincludes \
+		--enable-version-specific-runtime-libs && \
 	$(MAKE) -j16 $(OUT) && \
 	$(MAKE) install-strip $(OUT)
 	cd "${INSTALL_DIR}/lib/gcc/${TARGET}/${VERSION_GCC}/include-fixed" && \
@@ -359,7 +361,8 @@ gcc-${VERSION_GCC}-${CPU}-atari.ok: gcc-${TARGET}.ok
 		--with-cpu=${CPU} \
 		--with-libstdcxx-zoneinfo=no \
 		--disable-libcc1 \
-		--disable-fixincludes && \
+		--disable-fixincludes \
+		--enable-version-specific-runtime-libs && \
 	$(MAKE) -j16 $(OUT) && \
 	$(MAKE) install-strip DESTDIR=${PWD}/binary-package/${CPU}/gcc-${VERSION_GCC} $(OUT)
 	touch $@

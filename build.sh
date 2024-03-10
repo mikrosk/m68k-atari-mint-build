@@ -2,7 +2,7 @@
 
 set -e
 
-target=m68k-atari-mint
+target=m68k-atari-mintelf
 
 if [ -z "${INSTALL_DIR}" ] ; then
 	INSTALL_DIR="$HOME/gnu-tools"
@@ -87,18 +87,21 @@ do
 			${MAKE} TARGET=$target binutils gcc-preliminary mintbin INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
 
 			# build mintlib and fdlibm for all targets
-			for j in $indices_all
-			do
-				target_dir=$(echo $CPU_DIRS | cut -d ' ' -f $j)
+			#for j in $indices_all
+			#do
+			#	target_dir=$(echo $CPU_DIRS | cut -d ' ' -f $j)
 				prefix="$INSTALL_DIR/$dir/$target/sys-root/usr"
-				if [ "$target_dir" = "$dir" ]
-				then
-					target_dir=""
-				fi
-				opts=$(echo $CPU_OPTS | cut -d ' ' -f $j)
-				${MAKE} TARGET=$target mintlib prefix="$prefix" libdir="$prefix/lib/$target_dir" cflags="-$opts" INSTALL_DIR="$INSTALL_DIR/$dir" || exit 1
-				${MAKE} TARGET=$target fdlibm  prefix="$prefix" libdir="$prefix/lib/$target_dir" CPU="-$opts" INSTALL_DIR="$INSTALL_DIR/$dir" || exit 1
-			done
+			#	if [ "$target_dir" = "$dir" ]
+			#	then
+			#		target_dir=""
+			#	fi
+			#	opts=$(echo $CPU_OPTS | cut -d ' ' -f $j)
+			#	${MAKE} TARGET=$target mintlib prefix="$prefix" libdir="$prefix/lib/$target_dir" cflags="-$opts" INSTALL_DIR="$INSTALL_DIR/$dir" || exit 1
+			#	${MAKE} TARGET=$target fdlibm  prefix="$prefix" libdir="$prefix/lib/$target_dir" CPU="-$opts" INSTALL_DIR="$INSTALL_DIR/$dir" || exit 1
+
+			${MAKE} TARGET=$target mintlib prefix="$prefix" INSTALL_DIR="$INSTALL_DIR/$dir" || exit 1
+			${MAKE} TARGET=$target fdlibm  prefix="$prefix" INSTALL_DIR="$INSTALL_DIR/$dir" || exit 1
+			#done
 			${MAKE} TARGET=$target gcc INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
 		fi
 

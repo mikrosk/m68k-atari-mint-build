@@ -11,8 +11,8 @@ REPOSITORY_MINTLIB	= mintlib
 REPOSITORY_MINTBIN	= mintbin
 REPOSITORY_FDLIBM	= fdlibm
 
-BRANCH_BINUTILS		= binutils-2_30-mint
-BRANCH_GCC		= gcc-7-mint
+BRANCH_BINUTILS		= binutils-2_42-mintelf
+BRANCH_GCC		= gcc-13-mintelf
 BRANCH_MINTLIB		= master
 BRANCH_MINTBIN		= master
 BRANCH_FDLIBM		= master
@@ -29,8 +29,8 @@ FOLDER_MINTLIB		= ${REPOSITORY_MINTLIB}-${BRANCH_MINTLIB}
 FOLDER_MINTBIN		= ${REPOSITORY_MINTBIN}-${BRANCH_MINTBIN}
 FOLDER_FDLIBM		= ${REPOSITORY_FDLIBM}-${BRANCH_FDLIBM}
 
-VERSION_BINUTILS	= 2.30
-VERSION_GCC		= 7.5.0
+VERSION_BINUTILS	= 2.42
+VERSION_GCC		= 13.2.0
 
 SH      := $(shell which sh)
 BASH    := $(shell which bash)
@@ -142,7 +142,8 @@ download: $(DOWNLOADS)
 # right now we don't support building of more than one target in one go so don't forget 'make clean-source'
 # to be sure a fresh copy of binutils and gcc is used (and possibly patched)
 
-.PHONY: binutils-m68k-atari-mint.ok gcc-m68k-atari-mint.ok libc-m68k-atari-mint.ok
+.PHONY: binutils-m68k-atari-mint.ok gcc-m68k-atari-mint.ok libc-m68k-atari-mint.ok \
+	binutils-m68k-atari-mintelf.ok gcc-m68k-atari-mintelf.ok libc-m68k-atari-mintelf.ok
 
 binutils-m68k-atari-mint.ok: binutils-${VERSION_BINUTILS}.ok
 	# target specific patches here
@@ -156,6 +157,18 @@ libc-m68k-atari-mint.ok: fdlibm.ok mintbin.ok mintlib.ok
 	# target specific patches here
 	touch $@
 
+binutils-m68k-atari-mintelf.ok: binutils-${VERSION_BINUTILS}.ok
+	# target specific patches here
+	touch $@
+
+gcc-m68k-atari-mintelf.ok: gcc-${VERSION_GCC}.ok
+	# target specific patches here
+	touch $@
+
+libc-m68k-atari-mintelf.ok: fdlibm.ok mintbin.ok mintlib.ok
+	# target specific patches here
+	touch $@
+
 # Downloading, depacking and patching
 
 binutils-${VERSION_BINUTILS}.ok:
@@ -163,12 +176,11 @@ binutils-${VERSION_BINUTILS}.ok:
 	$(URLGET) ${GITHUB_URL_BINUTILS} | $(UNTAR) > /dev/null
 	touch $@
 
-gcc-${VERSION_GCC}.ok: gmp.patch download_prerequisites.patch
+gcc-${VERSION_GCC}.ok: gcc-atari.patch
 	rm -rf $@ ${FOLDER_GCC}
 	$(URLGET) ${GITHUB_URL_GCC} | $(UNTAR) > /dev/null
-	cd ${FOLDER_GCC} && patch -p1 < ../download_prerequisites.patch
 	cd ${FOLDER_GCC} && contrib/download_prerequisites
-	cd ${FOLDER_GCC} && patch -p1 < ../gmp.patch
+	cd ${FOLDER_GCC} && patch -p1 < ../gcc-atari.patch
 	touch $@
 
 mintlib.ok:
@@ -193,7 +205,7 @@ binutils-${VERSION_BINUTILS}-${CPU}-cross.ok: binutils-${TARGET}.ok
 	export PATH=${INSTALL_DIR}/bin:$$PATH && \
 	../${FOLDER_BINUTILS}/configure --target=${TARGET} --prefix=${INSTALL_DIR} --disable-nls --disable-werror \
 					--disable-gdb --disable-libdecnumber --disable-readline --disable-sim && \
-	$(MAKE) -j3 $(OUT) && \
+	$(MAKE) -j16 $(OUT) && \
 	$(MAKE) install-strip $(OUT)
 	touch $@
 
@@ -224,8 +236,12 @@ gcc-${VERSION_GCC}-${CPU}-cross-preliminary.ok: gcc-${TARGET}.ok
 		--enable-languages=c \
 		--disable-multilib \
 		--disable-libstdcxx-pch \
-		--disable-lto && \
-	$(MAKE) -j3 all-gcc all-target-libgcc $(OUT) && \
+		--disable-lto \
+		--with-libstdcxx-zoneinfo=no \
+		--disable-libcc1 \
+		--disable-fixincludes \
+		--enable-version-specific-runtime-libs && \
+	$(MAKE) -j16 all-gcc all-target-libgcc $(OUT) && \
 	$(MAKE) install-gcc install-target-libgcc $(OUT)
 	touch $@
 
@@ -237,10 +253,10 @@ mintlib: libc-${TARGET}.ok
 	cd ${FOLDER_MINTLIB} && $(MAKE) OUT= clean $(OUT)
 	cd ${FOLDER_MINTLIB} && \
 		export PATH=${INSTALL_DIR}/bin:$$PATH && \
-		$(MAKE) OUT= toolprefix=${TARGET}- SHELL=$(BASH) CROSS=yes WITH_020_LIB=no WITH_V4E_LIB=no $(OUT)
+		$(MAKE) OUT= toolprefix=${TARGET}- SHELL=$(BASH) CROSS=yes WITH_020_LIB=yes WITH_V4E_LIB=yes WITH_DEBUG_LIB=no $(OUT)
 	cd ${FOLDER_MINTLIB} && \
 		export PATH=${INSTALL_DIR}/bin:$$PATH && \
-		$(MAKE) OUT= toolprefix=${TARGET}- SHELL=$(BASH) CROSS=yes WITH_020_LIB=no WITH_V4E_LIB=no install $(OUT)
+		$(MAKE) OUT= toolprefix=${TARGET}- SHELL=$(BASH) CROSS=yes WITH_020_LIB=yes WITH_V4E_LIB=yes WITH_DEBUG_LIB=no install $(OUT)
 
 mintbin: libc-${TARGET}.ok
 	-cd ${FOLDER_MINTBIN} && $(MAKE) OUT= distclean $(OUT)
@@ -255,13 +271,13 @@ fdlibm: libc-${TARGET}.ok
 	cd ${FOLDER_FDLIBM} && \
 		export PATH=${INSTALL_DIR}/bin:$$PATH && \
 		unset CC CXX AR RANLIB LD && \
-		./configure --host=${TARGET} --prefix=${INSTALL_DIR} --libdir=${libdir}
+		./configure --host=${TARGET} --prefix=${INSTALL_DIR}
 	cd ${FOLDER_FDLIBM} && \
 		export PATH=${INSTALL_DIR}/bin:$$PATH && \
-		$(MAKE) OUT= CPU-FPU-TYPES=68000.soft-float $(OUT)
+		$(MAKE) OUT= $(OUT)
 	cd ${FOLDER_FDLIBM} && \
 		export PATH=${INSTALL_DIR}/bin:$$PATH && \
-		$(MAKE) OUT= CPU-FPU-TYPES=68000.soft-float install $(OUT)
+		$(MAKE) OUT= install $(OUT)
 
 # Full build
 
@@ -275,12 +291,18 @@ gcc-${VERSION_GCC}-${CPU}-cross-final.ok: ${INSTALL_DIR}/${TARGET}/sys-root/usr/
 		--target=${TARGET} \
 		--with-sysroot=${INSTALL_DIR}/${TARGET}/sys-root \
 		--disable-nls \
-		--enable-languages="c,c++" \
+		--enable-lto \
+		--enable-languages="c,c++,lto" \
 		--disable-libstdcxx-pch \
+		--disable-threads \
 		--disable-libgomp \
+		--disable-sjlj-exceptions \
 		--with-cpu=${CPU} \
-		--disable-lto && \
-	$(MAKE) -j3 $(OUT) && \
+		--with-libstdcxx-zoneinfo=no \
+		--disable-libcc1 \
+		--disable-fixincludes \
+		--enable-version-specific-runtime-libs && \
+	$(MAKE) -j16 $(OUT) && \
 	$(MAKE) install-strip $(OUT)
 	cd "${INSTALL_DIR}/lib/gcc/${TARGET}/${VERSION_GCC}/include-fixed" && \
 	for f in $$(find . -type f); \
@@ -312,7 +334,7 @@ binutils-${VERSION_BINUTILS}-${CPU}-atari.ok: binutils-${TARGET}.ok
 	export PATH=${INSTALL_DIR}/bin:$$PATH CFLAGS="-O2 -fomit-frame-pointer" CXXFLAGS="-O2 -fomit-frame-pointer" && \
 	../${FOLDER_BINUTILS}/configure --target=${TARGET} --host=${TARGET} --disable-nls --prefix=/usr \
 					--disable-gdb --disable-libdecnumber --disable-readline --disable-sim && \
-	$(MAKE) -j3 $(OUT) && \
+	$(MAKE) -j16 $(OUT) && \
 	$(MAKE) install-strip DESTDIR=${PWD}/binary-package/${CPU}/binutils-${VERSION_BINUTILS}
 	touch $@
 
@@ -330,12 +352,18 @@ gcc-${VERSION_GCC}-${CPU}-atari.ok: gcc-${TARGET}.ok
 		--with-sysroot="/" \
 		--with-build-sysroot="${INSTALL_DIR}/${TARGET}/sys-root" \
 		--disable-nls \
-		--enable-languages="c,c++" \
+		--enable-lto \
+		--enable-languages="c,c++,lto" \
 		--disable-libstdcxx-pch \
+		--disable-threads \
 		--disable-libgomp \
+		--disable-sjlj-exceptions \
 		--with-cpu=${CPU} \
-		--disable-lto && \
-	$(MAKE) -j3 $(OUT) && \
+		--with-libstdcxx-zoneinfo=no \
+		--disable-libcc1 \
+		--disable-fixincludes \
+		--enable-version-specific-runtime-libs && \
+	$(MAKE) -j16 $(OUT) && \
 	$(MAKE) install-strip DESTDIR=${PWD}/binary-package/${CPU}/gcc-${VERSION_GCC} $(OUT)
 	touch $@
 
@@ -358,18 +386,6 @@ clean-cross:
 	rm -rf ${FOLDER_GCC}-${CPU}-cross-final
 
 pack-atari:
-	cd ${PWD}/binary-package/${CPU}/gcc-${VERSION_GCC}/usr/lib/gcc/${TARGET}/${VERSION_GCC}/include-fixed && \
-	for f in $$(find . -type f); \
-	do \
-		case "$$f" in \
-			./README | ./limits.h | ./syslimits.h) ;; \
-			*) echo "Removing fixed include file $$f"; rm "$$f" ;; \
-		esac \
-	done && \
-	for d in $$(find . -depth -type d); \
-	do \
-		test "$$d" = "." || rmdir "$$d"; \
-	done
 	for dir in binutils-${VERSION_BINUTILS} gcc-${VERSION_GCC}; \
 	do \
 		cd ${PWD}/binary-package/${CPU}/$$dir && tar cjf ../$$dir-${CPU}mint.tar.bz2 usr && cd ..; \

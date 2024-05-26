@@ -233,7 +233,6 @@ gcc-${VERSION_GCC}-${CPU}-cross-preliminary.ok: downloads/${FOLDER_GCC}.ok
 		--disable-libquadmath \
 		--disable-threads \
 		--enable-languages=c \
-		--disable-multilib \
 		--disable-libstdcxx-pch \
 		--disable-lto \
 		--with-libstdcxx-zoneinfo=no \
@@ -252,10 +251,10 @@ mintlib: downloads/${FOLDER_MINTLIB}.ok
 	cd downloads/${FOLDER_MINTLIB} && $(MAKE) clean
 	cd downloads/${FOLDER_MINTLIB} && \
 		export PATH=${INSTALL_DIR}/bin:$$PATH && \
-		$(MAKE) toolprefix=${TARGET}- SHELL=$(BASH) CROSS=yes WITH_020_LIB=yes WITH_V4E_LIB=yes WITH_DEBUG_LIB=no
+		$(MAKE) CROSS_TOOL=${TARGET} SHELL=$(BASH) WITH_020_LIB=yes WITH_V4E_LIB=yes WITH_DEBUG_LIB=no
 	cd downloads/${FOLDER_MINTLIB} && \
 		export PATH=${INSTALL_DIR}/bin:$$PATH && \
-		$(MAKE) toolprefix=${TARGET}- SHELL=$(BASH) CROSS=yes WITH_020_LIB=yes WITH_V4E_LIB=yes WITH_DEBUG_LIB=no install
+		$(MAKE) CROSS_TOOL=${TARGET} SHELL=$(BASH) WITH_020_LIB=yes WITH_V4E_LIB=yes WITH_DEBUG_LIB=no install
 
 mintbin: downloads/${FOLDER_MINTBIN}.ok
 	-cd downloads/${FOLDER_MINTBIN} && $(MAKE) distclean
@@ -270,7 +269,7 @@ fdlibm: downloads/${FOLDER_FDLIBM}.ok
 	cd downloads/${FOLDER_FDLIBM} && \
 		export PATH=${INSTALL_DIR}/bin:$$PATH && \
 		unset CC CXX AR RANLIB LD && \
-		./configure --host=${TARGET} --prefix=${INSTALL_DIR}
+		./configure --host=${TARGET} --prefix=/usr
 	cd downloads/${FOLDER_FDLIBM} && \
 		export PATH=${INSTALL_DIR}/bin:$$PATH && \
 		$(MAKE)

@@ -1,6 +1,4 @@
-#!/bin/sh
-
-set -e
+#!/bin/sh -eux
 
 target=m68k-atari-mintelf
 
@@ -84,12 +82,12 @@ do
 
 	if [ $clean -eq 0 ]; then
 		if [ $native_only -eq 0 ] ; then
-			${MAKE} TARGET=$target binutils gcc-preliminary mintbin INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
+			${MAKE} TARGET=$target binutils gcc-preliminary mintbin INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu"
 
 			# build default mintlib/fdlibm (all their flavours *must* use explicit cpu specification on the command line, e.g. -m68000)
 			DESTDIR="$INSTALL_DIR/$dir/$target/sys-root"
-			${MAKE} TARGET=$target mintlib DESTDIR="$DESTDIR" INSTALL_DIR="$INSTALL_DIR/$dir" || exit 1
-			${MAKE} TARGET=$target fdlibm  DESTDIR="$DESTDIR" INSTALL_DIR="$INSTALL_DIR/$dir" || exit 1
+			${MAKE} TARGET=$target mintlib DESTDIR="$DESTDIR" INSTALL_DIR="$INSTALL_DIR/$dir"
+			${MAKE} TARGET=$target fdlibm  DESTDIR="$DESTDIR" INSTALL_DIR="$INSTALL_DIR/$dir"
 
 			# remove mintlib m68000 leftovers
 			rm -r "$DESTDIR/sbin"
@@ -115,22 +113,22 @@ do
 				rmdir "$DESTDIR/usr/lib/$dir"
 			fi
 
-			${MAKE} TARGET=$target gcc INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
+			${MAKE} TARGET=$target gcc INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu"
 		fi
 
 		if [ $skip_native -eq 0 ] ; then
-			${MAKE} TARGET=$target binutils-atari INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" OPT="$opt" || exit 1
-			${MAKE} TARGET=$target gcc-atari      INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" OPT="$opt" || exit 1
-			${MAKE} TARGET=$target strip-atari    INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
-			${MAKE} TARGET=$target pack-atari     INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
+			${MAKE} TARGET=$target binutils-atari INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" OPT="$opt"
+			${MAKE} TARGET=$target gcc-atari      INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" OPT="$opt"
+			${MAKE} TARGET=$target strip-atari    INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu"
+			${MAKE} TARGET=$target pack-atari     INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu"
 		fi
 	else
 		if [ $native_only -eq 0 ] ; then
-			${MAKE} TARGET=$target clean-cross CPU="$cpu" || exit 1
+			${MAKE} TARGET=$target clean-cross CPU="$cpu"
 		fi
 
 		if [ $skip_native -eq 0 ] ; then
-			${MAKE} TARGET=$target clean-atari CPU="$cpu" || exit 1
+			${MAKE} TARGET=$target clean-atari CPU="$cpu"
 		fi
 	fi
 done

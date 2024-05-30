@@ -86,22 +86,35 @@ do
 		if [ $native_only -eq 0 ] ; then
 			${MAKE} TARGET=$target binutils gcc-preliminary mintbin INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
 
-			# build mintlib and fdlibm for all targets
-			#for j in $indices_all
-			#do
-			#	target_dir=$(echo $CPU_DIRS | cut -d ' ' -f $j)
-				DESTDIR="$INSTALL_DIR/$dir/$target/sys-root"
-			#	if [ "$target_dir" = "$dir" ]
-			#	then
-			#		target_dir=""
-			#	fi
-			#	opts=$(echo $CPU_OPTS | cut -d ' ' -f $j)
-			#	${MAKE} TARGET=$target mintlib DESTDIR="$DESTDIR" libdir="$DESTDIR/usr/lib/$target_dir" cflags="-$opts" INSTALL_DIR="$INSTALL_DIR/$dir" || exit 1
-			#	${MAKE} TARGET=$target fdlibm  DESTDIR="$DESTDIR" libdir="$DESTDIR/usr/lib/$target_dir" CPU="-$opts" INSTALL_DIR="$INSTALL_DIR/$dir" || exit 1
-
+			# build default mintlib/fdlibm (all their flavours *must* use explicit cpu specification on the command line, e.g. -m68000)
+			DESTDIR="$INSTALL_DIR/$dir/$target/sys-root"
 			${MAKE} TARGET=$target mintlib DESTDIR="$DESTDIR" INSTALL_DIR="$INSTALL_DIR/$dir" || exit 1
 			${MAKE} TARGET=$target fdlibm  DESTDIR="$DESTDIR" INSTALL_DIR="$INSTALL_DIR/$dir" || exit 1
-			#done
+
+			# remove mintlib m68000 leftovers
+			rm -r "$DESTDIR/sbin"
+			rm -r "$DESTDIR/usr/sbin"
+
+			if [ "$dir" != "m68000" ]
+			then
+				target_dirs=""
+				for j in $indices_all
+				do
+					target_dir=$(echo $CPU_DIRS | cut -d ' ' -f $j)
+					if [ "$target_dir" != "m68000" ]
+					then
+						target_dirs="$target_dirs $target_dir"
+					fi
+				done
+				target_dir_1=$(echo $target_dirs | cut -d ' ' -f 1)
+				target_dir_2=$(echo $target_dirs | cut -d ' ' -f 2)
+
+				mkdir "$DESTDIR/usr/lib/m68000"
+				find "$DESTDIR/usr/lib" -mindepth 1 -maxdepth 1 -not -name "m68000" -not -name "$target_dir_1" -not -name "$target_dir_2" -exec mv "{}" "$DESTDIR/usr/lib/m68000" \;
+				find "$DESTDIR/usr/lib/$dir" -mindepth 1 -maxdepth 1 -exec mv "{}" "$DESTDIR/usr/lib" \;
+				rmdir "$DESTDIR/usr/lib/$dir"
+			fi
+
 			${MAKE} TARGET=$target gcc INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" || exit 1
 		fi
 

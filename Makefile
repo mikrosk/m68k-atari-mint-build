@@ -39,7 +39,7 @@ DOWNLOADS 			= downloads/${ARCHIVE_BINUTILS} downloads/${ARCHIVE_GCC} downloads/
 FOLDERS 			= downloads/${FOLDER_BINUTILS}.ok downloads/${FOLDER_GCC}.ok downloads/${FOLDER_MINTLIB}.ok downloads/${FOLDER_MINTBIN}.ok downloads/${FOLDER_FDLIBM}.ok
 
 VERSION_BINUTILS	= 2.42
-VERSION_GCC			= 13.2.0
+VERSION_GCC			= 13.3.0
 
 SH      := $(shell which sh)
 BASH    := $(shell which bash)
@@ -232,6 +232,7 @@ gcc-${VERSION_GCC}-${CPU}-cross-preliminary.ok: downloads/${FOLDER_GCC}.ok
 		--disable-libatomic \
 		--disable-libquadmath \
 		--disable-threads \
+		--disable-tls \
 		--enable-languages=c \
 		--disable-libstdcxx-pch \
 		--disable-lto \
@@ -293,6 +294,7 @@ gcc-${VERSION_GCC}-${CPU}-cross-final.ok: ${INSTALL_DIR}/${TARGET}/sys-root/usr/
 		--enable-languages="c,c++,lto" \
 		--disable-libstdcxx-pch \
 		--disable-threads \
+		--disable-tls \
 		--disable-libgomp \
 		--disable-sjlj-exceptions \
 		--with-cpu=${CPU} \
@@ -354,6 +356,7 @@ gcc-${VERSION_GCC}-${CPU}-atari.ok: downloads/${FOLDER_GCC}.ok
 		--enable-languages="c,c++,lto" \
 		--disable-libstdcxx-pch \
 		--disable-threads \
+		--disable-tls \
 		--disable-libgomp \
 		--disable-sjlj-exceptions \
 		--with-cpu=${CPU} \

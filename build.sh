@@ -6,9 +6,9 @@ if [ -z "${INSTALL_DIR}" ] ; then
 	INSTALL_DIR="$HOME/gnu-tools"
 fi
 
-CPU_DIRS="m68000 m68020-60 m5475"	# target directory
+CPU_DIRS="m68000 m68020-60 m5475"		# target directory
 CPU_OPTS="m68000 m68020-60 mcpu=5475"	# gcc command line
-CPU_CPUS="m68000 m68020-60 5475"	# --with-cpu=
+CPU_CPUS="m68000 m68020-60 5475"		# --with-cpu=
 CPU_COUNT=$(echo ${CPU_DIRS} | tr ' ' '\n' | wc -l)
 
 indices=""
@@ -63,36 +63,36 @@ if [ -z "$indices" ] ; then
 	exit 1
 fi
 
+if [ $clean -eq 0 -a $native_only -eq 0 ] ; then
+	# build & install temporary toolchain
+	DESTDIR="$PWD/preliminary"
+	${MAKE} PATH="$DESTDIR/bin:/usr/bin" TARGET=$target PREFIX="" DESTDIR="$DESTDIR" binutils-preliminary gcc-preliminary
+	# build & install mintlib/fdlibm (to make fdlibm's ./configure happy)
+	${MAKE} PATH="$DESTDIR/bin:/usr/bin" TARGET=$target DESTDIR="$DESTDIR/$target/sys-root" mintlib-preliminary fdlibm-preliminary
+elif [ $clean -ne 0 -a $native_only -eq 0 ] ; then
+	# TODO: this is called even in 'make clean-cross'
+	${MAKE} TARGET=$target DESTDIR="$PWD/preliminary" clean-preliminary
+	# this must be followed by calling make clean-cross below
+fi
+
 for i in $indices
 do
 	dir=$(echo $CPU_DIRS | cut -d ' ' -f $i)
 	cpu=$(echo $CPU_CPUS | cut -d ' ' -f $i)
 	opt=$(echo $CPU_OPTS | cut -d ' ' -f $i)
 
-	simple_cpu=$(echo $cpu | cut -d '-' -f 1)
-	
-	# first index must be native to the compiler
-	while [ "$(echo $indices_all | cut -d ' ' -f 1)" != "$i" ]
-	do
-		first=$(echo $indices_all | cut -d ' ' -f 1)
-		middle=$(echo $indices_all | cut -d ' ' -f 2-$((CPU_COUNT-1)))
-		last=$(echo $indices_all | cut -d ' ' -f $CPU_COUNT)
-		indices_all="$middle $last $first"
-	done
-
 	if [ $clean -eq 0 ]; then
 		if [ $native_only -eq 0 ] ; then
-			${MAKE} TARGET=$target binutils gcc-preliminary mintbin INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu"
-
-			# build default mintlib/fdlibm (all their flavours *must* use explicit cpu specification on the command line, e.g. -m68000)
 			DESTDIR="$INSTALL_DIR/$dir/$target/sys-root"
-			${MAKE} TARGET=$target mintlib DESTDIR="$DESTDIR" INSTALL_DIR="$INSTALL_DIR/$dir"
-			${MAKE} TARGET=$target fdlibm  DESTDIR="$DESTDIR" INSTALL_DIR="$INSTALL_DIR/$dir"
+
+			# install pre-built mintlib/fdlibm (mintlib's make install requires a working compiler)
+			${MAKE} PATH="$PWD/preliminary/bin:/usr/bin" CPU="$cpu" TARGET=$target DESTDIR="$DESTDIR" mintlib fdlibm || exit 1
 
 			# remove mintlib m68000 leftovers
 			rm -r "$DESTDIR/sbin"
 			rm -r "$DESTDIR/usr/sbin"
 
+			# provide proper folders for m68020-60 and m5475 multilib
 			if [ "$dir" != "m68000" ]
 			then
 				target_dirs=""
@@ -113,22 +113,25 @@ do
 				rmdir "$DESTDIR/usr/lib/$dir"
 			fi
 
-			${MAKE} TARGET=$target gcc INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu"
-		fi
+			# install pre-built binutils
+			${MAKE} PATH="$INSTALL_DIR/$dir/bin:/usr/bin" CPU="$cpu" DESTDIR="$INSTALL_DIR/$dir" binutils || exit 1
+			# build & install gcc
+ 			${MAKE} PATH="$INSTALL_DIR/$dir/bin:/usr/bin" CPU="$cpu" TARGET=$target INSTALL_DIR="$INSTALL_DIR/$dir" gcc || exit 1
+ 			# build & install mintbin
+ 			${MAKE} PATH="$INSTALL_DIR/$dir/bin:/usr/bin" CPU="$cpu" TARGET=$target PREFIX="" DESTDIR="$INSTALL_DIR/$dir" mintbin || exit 1
+ 		fi
 
-		if [ $skip_native -eq 0 ] ; then
-			${MAKE} TARGET=$target binutils-atari INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" OPT="$opt"
-			${MAKE} TARGET=$target gcc-atari      INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu" OPT="$opt"
-			${MAKE} TARGET=$target strip-atari    INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu"
-			${MAKE} TARGET=$target pack-atari     INSTALL_DIR="$INSTALL_DIR/$dir" CPU="$cpu"
-		fi
-	else
-		if [ $native_only -eq 0 ] ; then
-			${MAKE} TARGET=$target clean-cross CPU="$cpu"
-		fi
+ 		if [ $skip_native -eq 0 ] ; then
+ 			${MAKE} PATH="$INSTALL_DIR/$dir/bin:/usr/bin" CPU="$cpu" TARGET=$target INSTALL_DIR="$INSTALL_DIR/$dir" OPT="$opt" binutils-atari gcc-atari mintbin-atari || exit 1
+ 			${MAKE} PATH="$INSTALL_DIR/$dir/bin:/usr/bin" CPU="$cpu" TARGET=$target INSTALL_DIR="$INSTALL_DIR/$dir" strip-atari pack-atari || exit 1
+ 		fi
+ 	else
+ 		if [ $native_only -eq 0 ] ; then
+ 			${MAKE} CPU="$cpu" TARGET=$target clean-cross
+ 		fi
 
-		if [ $skip_native -eq 0 ] ; then
-			${MAKE} TARGET=$target clean-atari CPU="$cpu"
-		fi
-	fi
-done
+ 		if [ $skip_native -eq 0 ] ; then
+ 			${MAKE} CPU="$cpu" TARGET=$target clean-atari
+ 		fi
+ 	fi
+ done

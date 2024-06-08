@@ -3,8 +3,8 @@
 # Components to build
 COMPONENTS			= BINUTILS GCC MINTLIB MINTBIN FDLIBM
 
-VERSION_BINUTILS	= 2.42
-VERSION_GCC			= 13.4.0
+VERSION_BINUTILS	= 2.30
+VERSION_GCC			= 7.5.0
 
 REPOSITORY_BINUTILS	= m68k-atari-mint-binutils-gdb
 REPOSITORY_GCC		= m68k-atari-mint-gcc
@@ -12,8 +12,8 @@ REPOSITORY_MINTLIB	= mintlib
 REPOSITORY_MINTBIN	= mintbin
 REPOSITORY_FDLIBM	= fdlibm
 
-BRANCH_BINUTILS		= binutils-2_42-mintelf
-BRANCH_GCC			= gcc-13-mintelf
+BRANCH_BINUTILS		= binutils-2_30-mint
+BRANCH_GCC			= gcc-7-mint
 BRANCH_MINTLIB		= master
 BRANCH_MINTBIN		= master
 BRANCH_FDLIBM		= master
@@ -118,9 +118,9 @@ $(foreach comp,$(COMPONENTS),$(eval $(call UNPACK_RULE,$(comp))))
 
 # Custom post-processing rules for specific components
 
-sources/${FOLDER_GCC}.patched: sources/${FOLDER_GCC}.ok gcc-atari.patch
+sources/${FOLDER_GCC}.patched: sources/${FOLDER_GCC}.ok gmp-none.patch
 	cd sources/${FOLDER_GCC} && contrib/download_prerequisites --force
-	cd sources/${FOLDER_GCC} && patch -p1 < ../../gcc-atari.patch
+	cd sources/${FOLDER_GCC}/gmp && patch -p1 < ../../../gmp-none.patch
 	@touch $@
 
 # binutils (preliminary/full)
@@ -220,13 +220,12 @@ gcc-${VERSION_GCC}-cross-stage2-${CPU}.ok: ${INSTALL_DIR}/${TARGET}/sys-root/usr
 		--target=${TARGET} \
 		--with-sysroot \
 		--disable-nls \
-		--enable-lto \
-		--enable-languages="c,c++,lto" \
+		--disable-lto \
+		--enable-languages="c,c++" \
 		--disable-libstdcxx-pch \
 		--disable-threads \
 		--disable-tls \
 		--disable-libgomp \
-		--disable-sjlj-exceptions \
 		--with-cpu=${CPU} \
 		--with-libstdcxx-zoneinfo=no \
 		--disable-libcc1 \
@@ -286,13 +285,12 @@ gcc-${VERSION_GCC}-atari-${CPU}.ok: sources/${FOLDER_GCC}.patched
 		--with-sysroot="/" \
 		--with-build-sysroot="${INSTALL_DIR}/${TARGET}/sys-root" \
 		--disable-nls \
-		--enable-lto \
-		--enable-languages="c,c++,lto" \
+		--disable-lto \
+		--enable-languages="c,c++" \
 		--disable-libstdcxx-pch \
 		--disable-threads \
 		--disable-tls \
 		--disable-libgomp \
-		--disable-sjlj-exceptions \
 		--with-cpu=${CPU} \
 		--with-libstdcxx-zoneinfo=no \
 		--disable-libcc1 \

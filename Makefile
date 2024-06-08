@@ -3,8 +3,8 @@
 # Components to build
 COMPONENTS			= BINUTILS GCC MINTLIB MINTBIN FDLIBM
 
-VERSION_BINUTILS	= 2.42
-VERSION_GCC			= 13.5.0
+VERSION_BINUTILS	= 2.30
+VERSION_GCC			= 7.5.0
 
 REPOSITORY_BINUTILS	= m68k-atari-mint-binutils-gdb
 REPOSITORY_GCC		= m68k-atari-mint-gcc
@@ -12,8 +12,8 @@ REPOSITORY_MINTLIB	= mintlib
 REPOSITORY_MINTBIN	= mintbin
 REPOSITORY_FDLIBM	= fdlibm
 
-BRANCH_BINUTILS		= binutils-2_42-mintelf
-BRANCH_GCC			= gcc-13-mintelf
+BRANCH_BINUTILS		= binutils-2_30-mint
+BRANCH_GCC			= gcc-7-mint
 BRANCH_MINTLIB		= master
 BRANCH_MINTBIN		= master
 BRANCH_FDLIBM		= master
@@ -34,7 +34,7 @@ BASH    := $(shell which bash)
 URLGET	:= wget -q -O
 CPUS	:= $(shell getconf _NPROCESSORS_ONLN)
 
-TARGET		?= m68k-atari-mintelf
+TARGET		?= m68k-atari-mint
 INSTALL_DIR	?= $(HOME)/gnu-tools
 PRELIMINARY	= $(CURDIR)/preliminary
 
@@ -137,10 +137,9 @@ $(foreach comp,$(COMPONENTS),$(eval $(call UNPACK_RULE,$(comp))))
 
 # Custom post-processing rules for specific components
 
-sources/${FOLDER_GCC}.patched: sources/${FOLDER_GCC}.ok gcc-atari.patch libcody-cxx11.patch
+sources/${FOLDER_GCC}.patched: sources/${FOLDER_GCC}.ok gmp-none.patch
 	cd sources/${FOLDER_GCC} && contrib/download_prerequisites --force
-	cd sources/${FOLDER_GCC} && patch -p1 < ../../gcc-atari.patch
-	cd sources/${FOLDER_GCC} && patch -p1 < ../../libcody-cxx11.patch
+	cd sources/${FOLDER_GCC}/gmp && patch -p1 < ../../../gmp-none.patch
 	@touch $@
 
 # binutils (preliminary/full)
@@ -290,13 +289,12 @@ gcc-${VERSION_GCC}-cross-stage2-${CPU}.ok: | $(SYSROOT)/usr/lib/libc.a $(SYSROOT
 		--target=${TARGET} \
 		--with-sysroot \
 		--disable-nls \
-		--enable-lto \
-		--enable-languages="c,c++,lto" \
+		--disable-lto \
+		--enable-languages="c,c++" \
 		--disable-libstdcxx-pch \
 		--disable-threads \
 		--disable-tls \
 		--disable-libgomp \
-		--disable-sjlj-exceptions \
 		--with-cpu=${CPU} \
 		--with-libstdcxx-zoneinfo=no \
 		--disable-libcc1 \
@@ -356,13 +354,12 @@ gcc-${VERSION_GCC}-atari-${CPU}.ok: sources/${FOLDER_GCC}.patched
 		--with-sysroot="/" \
 		--with-build-sysroot="$(SYSROOT)" \
 		--disable-nls \
-		--enable-lto \
-		--enable-languages="c,c++,lto" \
+		--disable-lto \
+		--enable-languages="c,c++" \
 		--disable-libstdcxx-pch \
 		--disable-threads \
 		--disable-tls \
 		--disable-libgomp \
-		--disable-sjlj-exceptions \
 		--with-cpu=${CPU} \
 		--with-libstdcxx-zoneinfo=no \
 		--disable-libcc1 \

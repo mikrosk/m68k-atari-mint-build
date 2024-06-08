@@ -1,6 +1,6 @@
 #!/bin/sh -eux
 
-target=m68k-atari-mintelf
+target=m68k-atari-mint
 
 if [ -z "${INSTALL_DIR}" ] ; then
 	INSTALL_DIR="$HOME/gnu-tools"

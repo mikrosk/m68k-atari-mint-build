@@ -1,0 +1,21 @@
+--- ./config.sub.old	2015-11-01 16:19:48.000000000 +0100
++++ /config.sub	2024-06-09 13:29:23.961030464 +0200
+@@ -92,6 +92,8 @@
+   p6)         given_cpu=pentiumpro ;;
+   pentiumii)  given_cpu=pentium2 ;;
+   pentiumiii) given_cpu=pentium3 ;;
++
++  none)       given_cpu=none ;;
+ esac
+ given_full="$given_cpu$given_rest"
+ 
+@@ -133,6 +135,9 @@
+ armcortexr4 | armcortexr5 | armcortexm3 | arm*neon)
+   test_cpu="arm";;
+ 
++none)
++  test_cpu=none ;;
++
+ *)
+   # Don't need or want to change the given name, just run configfsf.sub
+   $SHELL $configfsf_sub "$given_full"

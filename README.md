@@ -1,12 +1,12 @@
-binutils, gcc, mintlib, fdlibm and mintbin for m68k-atari-mintelf
-=================================================================
+binutils, gcc, mintlib, fdlibm and mintbin for m68k-atari-mint
+==============================================================
 
 This is a set of patches and scripts to download and build GCC and Binutils
 packages for Atari and FireBee range of computers running on m68k/ColdFire
 CPUs.
 
-After the complete build (`make all`) (which takes about 60 minutes on modern PCs
-and takes about 14.5 GB of disk space) you will get:
+After the complete build (`make all`) (which takes about 40 minutes on modern PCs
+and takes about 9 GB of disk space) you will get:
 
 - three cross compilers (host to m68000/m68020-60/m5475; installed in
   `$INSTALL_DIR/<cpu>`; `INSTALL_DIR` is defined in build.sh)

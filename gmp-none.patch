@@ -1,0 +1,15 @@
+diff -ruw gmp-6.1.0.orig/configfsf.sub gmp-6.1.0/configfsf.sub
+--- gmp-6.1.0.orig/configfsf.sub	2015-11-02 01:19:48.000000000 +1000
++++ gmp-6.1.0/configfsf.sub	2026-02-17 12:12:57.193189505 +1000
+@@ -237,7 +237,10 @@
+ 		os=-psos
+ 		;;
+ 	-mint | -mint[0-9]*)
+-		basic_machine=m68k-atari
++		case $basic_machine in
++			*-*) basic_machine=`echo $basic_machine | sed 's/-.*/-atari/'` ;;
++			*)   basic_machine=$basic_machine-atari ;;
++		esac
+ 		os=-mint
+ 		;;
+ esac

@@ -39,7 +39,7 @@ DOWNLOADS 			= downloads/${ARCHIVE_BINUTILS} downloads/${ARCHIVE_GCC} downloads/
 FOLDERS 			= downloads/${FOLDER_BINUTILS}.ok downloads/${FOLDER_GCC}.ok downloads/${FOLDER_MINTLIB}.ok downloads/${FOLDER_MINTBIN}.ok downloads/${FOLDER_FDLIBM}.ok
 
 VERSION_BINUTILS	= 2.42
-VERSION_GCC			= 13.3.0
+VERSION_GCC			= 13.4.0
 
 SH      := $(shell which sh)
 BASH    := $(shell which bash)

@@ -247,7 +247,8 @@ gcc-${VERSION_GCC}-cross-stage1.ok: downloads/${FOLDER_GCC}.ok
 		--disable-lto \
 		--disable-libcc1 \
 		--disable-fixincludes \
-		--enable-version-specific-runtime-libs && \
+		--enable-version-specific-runtime-libs \
+		--enable-checking=yes && \
 	$(MAKE) -j$(CPUS) all-gcc all-target-libgcc && \
 	$(MAKE) install-gcc install-target-libgcc
 	touch $@

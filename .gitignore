@@ -1,6 +1,7 @@
 *.ok
 *~
-downloads/
+archives/
+sources/
 m68k-atari-mint-binutils-gdb-binutils-?_??-mintelf-cross/
 fdlibm-master/
 preliminary/

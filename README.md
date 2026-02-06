@@ -1,12 +1,12 @@
-binutils, gcc, mintlib, fdlibm and mintbin for m68k-atari-mint(elf)
-===================================================================
+binutils, gcc, mintlib, fdlibm and mintbin for m68k-atari-mintelf
+=================================================================
 
 This is a set of patches and scripts to download and build GCC and Binutils
 packages for Atari and FireBee range of computers running on m68k/ColdFire
 CPUs.
 
-After the complete build (`make all`) (which takes about an hour on modern PCs
-and takes about 11 GB of disk space) you will get:
+After the complete build (`make all`) (which takes about 60 minutes on modern PCs
+and takes about 14.5 GB of disk space) you will get:
 
 - three cross compilers (host to m68000/m68020-60/m5475; installed in
   `$INSTALL_DIR/<cpu>`; `INSTALL_DIR` is defined in build.sh)
@@ -16,8 +16,8 @@ and takes about 11 GB of disk space) you will get:
 
 Don't forget to install the gcc prerequisities: texinfo, autotools, bison,
 flex etc. Typing `make` is usually what you need: this creates just the
-classic m68000 cross compiler. `make clean` erases everything except
-downloaded archives (and depacked source folders).
+classic m68000 cross compiler. Removing any `*.ok` file results in given folder
+being erased and recompiled (along all the targets which depend on it).
 
 When it comes to the cross compilers, there's very little difference -- all
 of them produce m68k/ColdFire code, the only difference is which one is
@@ -43,9 +43,4 @@ I.e. for m68000 nothing has changed but for the optimized builds (esp.
 ColdFire) you must be careful to put your own libraries into correct
 directories.
 
-In case of questions or problems, feel free to contact me at
-miro.kropacek@gmail.com or ask in the MiNT mailing list.
-
-Miro Kropacek,
-05.06.2024
-Kosice/Slovakia
+In case of questions or problems, feel free to create an issue here on github.

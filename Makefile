@@ -1,9 +1,10 @@
-# Atari cross- and native-binutils/gcc toolchain build Makefile
-# Miro Kropacek aka MiKRO / Mystic Bytes
-# miro.kropacek@gmail.com
-# version 5.0.0 (2024/06/05)
+# You need the bash shell for correct compilation of mintlib.
 
-# please note you need the bash shell for correct compilation of mintlib.
+# Components to build
+COMPONENTS			= BINUTILS GCC MINTLIB MINTBIN FDLIBM
+
+VERSION_BINUTILS	= 2.42
+VERSION_GCC			= 13.4.0
 
 REPOSITORY_BINUTILS	= m68k-atari-mint-binutils-gdb
 REPOSITORY_GCC		= m68k-atari-mint-gcc
@@ -23,210 +24,131 @@ GITHUB_URL_MINTLIB	= https://github.com/freemint/${REPOSITORY_MINTLIB}/archive/r
 GITHUB_URL_MINTBIN	= https://github.com/freemint/${REPOSITORY_MINTBIN}/archive/refs/heads/${BRANCH_MINTBIN}.tar.gz
 GITHUB_URL_FDLIBM	= https://github.com/freemint/${REPOSITORY_FDLIBM}/archive/refs/heads/${BRANCH_FDLIBM}.tar.gz
 
-FOLDER_BINUTILS		= ${REPOSITORY_BINUTILS}-${BRANCH_BINUTILS}
-FOLDER_GCC			= ${REPOSITORY_GCC}-${BRANCH_GCC}
-FOLDER_MINTLIB		= ${REPOSITORY_MINTLIB}-${BRANCH_MINTLIB}
-FOLDER_MINTBIN		= ${REPOSITORY_MINTBIN}-${BRANCH_MINTBIN}
-FOLDER_FDLIBM		= ${REPOSITORY_FDLIBM}-${BRANCH_FDLIBM}
+# Auto-generate FOLDER_* definitions (replace / with - in branch names)
+$(foreach comp,$(COMPONENTS),$(eval FOLDER_$(comp) = $(REPOSITORY_$(comp))-$(subst /,-,$(BRANCH_$(comp)))))
 
-ARCHIVE_BINUTILS	= ${REPOSITORY_BINUTILS}-${BRANCH_BINUTILS}.tar.gz
-ARCHIVE_GCC			= ${REPOSITORY_GCC}-${BRANCH_GCC}.tar.gz
-ARCHIVE_MINTLIB		= ${REPOSITORY_MINTLIB}-${BRANCH_MINTLIB}.tar.gz
-ARCHIVE_MINTBIN		= ${REPOSITORY_MINTBIN}-${BRANCH_MINTBIN}.tar.gz
-ARCHIVE_FDLIBM		= ${REPOSITORY_FDLIBM}-${BRANCH_FDLIBM}.tar.gz
-
-DOWNLOADS 			= downloads/${ARCHIVE_BINUTILS} downloads/${ARCHIVE_GCC} downloads/${ARCHIVE_MINTLIB} downloads/${ARCHIVE_MINTBIN} downloads/${ARCHIVE_FDLIBM}
-FOLDERS 			= downloads/${FOLDER_BINUTILS}.ok downloads/${FOLDER_GCC}.ok downloads/${FOLDER_MINTLIB}.ok downloads/${FOLDER_MINTBIN}.ok downloads/${FOLDER_FDLIBM}.ok
-
-VERSION_BINUTILS	= 2.42
-VERSION_GCC			= 13.4.0
+# Auto-generate ARCHIVE_* from FOLDER_* + extension
+$(foreach comp,$(COMPONENTS),$(eval ARCHIVE_$(comp) = $(FOLDER_$(comp)).tar.gz))
 
 SH      := $(shell which sh)
 BASH    := $(shell which bash)
-URLGET	:= $(shell if [ -x "`command -v wget`" ]; then echo "wget -q -O -"; else echo "curl -s -L -o -"; fi)
-#CPUS	:= $(getconf _NPROCESSORS_ONLN)
-CPUS	:= 12
+URLGET	:= wget -q -O
+CPUS	:= $(getconf _NPROCESSORS_ONLN)
 
-.PHONY: default help download depack clean \
-	clean-all       clean-all-skip-native       clean-all-native       all       all-skip-native       all-native \
-	clean-m68000    clean-m68000-skip-native    clean-m68000-native    m68000    m68000-skip-native    m68000-native \
-	clean-m68020-60 clean-m68020-60-skip-native clean-m68020-60-native m68020-60 m68020-60-skip-native m68020-60-native \
-	clean-5475      clean-5475-skip-native      clean-5475-native      5475      5475-skip-native      5475-native \
+.PHONY: default help \
+	all       all-skip-native       all-native \
+	m68000    m68000-skip-native    m68000-native \
+	m68020-60 m68020-60-skip-native m68020-60-native \
+	5475      5475-skip-native      5475-native \
 	binutils-preliminary gcc-preliminary mintlib-preliminary fdlibm-preliminary \
 	binutils gcc mintlib fdlibm mintbin \
 	binutils-atari gcc-atari mintbin-atari \
-	clean-source clean-preliminary clean-cross clean-atari strip-atari pack-atari check-target-gcc
+	strip-atari pack-atari check-target-gcc
 
 default: m68000-skip-native
 
 help: ./build.sh
 	@echo "Makefile targets :"
-	@echo "    download"
-	@echo "    clean (same as clean-all)"
-	@echo "    [clean-]all       / [clean-]all[-skip]-native"
-	@echo "    [clean-]m68000    / [clean-]m68000[-skip]-native"
-	@echo "    [clean-]m68020-60 / [clean-]m68020-60[-skip]-native"
-	@echo "    [clean-]5475      / [clean-]5475[-skip]-native"
+	@echo "    all       / all[-skip]-native"
+	@echo "    m68000    / m68000[-skip]-native"
+	@echo "    m68020-60 / m68020-60[-skip]-native"
+	@echo "    5475      / 5475[-skip]-native"
 
 # "real" targets
 
-all: ./build.sh download depack
+all: ./build.sh
 	MAKE=$(MAKE) $(SH) $< --all
 
-all-skip-native: ./build.sh download depack
+all-skip-native: ./build.sh
 	MAKE=$(MAKE) $(SH) $< --all --skip-native
 
-all-native: ./build.sh download depack
+all-native: ./build.sh
 	MAKE=$(MAKE) $(SH) $< --all --native-only
 
-m68000: ./build.sh download depack
+m68000: ./build.sh
 	MAKE=$(MAKE) $(SH) $< m68000
 
-m68000-skip-native: ./build.sh download depack
+m68000-skip-native: ./build.sh
 	MAKE=$(MAKE) $(SH) $< --skip-native m68000
 
-m68000-native: ./build.sh download depack
+m68000-native: ./build.sh
 	MAKE=$(MAKE) $(SH) $< --native-only m68000
 
-m68020-60: ./build.sh download depack
+m68020-60: ./build.sh
 	MAKE=$(MAKE) $(SH) $< m68020-60
 
-m68020-60-skip-native: ./build.sh download depack
+m68020-60-skip-native: ./build.sh
 	MAKE=$(MAKE) $(SH) $< --skip-native m68020-60
 
-m68020-60-native: ./build.sh download depack
+m68020-60-native: ./build.sh
 	MAKE=$(MAKE) $(SH) $< --native-only m68020-60
 
-5475: ./build.sh download depack
+5475: ./build.sh
 	MAKE=$(MAKE) $(SH) $< 5475
 
-5475-skip-native: ./build.sh download depack
+5475-skip-native: ./build.sh
 	MAKE=$(MAKE) $(SH) $< --skip-native 5475
 
-5475-native: ./build.sh download depack
+5475-native: ./build.sh
 	MAKE=$(MAKE) $(SH) $< --native-only 5475
-
-clean: ./build.sh
-	MAKE=$(MAKE) $(SH) $< --clean --all
-	rm -f *~
-
-clean-all: ./build.sh clean-source
-	MAKE=$(MAKE) $(SH) $< --clean --all
-
-clean-all-skip-native: ./build.sh
-	MAKE=$(MAKE) $(SH) $< --clean --all --skip-native
-
-clean-all-native: ./build.sh
-	MAKE=$(MAKE) $(SH) $< --clean --all --native-only
-
-clean-m68000: ./build.sh
-	MAKE=$(MAKE) $(SH) $< --clean m68000
-
-clean-m68000-skip-native: ./build.sh
-	MAKE=$(MAKE) $(SH) $< --clean --skip-native m68000
-
-clean-m68000-native: ./build.sh
-	MAKE=$(MAKE) $(SH) $< --clean --native-only m68000
-
-clean-m68020-60: ./build.sh
-	MAKE=$(MAKE) $(SH) $< --clean m68020-60
-
-clean-m68020-60-skip-native: ./build.sh
-	MAKE=$(MAKE) $(SH) $< --clean --skip-native m68020-60
-
-clean-m68020-60-native: ./build.sh
-	MAKE=$(MAKE) $(SH) $< --clean --native-only m68020-60
-
-clean-5475: ./build.sh
-	MAKE=$(MAKE) $(SH) $< --clean 5475
-
-clean-5475-skip-native: ./build.sh
-	MAKE=$(MAKE) $(SH) $< --clean --skip-native 5475
-
-clean-5475-native: ./build.sh
-	MAKE=$(MAKE) $(SH) $< --clean --native-only 5475
-
-download: $(DOWNLOADS)
-
-depack: $(FOLDERS)
 
 # Downloading
 
-downloads/${ARCHIVE_BINUTILS}:
-	mkdir -p downloads
-	$(URLGET) ${GITHUB_URL_BINUTILS} > "$@"
+define DOWNLOAD_RULE
+archives/$(ARCHIVE_$(1)).ok:
+	@mkdir -p archives
+	@$(RM) archives/$(ARCHIVE_$(1))
+	$(URLGET) archives/$(ARCHIVE_$(1)) $(GITHUB_URL_$(1))
+	@touch $$@
+endef
 
-downloads/${ARCHIVE_GCC}:
-	mkdir -p downloads
-	$(URLGET) ${GITHUB_URL_GCC} > "$@"
-
-downloads/${ARCHIVE_MINTLIB}:
-	mkdir -p downloads
-	$(URLGET) ${GITHUB_URL_MINTLIB} > "$@"
-
-downloads/${ARCHIVE_MINTBIN}:
-	mkdir -p downloads
-	$(URLGET) ${GITHUB_URL_MINTBIN} > "$@"
-
-downloads/${ARCHIVE_FDLIBM}:
-	mkdir -p downloads
-	$(URLGET) ${GITHUB_URL_FDLIBM} > "$@"
+$(foreach comp,$(COMPONENTS),$(eval $(call DOWNLOAD_RULE,$(comp))))
 
 # Depacking and patching
 
-downloads/${FOLDER_BINUTILS}.ok: downloads/${ARCHIVE_BINUTILS}
-	rm -rf downloads/${FOLDER_BINUTILS}
-	cd downloads && tar xzf ${ARCHIVE_BINUTILS}
-	touch "$@"
+define UNPACK_RULE
+sources/$(FOLDER_$(1)).ok: archives/$(ARCHIVE_$(1)).ok
+	@mkdir -p sources
+	@$(RM) -r sources/$(FOLDER_$(1))
+	tar xf archives/$(ARCHIVE_$(1)) -C sources
+	@touch $$@
+endef
 
-downloads/${FOLDER_GCC}.ok: downloads/${ARCHIVE_GCC} gcc-atari.patch
-	rm -rf downloads/${FOLDER_GCC}
-	cd downloads && tar xzf ${ARCHIVE_GCC}
-	cd downloads/${FOLDER_GCC} && contrib/download_prerequisites
-	cd downloads/${FOLDER_GCC} && patch -p1 < ../../gcc-atari.patch
-	touch "$@"
+$(foreach comp,$(COMPONENTS),$(eval $(call UNPACK_RULE,$(comp))))
 
-downloads/${FOLDER_MINTLIB}.ok: downloads/${ARCHIVE_MINTLIB}
-	rm -rf downloads/${FOLDER_MINTLIB}
-	cd downloads && tar xzf ${ARCHIVE_MINTLIB}
-	touch "$@"
+# Custom post-processing rules for specific components
 
-downloads/${FOLDER_MINTBIN}.ok: downloads/${ARCHIVE_MINTBIN}
-	rm -rf downloads/${FOLDER_MINTBIN}
-	cd downloads && tar xzf ${ARCHIVE_MINTBIN}
-	touch "$@"
-
-downloads/${FOLDER_FDLIBM}.ok: downloads/${ARCHIVE_FDLIBM}
-	rm -rf downloads/${FOLDER_FDLIBM}
-	cd downloads && tar xzf ${ARCHIVE_FDLIBM}
-	touch "$@"
+sources/${FOLDER_GCC}.patched: sources/${FOLDER_GCC}.ok gcc-atari.patch
+	cd sources/${FOLDER_GCC} && contrib/download_prerequisites --force
+	cd sources/${FOLDER_GCC} && patch -p1 < ../../gcc-atari.patch
+	@touch $@
 
 # binutils (preliminary/full)
 
-binutils-${VERSION_BINUTILS}-cross.ok: downloads/${FOLDER_BINUTILS}.ok
-	rm -rf $@ ${FOLDER_BINUTILS}-cross
-	mkdir -p ${FOLDER_BINUTILS}-cross
+binutils-${VERSION_BINUTILS}-cross.ok: sources/${FOLDER_BINUTILS}.ok
+	@$(RM) -r ${FOLDER_BINUTILS}-cross
+	@mkdir -p ${FOLDER_BINUTILS}-cross
 	cd ${FOLDER_BINUTILS}-cross && \
-	../downloads/${FOLDER_BINUTILS}/configure --target=${TARGET} --prefix=${PREFIX} --disable-nls --disable-werror \
+	../sources/${FOLDER_BINUTILS}/configure --target=${TARGET} --prefix=${PREFIX} --disable-nls --disable-werror \
 		--disable-gdb --disable-libdecnumber --disable-readline --disable-sim && \
 	$(MAKE) V=1 -j$(CPUS)
-	touch $@
+	@touch $@
 
 binutils-${VERSION_BINUTILS}-cross-preliminary.ok binutils-${VERSION_BINUTILS}-cross-${CPU}.ok: binutils-${VERSION_BINUTILS}-cross.ok
 	cd ${FOLDER_BINUTILS}-cross && \
 	$(MAKE) install-strip
-	touch $@
+	@touch $@
 
 binutils-preliminary: binutils-${VERSION_BINUTILS}-cross-preliminary.ok
 binutils: binutils-${VERSION_BINUTILS}-cross-${CPU}.ok
 
 # gcc (preliminary)
 
-gcc-${VERSION_GCC}-cross-stage1.ok: downloads/${FOLDER_GCC}.ok
-	rm -rf $@ ${FOLDER_GCC}-cross-stage1
-	mkdir -p ${FOLDER_GCC}-cross-stage1
+gcc-${VERSION_GCC}-cross-stage1.ok: sources/${FOLDER_GCC}.patched
+	@$(RM) -r ${FOLDER_GCC}-cross-stage1
+	@mkdir -p ${FOLDER_GCC}-cross-stage1
 	cd ${FOLDER_GCC}-cross-stage1 && \
-	../downloads/${FOLDER_GCC}/configure \
+	../sources/${FOLDER_GCC}/configure \
 		--prefix=${PREFIX} \
 		--target=${TARGET} \
 		--with-sysroot \
@@ -251,37 +173,37 @@ gcc-${VERSION_GCC}-cross-stage1.ok: downloads/${FOLDER_GCC}.ok
 		--enable-checking=yes && \
 	$(MAKE) -j$(CPUS) all-gcc all-target-libgcc && \
 	$(MAKE) install-gcc install-target-libgcc
-	touch $@
+	@touch $@
 
 gcc-preliminary: gcc-${VERSION_GCC}-cross-stage1.ok
 
 # Libraries (preliminary/full)
 
-mintlib-build.ok: downloads/${FOLDER_MINTLIB}.ok
-	cd downloads/${FOLDER_MINTLIB} && $(MAKE) clean > /dev/null
-	cd downloads/${FOLDER_MINTLIB} && \
+mintlib-build.ok: sources/${FOLDER_MINTLIB}.ok
+	@cd sources/${FOLDER_MINTLIB} && $(MAKE) clean > /dev/null
+	cd sources/${FOLDER_MINTLIB} && \
 		$(MAKE) CROSS_TOOL=${TARGET} SHELL=$(BASH) WITH_020_LIB=yes WITH_V4E_LIB=yes WITH_DEBUG_LIB=no
-	touch $@
+	@touch $@
 
 mintlib-preliminary.ok mintlib-${CPU}.ok: mintlib-build.ok
-	cd downloads/${FOLDER_MINTLIB} && \
+	cd sources/${FOLDER_MINTLIB} && \
 		$(MAKE) CROSS_TOOL=${TARGET} SHELL=$(BASH) WITH_020_LIB=yes WITH_V4E_LIB=yes WITH_DEBUG_LIB=no install
-	touch $@
+	@touch $@
 
 mintlib-preliminary: mintlib-preliminary.ok
 mintlib: mintlib-${CPU}.ok
 
-fdlibm-build.ok: downloads/${FOLDER_FDLIBM}.ok
-	rm -rf $@ ${FOLDER_FDLIBM}
-	mkdir -p ${FOLDER_FDLIBM}
+fdlibm-build.ok: sources/${FOLDER_FDLIBM}.ok mintlib-build.ok
+	@$(RM) -r ${FOLDER_FDLIBM}
+	@mkdir -p ${FOLDER_FDLIBM}
 	cd ${FOLDER_FDLIBM} && \
-		../downloads/${FOLDER_FDLIBM}/configure --host=${TARGET} --prefix=/usr && \
+		../sources/${FOLDER_FDLIBM}/configure --host=${TARGET} --prefix=/usr && \
 	$(MAKE)
-	touch $@
+	@touch $@
 
 fdlibm-preliminary.ok fdlibm-${CPU}.ok: fdlibm-build.ok
 	cd ${FOLDER_FDLIBM} && $(MAKE) install
-	touch $@
+	@touch $@
 
 fdlibm-preliminary: fdlibm-preliminary.ok
 fdlibm: fdlibm-${CPU}.ok
@@ -289,11 +211,11 @@ fdlibm: fdlibm-${CPU}.ok
 # gcc (full)
 
 gcc-${VERSION_GCC}-cross-stage2-${CPU}.ok: ${INSTALL_DIR}/${TARGET}/sys-root/usr/lib/libc.a ${INSTALL_DIR}/${TARGET}/sys-root/usr/lib/libm.a
-	rm -rf $@ ${FOLDER_GCC}-cross-stage2-${CPU}
-	mkdir -p ${FOLDER_GCC}-cross-stage2-${CPU}
+	@$(RM) -r ${FOLDER_GCC}-cross-stage2-${CPU}
+	@mkdir -p ${FOLDER_GCC}-cross-stage2-${CPU}
 	cd ${FOLDER_GCC}-cross-stage2-${CPU} && \
 	CFLAGS_FOR_TARGET="-O2 -fomit-frame-pointer" CXXFLAGS_FOR_TARGET="-O2 -fomit-frame-pointer" \
-	../downloads/${FOLDER_GCC}/configure \
+	../sources/${FOLDER_GCC}/configure \
 		--prefix=${INSTALL_DIR} \
 		--target=${TARGET} \
 		--with-sysroot \
@@ -312,24 +234,24 @@ gcc-${VERSION_GCC}-cross-stage2-${CPU}.ok: ${INSTALL_DIR}/${TARGET}/sys-root/usr
 		--enable-version-specific-runtime-libs && \
 	$(MAKE) -j$(CPUS) && \
 	$(MAKE) install-strip
-	touch $@
+	@touch $@
 
 gcc: gcc-${VERSION_GCC}-cross-stage2-${CPU}.ok
 
 # mintbin
 
-mintbin-cross.ok: downloads/${FOLDER_MINTBIN}.ok
-	rm -rf $@ ${FOLDER_MINTBIN}-cross
-	mkdir -p ${FOLDER_MINTBIN}-cross
+mintbin-cross.ok: sources/${FOLDER_MINTBIN}.ok
+	@$(RM) -r ${FOLDER_MINTBIN}-cross
+	@mkdir -p ${FOLDER_MINTBIN}-cross
 	cd ${FOLDER_MINTBIN}-cross && \
-		../downloads/${FOLDER_MINTBIN}/configure --target=${TARGET} --prefix=${PREFIX} --disable-nls && \
+		../sources/${FOLDER_MINTBIN}/configure --target=${TARGET} --prefix=${PREFIX} --disable-nls && \
 	$(MAKE)
-	touch $@
+	@touch $@
 
 mintbin-cross-${CPU}.ok: mintbin-cross.ok
 	cd ${FOLDER_MINTBIN}-cross && \
 	$(MAKE) install-strip
-	touch $@
+	@touch $@
 
 mintbin: mintbin-cross-${CPU}.ok
 
@@ -339,25 +261,25 @@ check-target-gcc:
 	multi_dir=`${TARGET}-gcc -${OPT} -print-multi-directory` && \
 	if [ $$multi_dir != "." ]; then echo "\n${TARGET}-gcc is not configured for default ${CPU} output\n"; exit 1; fi
 
-binutils-${VERSION_BINUTILS}-atari-${CPU}.ok: downloads/${FOLDER_BINUTILS}.ok
-	rm -rf $@ ${FOLDER_BINUTILS}-atari-${CPU}
-	mkdir -p ${FOLDER_BINUTILS}-atari-${CPU}
+binutils-${VERSION_BINUTILS}-atari-${CPU}.ok: sources/${FOLDER_BINUTILS}.ok
+	@$(RM) -r ${FOLDER_BINUTILS}-atari-${CPU}
+	@mkdir -p ${FOLDER_BINUTILS}-atari-${CPU}
 	cd ${FOLDER_BINUTILS}-atari-${CPU} && \
 	CFLAGS="-O2 -fomit-frame-pointer" CXXFLAGS="-O2 -fomit-frame-pointer" \
-	../downloads/${FOLDER_BINUTILS}/configure --target=${TARGET} --host=${TARGET} --disable-nls --prefix=/usr \
+	../sources/${FOLDER_BINUTILS}/configure --target=${TARGET} --host=${TARGET} --disable-nls --prefix=/usr \
 		--disable-gdb --disable-libdecnumber --disable-readline --disable-sim && \
 	$(MAKE) -j$(CPUS) V=1 && \
 	$(MAKE) install-strip DESTDIR=${PWD}/binary-package/${CPU}/binutils-${VERSION_BINUTILS}
-	touch $@
+	@touch $@
 
 binutils-atari: check-target-gcc binutils-${VERSION_BINUTILS}-atari-${CPU}.ok
 
-gcc-${VERSION_GCC}-atari-${CPU}.ok: downloads/${FOLDER_GCC}.ok
-	rm -rf $@ ${FOLDER_GCC}-atari-${CPU}
-	mkdir -p ${FOLDER_GCC}-atari-${CPU}
+gcc-${VERSION_GCC}-atari-${CPU}.ok: sources/${FOLDER_GCC}.patched
+	@$(RM) -r ${FOLDER_GCC}-atari-${CPU}
+	@mkdir -p ${FOLDER_GCC}-atari-${CPU}
 	cd ${FOLDER_GCC}-atari-${CPU} && \
 	CFLAGS="-O2 -fomit-frame-pointer" CXXFLAGS="-O2 -fomit-frame-pointer" \
-	../downloads/${FOLDER_GCC}/configure \
+	../sources/${FOLDER_GCC}/configure \
 		--prefix=/usr \
 		--host=${TARGET} \
 		--target=${TARGET} \
@@ -378,19 +300,19 @@ gcc-${VERSION_GCC}-atari-${CPU}.ok: downloads/${FOLDER_GCC}.ok
 		--enable-version-specific-runtime-libs && \
 	$(MAKE) -j$(CPUS) && \
 	$(MAKE) install-strip DESTDIR=${PWD}/binary-package/${CPU}/gcc-${VERSION_GCC}
-	touch $@
+	@touch $@
 
 gcc-atari: check-target-gcc gcc-${VERSION_GCC}-atari-${CPU}.ok
 
-mintbin-atari-${CPU}.ok: downloads/${FOLDER_MINTBIN}.ok
-	rm -rf $@ ${FOLDER_MINTBIN}-atari-${CPU}
-	mkdir -p ${FOLDER_MINTBIN}-atari-${CPU}
+mintbin-atari-${CPU}.ok: sources/${FOLDER_MINTBIN}.ok
+	@$(RM) -r ${FOLDER_MINTBIN}-atari-${CPU}
+	@mkdir -p ${FOLDER_MINTBIN}-atari-${CPU}
 	cd ${FOLDER_MINTBIN}-atari-${CPU} && \
 	CFLAGS="-O2 -fomit-frame-pointer" CXXFLAGS="-O2 -fomit-frame-pointer" \
-	../downloads/${FOLDER_MINTBIN}/configure --target=${TARGET} --host=${TARGET} --disable-nls --prefix=/usr && \
+	../sources/${FOLDER_MINTBIN}/configure --target=${TARGET} --host=${TARGET} --disable-nls --prefix=/usr && \
 	$(MAKE) && \
 	$(MAKE) install-strip DESTDIR=${PWD}/binary-package/${CPU}/mintbin
-	touch $@
+	@touch $@
 
 mintbin-atari: check-target-gcc mintbin-atari-${CPU}.ok
 
@@ -412,35 +334,3 @@ strip-atari:
 	done
 	PATH=${INSTALL_DIR}/bin:$$PATH find "${PWD}/binary-package/${CPU}" -type f -perm -a=x -exec ${TARGET}-strip -s {} \;
 	PATH=${INSTALL_DIR}/bin:$$PATH find "${PWD}/binary-package/${CPU}" -type f -name '*.a' -exec ${TARGET}-strip -S -X -w -N '.L[0-9]*' {} \;
-
-# Cleaning
-
-clean-source:
-	rm -rf ${FOLDERS}
-	rm -f *~
-
-# this removes build folders, too (except mintlib; that one uses explicit make clean to avoid repeated depacking)
-clean-preliminary:
-	rm -rf ${FOLDER_BINUTILS}-cross   binutils-${VERSION_BINUTILS}-cross.ok binutils-${VERSION_BINUTILS}-cross-preliminary.ok
-	rm -rf ${FOLDER_GCC}-cross-stage1 gcc-${VERSION_GCC}-cross-stage1.ok
-	rm -f                             mintlib-build.ok                      mintlib-preliminary.ok
-	rm -rf ${FOLDER_FDLIBM}           fdlibm-build.ok                       fdlibm-preliminary.ok
-	rm -rf ${DESTDIR}
-
-clean-cross:
-	# build folder is shared with 'preliminary'
-	rm -f                                    binutils-${VERSION_BINUTILS}-cross-${CPU}.ok
-	# build folder is not shared
-	rm -rf ${FOLDER_GCC}-cross-stage2-${CPU} gcc-${VERSION_GCC}-cross-stage2-${CPU}.ok
-	# build folder is shared with 'preliminary'
-	rm -f                                    mintlib-${CPU}.ok
-	# build folder is shared with 'preliminary'
-	rm -f                                    fdlibm-${CPU}.ok
-	# build folder is shared only in 'cross'
-	rm -rf ${FOLDER_MINTBIN}-cross           mintbin-cross.ok mintbin-cross-${CPU}.ok
-
-clean-atari:
-	rm -rf ${FOLDER_BINUTILS}-atari-${CPU} binutils-${VERSION_BINUTILS}-atari-${CPU}.ok
-	rm -rf ${FOLDER_GCC}-atari-${CPU}      gcc-${VERSION_GCC}-atari-${CPU}.ok
-	rm -rf ${FOLDER_MINTBIN}-atari-${CPU}  mintbin-atari-${CPU}.ok
-	rm -rf binary-package

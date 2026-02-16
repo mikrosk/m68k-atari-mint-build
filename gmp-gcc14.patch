@@ -1,0 +1,60 @@
+diff -ruw gmp-4.3.2.orig/configure gmp-4.3.2/configure
+--- gmp-4.3.2.orig/configure	2010-01-08 06:09:40.000000000 +1000
++++ gmp-4.3.2/configure	2026-02-17 09:31:50.780452205 +1000
+@@ -8615,6 +8615,7 @@
+ # remove anything that might look like compiler output to our "||" expression
+ rm -f conftest* a.out b.out a.exe a_out.exe
+ cat >conftest.c <<EOF
++#include <stdlib.h>
+ int
+ main ()
+ {
+@@ -8649,6 +8650,7 @@
+ # remove anything that might look like compiler output to our "||" expression
+ rm -f conftest* a.out b.out a.exe a_out.exe
+ cat >conftest.c <<EOF
++#include <stdlib.h>
+ int
+ main ()
+ {
+@@ -8684,6 +8686,7 @@
+ # remove anything that might look like compiler output to our "||" expression
+ rm -f conftest* a.out b.out a.exe a_out.exe
+ cat >conftest.c <<EOF
++#include <stdlib.h>
+ int
+ main ()
+ {
+@@ -8767,6 +8770,7 @@
+   echo $ECHO_N "(cached) $ECHO_C" >&6
+ else
+   cat >conftest.c <<EOF
++#include <stdlib.h>
+ int
+ main ()
+ {
+@@ -8806,6 +8810,7 @@
+   echo $ECHO_N "(cached) $ECHO_C" >&6
+ else
+   cat >conftest.c <<EOF
++#include <stdlib.h>
+ int
+ main (int argc, char **argv)
+ {
+@@ -8841,6 +8846,8 @@
+   echo $ECHO_N "(cached) $ECHO_C" >&6
+ else
+   cat >conftest.c <<EOF
++#include <stdlib.h>
++#include <math.h>
+ int
+ main ()
+ {
+@@ -28959,6 +28966,7 @@
+   return 0;
+ }
+ 
++#include <stdlib.h>
+ int
+ main ()
+ {

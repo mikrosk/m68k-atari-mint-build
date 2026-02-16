@@ -1,0 +1,11 @@
+diff -ruw mintlib-master.orig/buildrules mintlib-master/buildrules
+--- mintlib-master.orig/buildrules	2026-02-16 15:23:48.613068427 +1000
++++ mintlib-master/buildrules	2026-02-16 15:23:57.829674771 +1000
+@@ -130,7 +130,6 @@
+ # This is necessary to avoid optimizing the sequence of malloc/memset
+ # to a call to calloc in its own implementation
+ CFLAGS-calloc.c = -fno-builtin
+-CFLAGS-syscall.c = -std=gnu11
+ # These source come from ... you know where
+ DEFS-xbootparam_prot.c = -Wno-unused
+ DEFS-xmount.c = -Wno-unused

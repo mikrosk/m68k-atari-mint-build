@@ -3,7 +3,7 @@
 target=m68k-atari-mint
 
 if [ -z "${INSTALL_DIR}" ] ; then
-	INSTALL_DIR="$HOME/gnu-tools"
+	INSTALL_DIR="$HOME/gnu-tools-464"
 fi
 
 CPU_DIRS="m68000 m68020-60 m5475"		# target directory

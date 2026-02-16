@@ -118,10 +118,11 @@ $(foreach comp,$(COMPONENTS),$(eval $(call UNPACK_RULE,$(comp))))
 
 # Custom post-processing rules for specific components
 
-sources/${FOLDER_GCC}.patched: sources/${FOLDER_GCC}.ok gmp-none.patch download_prerequisites.patch
+sources/${FOLDER_GCC}.patched: sources/${FOLDER_GCC}.ok gmp-none.patch gmp-gcc14.patch download_prerequisites.patch
 	cd sources/${FOLDER_GCC} && patch -p1 < ../../download_prerequisites.patch
 	cd sources/${FOLDER_GCC} && contrib/download_prerequisites --force
 	cd sources/${FOLDER_GCC}/gmp && patch -p1 < ../../../gmp-none.patch
+	cd sources/${FOLDER_GCC}/gmp && patch -p1 < ../../../gmp-gcc14.patch
 	@touch $@
 
 sources/${FOLDER_MINTLIB}.patched: sources/${FOLDER_MINTLIB}.ok mintlib.patch
@@ -153,7 +154,7 @@ gcc-${VERSION_GCC}-cross-stage1.ok: sources/${FOLDER_GCC}.patched
 	@$(RM) -r ${FOLDER_GCC}-cross-stage1
 	@mkdir -p ${FOLDER_GCC}-cross-stage1
 	cd ${FOLDER_GCC}-cross-stage1 && \
-	../sources/${FOLDER_GCC}/configure \
+	CC='gcc -std=gnu99' ../sources/${FOLDER_GCC}/configure \
 		--prefix=${PREFIX} \
 		--target=${TARGET} \
 		--with-sysroot \
@@ -218,7 +219,7 @@ gcc-${VERSION_GCC}-cross-stage2-${CPU}.ok: ${INSTALL_DIR}/${TARGET}/sys-root/usr
 	@$(RM) -r ${FOLDER_GCC}-cross-stage2-${CPU}
 	@mkdir -p ${FOLDER_GCC}-cross-stage2-${CPU}
 	cd ${FOLDER_GCC}-cross-stage2-${CPU} && \
-	CFLAGS_FOR_TARGET="-O2 -fomit-frame-pointer" CXXFLAGS_FOR_TARGET="-O2 -fomit-frame-pointer" \
+	CC='gcc -std=gnu99' CFLAGS_FOR_TARGET="-O2 -fomit-frame-pointer" CXXFLAGS_FOR_TARGET="-O2 -fomit-frame-pointer" \
 	../sources/${FOLDER_GCC}/configure \
 		--prefix=${INSTALL_DIR} \
 		--target=${TARGET} \

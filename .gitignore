@@ -5,10 +5,10 @@ sources/
 m68k-atari-mint-binutils-gdb-binutils-?_??-mint-cross/
 fdlibm-master/
 preliminary/
-m68k-atari-mint-gcc-gcc-?-mint-cross-stage1/
-m68k-atari-mint-gcc-gcc-?-mint-cross-stage2-*/
+m68k-atari-mint-gcc-gcc-4_6-mint-cross-stage1/
+m68k-atari-mint-gcc-gcc-4_6-mint-cross-stage2-*/
 mintbin-master-cross/
 m68k-atari-mint-binutils-gdb-binutils-?_??-mint-atari-*/
-m68k-atari-mint-gcc-gcc-?-mint-atari-*/
+m68k-atari-mint-gcc-gcc-4_6-mint-atari-*/
 mintbin-master-atari-*/
 binary-package/

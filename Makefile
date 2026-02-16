@@ -4,7 +4,7 @@
 COMPONENTS			= BINUTILS GCC MINTLIB MINTBIN FDLIBM
 
 VERSION_BINUTILS	= 2.30
-VERSION_GCC			= 7.5.0
+VERSION_GCC			= 4.6.4
 
 REPOSITORY_BINUTILS	= m68k-atari-mint-binutils-gdb
 REPOSITORY_GCC		= m68k-atari-mint-gcc
@@ -13,7 +13,7 @@ REPOSITORY_MINTBIN	= mintbin
 REPOSITORY_FDLIBM	= fdlibm
 
 BRANCH_BINUTILS		= binutils-2_30-mint
-BRANCH_GCC			= gcc-7-mint
+BRANCH_GCC			= gcc-4_6-mint
 BRANCH_MINTLIB		= master
 BRANCH_MINTBIN		= master
 BRANCH_FDLIBM		= master
@@ -118,9 +118,14 @@ $(foreach comp,$(COMPONENTS),$(eval $(call UNPACK_RULE,$(comp))))
 
 # Custom post-processing rules for specific components
 
-sources/${FOLDER_GCC}.patched: sources/${FOLDER_GCC}.ok gmp-none.patch
+sources/${FOLDER_GCC}.patched: sources/${FOLDER_GCC}.ok gmp-none.patch download_prerequisites.patch
+	cd sources/${FOLDER_GCC} && patch -p1 < ../../download_prerequisites.patch
 	cd sources/${FOLDER_GCC} && contrib/download_prerequisites --force
 	cd sources/${FOLDER_GCC}/gmp && patch -p1 < ../../../gmp-none.patch
+	@touch $@
+
+sources/${FOLDER_MINTLIB}.patched: sources/${FOLDER_MINTLIB}.ok mintlib.patch
+	cd sources/${FOLDER_MINTLIB} && patch -p1 < ../../mintlib.patch
 	@touch $@
 
 # binutils (preliminary/full)
@@ -168,7 +173,6 @@ gcc-${VERSION_GCC}-cross-stage1.ok: sources/${FOLDER_GCC}.patched
 		--disable-libstdcxx \
 		--disable-lto \
 		--disable-libcc1 \
-		--disable-fixincludes \
 		--enable-version-specific-runtime-libs \
 		--enable-checking=yes && \
 	$(MAKE) -j$(CPUS) all-gcc all-target-libgcc && \
@@ -179,7 +183,7 @@ gcc-preliminary: gcc-${VERSION_GCC}-cross-stage1.ok
 
 # Libraries (preliminary/full)
 
-mintlib-build.ok: sources/${FOLDER_MINTLIB}.ok
+mintlib-build.ok: sources/${FOLDER_MINTLIB}.patched
 	@cd sources/${FOLDER_MINTLIB} && $(MAKE) clean > /dev/null
 	cd sources/${FOLDER_MINTLIB} && \
 		$(MAKE) CROSS_TOOL=${TARGET} SHELL=$(BASH) WITH_020_LIB=yes WITH_V4E_LIB=yes WITH_DEBUG_LIB=no
@@ -229,7 +233,6 @@ gcc-${VERSION_GCC}-cross-stage2-${CPU}.ok: ${INSTALL_DIR}/${TARGET}/sys-root/usr
 		--with-cpu=${CPU} \
 		--with-libstdcxx-zoneinfo=no \
 		--disable-libcc1 \
-		--disable-fixincludes \
 		--enable-version-specific-runtime-libs && \
 	$(MAKE) -j$(CPUS) && \
 	$(MAKE) install-strip
@@ -294,7 +297,6 @@ gcc-${VERSION_GCC}-atari-${CPU}.ok: sources/${FOLDER_GCC}.patched
 		--with-cpu=${CPU} \
 		--with-libstdcxx-zoneinfo=no \
 		--disable-libcc1 \
-		--disable-fixincludes \
 		--enable-version-specific-runtime-libs && \
 	$(MAKE) -j$(CPUS) && \
 	$(MAKE) install-strip DESTDIR=${PWD}/binary-package/${CPU}/gcc-${VERSION_GCC}

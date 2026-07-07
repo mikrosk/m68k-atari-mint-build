@@ -33,7 +33,7 @@ $(foreach comp,$(COMPONENTS),$(eval ARCHIVE_$(comp) = $(FOLDER_$(comp)).tar.gz))
 SH      := $(shell which sh)
 BASH    := $(shell which bash)
 URLGET	:= wget -q -O
-CPUS	:= $(getconf _NPROCESSORS_ONLN)
+CPUS	:= $(shell getconf _NPROCESSORS_ONLN)
 
 .PHONY: default help \
 	all       all-skip-native       all-native \
@@ -118,9 +118,10 @@ $(foreach comp,$(COMPONENTS),$(eval $(call UNPACK_RULE,$(comp))))
 
 # Custom post-processing rules for specific components
 
-sources/${FOLDER_GCC}.patched: sources/${FOLDER_GCC}.ok gcc-atari.patch
+sources/${FOLDER_GCC}.patched: sources/${FOLDER_GCC}.ok gcc-atari.patch libcody-cxx11.patch
 	cd sources/${FOLDER_GCC} && contrib/download_prerequisites --force
 	cd sources/${FOLDER_GCC} && patch -p1 < ../../gcc-atari.patch
+	cd sources/${FOLDER_GCC} && patch -p1 < ../../libcody-cxx11.patch
 	@touch $@
 
 # binutils (preliminary/full)
@@ -148,6 +149,7 @@ gcc-${VERSION_GCC}-cross-stage1.ok: sources/${FOLDER_GCC}.patched
 	@$(RM) -r ${FOLDER_GCC}-cross-stage1
 	@mkdir -p ${FOLDER_GCC}-cross-stage1
 	cd ${FOLDER_GCC}-cross-stage1 && \
+	CXXFLAGS="-g -O2 -std=gnu++17" \
 	../sources/${FOLDER_GCC}/configure \
 		--prefix=${PREFIX} \
 		--target=${TARGET} \
@@ -214,6 +216,7 @@ gcc-${VERSION_GCC}-cross-stage2-${CPU}.ok: ${INSTALL_DIR}/${TARGET}/sys-root/usr
 	@$(RM) -r ${FOLDER_GCC}-cross-stage2-${CPU}
 	@mkdir -p ${FOLDER_GCC}-cross-stage2-${CPU}
 	cd ${FOLDER_GCC}-cross-stage2-${CPU} && \
+	CXXFLAGS="-g -O2 -std=gnu++17" \
 	CFLAGS_FOR_TARGET="-O2 -fomit-frame-pointer" CXXFLAGS_FOR_TARGET="-O2 -fomit-frame-pointer" \
 	../sources/${FOLDER_GCC}/configure \
 		--prefix=${INSTALL_DIR} \

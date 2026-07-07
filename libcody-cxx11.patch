@@ -1,0 +1,42 @@
+diff -ruw m68k-atari-mint-gcc-gcc-13-mintelf.old/libcody/config.m4 m68k-atari-mint-gcc-gcc-13-mintelf/libcody/config.m4
+--- m68k-atari-mint-gcc-gcc-13-mintelf.old/libcody/config.m4
++++ m68k-atari-mint-gcc-gcc-13-mintelf/libcody/config.m4
+@@ -34,7 +34,7 @@
+ AC_DEFUN([NMS_CXX_11],
+ [AC_MSG_CHECKING([whether $CXX is for C++11])
+ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([
+-[#if __cplusplus != 201103
++[#if __cplusplus < 201103
+ #error "C++11 is required"
+ #endif
+ ]])],
+@@ -42,7 +42,7 @@
+ [CXX_ORIG="$CXX"
+ CXX="$CXX -std=c++11"
+ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([
+-[#if __cplusplus != 201103
++[#if __cplusplus < 201103
+ #error "C++11 is required"
+ #endif
+ ]])],
+diff -ruw m68k-atari-mint-gcc-gcc-13-mintelf.old/libcody/configure m68k-atari-mint-gcc-gcc-13-mintelf/libcody/configure
+--- m68k-atari-mint-gcc-gcc-13-mintelf.old/libcody/configure
++++ m68k-atari-mint-gcc-gcc-13-mintelf/libcody/configure
+@@ -2496,7 +2496,7 @@
+ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+ /* end confdefs.h.  */
+ 
+-#if __cplusplus != 201103
++#if __cplusplus < 201103
+ #error "C++11 is required"
+ #endif
+ 
+@@ -2517,7 +2517,7 @@
+ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+ /* end confdefs.h.  */
+ 
+-#if __cplusplus != 201103
++#if __cplusplus < 201103
+ #error "C++11 is required"
+ #endif
+ 

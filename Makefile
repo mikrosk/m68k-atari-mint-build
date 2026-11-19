@@ -101,9 +101,17 @@ bootstrap:
 # compiler, then binutils, gcc and mintbin into $(INSTALL_DIR)/<cpu> (<cpu> as in cpu_dir)
 $(addprefix cross-,$(ALL_CPUS)): cross-%: bootstrap
 	$(MAKE) PATH="$(PRELIMINARY)/bin:/usr/bin" CPU=$* TARGET=$(TARGET) sysroot-prebuilt
-	$(MAKE) PATH="$(call cpu_prefix,$*)/bin:/usr/bin" CPU=$* DESTDIR="$(call cpu_prefix,$*)" binutils
+	if $(call cpu_prefix,$*)/bin/$(TARGET)-as --version 2>/dev/null | head -n 1 | grep -q ' $(VERSION_BINUTILS)$$'; then \
+		echo "binutils $(VERSION_BINUTILS) already installed in $(call cpu_prefix,$*)"; \
+	else \
+		$(MAKE) PATH="$(call cpu_prefix,$*)/bin:/usr/bin" CPU=$* DESTDIR="$(call cpu_prefix,$*)" binutils; \
+	fi
 	$(MAKE) PATH="$(call cpu_prefix,$*)/bin:/usr/bin" CPU=$* TARGET=$(TARGET) gcc
-	$(MAKE) PATH="$(call cpu_prefix,$*)/bin:/usr/bin" CPU=$* TARGET=$(TARGET) PREFIX="" DESTDIR="$(call cpu_prefix,$*)" mintbin
+	if $(call cpu_prefix,$*)/bin/$(TARGET)-stack --version 2>/dev/null | grep -q mintbin; then \
+		echo "mintbin already installed in $(call cpu_prefix,$*)"; \
+	else \
+		$(MAKE) PATH="$(call cpu_prefix,$*)/bin:/usr/bin" CPU=$* TARGET=$(TARGET) PREFIX="" DESTDIR="$(call cpu_prefix,$*)" mintbin; \
+	fi
 
 # native-m68000, native-m68020-60, native-5475: build binutils, gcc and mintbin for the Atari
 # with the cross compiler installed by cross-<cpu> and pack them into binary-package/<cpu>

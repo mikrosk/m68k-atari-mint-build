@@ -9,7 +9,7 @@ After the complete build (`make all`) (which takes about 60 minutes on modern PC
 and takes about 14.5 GB of disk space) you will get:
 
 - three cross compilers (host to m68000/m68020-60/m5475; installed in
-  `$INSTALL_DIR/<cpu>`; `INSTALL_DIR` is defined in build.sh)
+  `$INSTALL_DIR/<cpu>`; `INSTALL_DIR` defaults to `~/gnu-tools`)
 - three native compilers (m68000/m68020-60/m5475; packaged as .tar.bz2 in
   the `binary-packages` folder)
 - supporting tools and libraries for the above

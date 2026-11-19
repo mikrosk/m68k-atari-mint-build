@@ -12,3 +12,4 @@ m68k-atari-mint-binutils-gdb-binutils-?_??-mintelf-atari-*/
 m68k-atari-mint-gcc-gcc-??-mintelf-atari-*/
 mintbin-master-atari-*/
 binary-package/
+sysroot-*/

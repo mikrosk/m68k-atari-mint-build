@@ -1,0 +1,32 @@
+diff -ruw mintlib-master.orig/buildrules mintlib-master/buildrules
+--- mintlib-master.orig/buildrules	2026-10-29 15:52:03.000000000 +1000
++++ mintlib-master/buildrules	2026-11-19 14:19:36.636701399 +1000
+@@ -130,7 +130,6 @@
+ # This is necessary to avoid optimizing the sequence of malloc/memset
+ # to a call to calloc in its own implementation
+ CFLAGS-calloc.c = -fno-builtin
+-CFLAGS-syscall.c = -std=gnu11
+ # These source come from ... you know where
+ DEFS-xbootparam_prot.c = -Wno-unused
+ DEFS-xmount.c = -Wno-unused
+diff -ruw mintlib-master.orig/configvars mintlib-master/configvars
+--- mintlib-master.orig/configvars	2026-10-29 15:52:03.000000000 +1000
++++ mintlib-master/configvars	2026-11-19 14:19:36.637527403 +1000
+@@ -42,7 +42,7 @@
+ endif
+ endif
+ 
+-EVAL_ELF := (echo '\#ifdef __ELF__'; echo yes; echo '\#endif' ) | $(toolprefix)gcc  -E - 2>/dev/null | grep yes
++EVAL_ELF := (echo '\#ifdef __ELF__'; echo yes; echo '\#endif' ) | $(CC) -E - 2>/dev/null | grep yes
+ ELF := $(shell $(EVAL_ELF))
+ 
+ # Uncomment this out if you want extra libraries that are optimized
+@@ -60,7 +60,7 @@
+ endif
+ 
+ # Uncomment this out if you want -mfastcall libraries
+-WITH_FASTCALL=$(shell if $(toolprefix)gcc -mfastcall -E - < /dev/null >/dev/null 2>&1; then echo yes; else echo no; fi)
++WITH_FASTCALL=$(shell if $(CC) -mfastcall -E - < /dev/null >/dev/null 2>&1; then echo yes; else echo no; fi)
+ 
+ # Uncomment this out if you want a debugable lib lib_p.a.  
+ # This is currently not recommended.  At least on my machine

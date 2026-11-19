@@ -4,7 +4,7 @@
 COMPONENTS			= BINUTILS GCC MINTLIB MINTBIN FDLIBM
 
 VERSION_BINUTILS	= 2.30
-VERSION_GCC			= 7.5.0
+VERSION_GCC			= 4.6.4
 
 REPOSITORY_BINUTILS	= m68k-atari-mint-binutils-gdb
 REPOSITORY_GCC		= m68k-atari-mint-gcc
@@ -13,7 +13,7 @@ REPOSITORY_MINTBIN	= mintbin
 REPOSITORY_FDLIBM	= fdlibm
 
 BRANCH_BINUTILS		= binutils-2_30-mint
-BRANCH_GCC			= gcc-7-mint
+BRANCH_GCC			= gcc-4_6-mint
 BRANCH_MINTLIB		= master
 BRANCH_MINTBIN		= master
 BRANCH_FDLIBM		= master
@@ -42,8 +42,11 @@ ALL_CPUS	= m68000 m68020-60 5475
 cpu_dir		= $(if $(filter 5475,$(1)),m5475,$(1))
 cpu_opt		= $(if $(filter 5475,$(1)),mcpu=5475,$(1))
 cpu_prefix	= $(INSTALL_DIR)/$(call cpu_dir,$(1))
-cpu_sysroot	= $(call cpu_prefix,$(1))/$(TARGET)/sys-root
-cross_gcc	= $(call cpu_prefix,$(1))/bin/$(TARGET)-gcc
+# gcc 4.6.4 lives next to gcc 7: versioned driver names and its own sys-root
+CROSS_CC	= $(TARGET)-gcc-$(VERSION_GCC)
+CROSS_CXX	= $(TARGET)-g++-$(VERSION_GCC)
+cpu_sysroot	= $(call cpu_prefix,$(1))/$(TARGET)/sys-root-$(VERSION_GCC)
+cross_gcc	= $(call cpu_prefix,$(1))/bin/$(CROSS_CC)
 cross_path	= $(call cpu_prefix,$(1))/bin
 
 # CPU is set on the command line of per-CPU sub-makes
@@ -145,9 +148,15 @@ $(foreach comp,$(COMPONENTS),$(eval $(call UNPACK_RULE,$(comp))))
 
 # Custom post-processing rules for specific components
 
-sources/${FOLDER_GCC}.patched: sources/${FOLDER_GCC}.ok gmp-none.patch
+sources/${FOLDER_GCC}.patched: sources/${FOLDER_GCC}.ok gmp-none.patch download_prerequisites.patch gcc-program-suffix.patch
+	cd sources/${FOLDER_GCC} && patch -p1 < ../../download_prerequisites.patch
+	cd sources/${FOLDER_GCC} && patch -p1 < ../../gcc-program-suffix.patch
 	cd sources/${FOLDER_GCC} && contrib/download_prerequisites --force
 	cd sources/${FOLDER_GCC}/gmp && patch -p1 < ../../../gmp-none.patch
+	@touch $@
+
+sources/${FOLDER_MINTLIB}.patched: sources/${FOLDER_MINTLIB}.ok mintlib.patch
+	cd sources/${FOLDER_MINTLIB} && patch -p1 < ../../mintlib.patch
 	@touch $@
 
 # binutils (preliminary/full)
@@ -179,6 +188,8 @@ gcc-${VERSION_GCC}-cross-stage1.ok: sources/${FOLDER_GCC}.patched
 	../sources/${FOLDER_GCC}/configure \
 		--prefix=${PREFIX} \
 		--target=${TARGET} \
+		--program-prefix=${TARGET}- \
+		--program-suffix=-${VERSION_GCC} \
 		--with-sysroot \
 		--disable-nls \
 		--disable-shared \
@@ -196,7 +207,6 @@ gcc-${VERSION_GCC}-cross-stage1.ok: sources/${FOLDER_GCC}.patched
 		--disable-libstdcxx \
 		--disable-lto \
 		--disable-libcc1 \
-		--disable-fixincludes \
 		--enable-version-specific-runtime-libs \
 		--enable-checking=yes && \
 	$(MAKE) -j$(CPUS) all-gcc all-target-libgcc && \
@@ -207,15 +217,15 @@ gcc-preliminary: gcc-${VERSION_GCC}-cross-stage1.ok
 
 # Libraries (preliminary/full)
 
-mintlib-build.ok: sources/${FOLDER_MINTLIB}.ok
-	@cd sources/${FOLDER_MINTLIB} && $(MAKE) clean > /dev/null
+mintlib-build.ok: sources/${FOLDER_MINTLIB}.patched
+	@cd sources/${FOLDER_MINTLIB} && $(MAKE) CC=$(CROSS_CC) clean > /dev/null
 	cd sources/${FOLDER_MINTLIB} && \
-		$(MAKE) CROSS_TOOL=${TARGET} SHELL=$(BASH) WITH_020_LIB=yes WITH_V4E_LIB=yes WITH_DEBUG_LIB=no
+		$(MAKE) CROSS_TOOL=${TARGET} SHELL=$(BASH) WITH_020_LIB=yes WITH_V4E_LIB=yes WITH_DEBUG_LIB=no CC=$(CROSS_CC)
 	@touch $@
 
 mintlib-preliminary.ok: mintlib-build.ok
 	cd sources/${FOLDER_MINTLIB} && \
-		$(MAKE) CROSS_TOOL=${TARGET} SHELL=$(BASH) WITH_020_LIB=yes WITH_V4E_LIB=yes WITH_DEBUG_LIB=no install
+		$(MAKE) CROSS_TOOL=${TARGET} SHELL=$(BASH) WITH_020_LIB=yes WITH_V4E_LIB=yes WITH_DEBUG_LIB=no CC=$(CROSS_CC) install
 	@touch $@
 
 mintlib-preliminary: mintlib-preliminary.ok
@@ -224,7 +234,7 @@ fdlibm-build.ok: sources/${FOLDER_FDLIBM}.ok mintlib-build.ok
 	@$(RM) -r ${FOLDER_FDLIBM}
 	@mkdir -p ${FOLDER_FDLIBM}
 	cd ${FOLDER_FDLIBM} && \
-		../sources/${FOLDER_FDLIBM}/configure --host=${TARGET} --prefix=/usr && \
+		CC=$(CROSS_CC) ../sources/${FOLDER_FDLIBM}/configure --host=${TARGET} --prefix=/usr && \
 	$(MAKE)
 	@touch $@
 
@@ -248,7 +258,7 @@ OTHER_DIRS	= $(filter-out m68000,$(foreach c,$(ALL_CPUS),$(call cpu_dir,$(c))))
 sysroot-${CPU}.ok: mintlib-build.ok fdlibm-build.ok
 	@$(RM) -r "$(STAGE)"
 	cd sources/${FOLDER_MINTLIB} && \
-		$(MAKE) CROSS_TOOL=${TARGET} SHELL=$(BASH) WITH_020_LIB=yes WITH_V4E_LIB=yes WITH_DEBUG_LIB=no DESTDIR="$(STAGE)" install
+		$(MAKE) CROSS_TOOL=${TARGET} SHELL=$(BASH) WITH_020_LIB=yes WITH_V4E_LIB=yes WITH_DEBUG_LIB=no CC=$(CROSS_CC) DESTDIR="$(STAGE)" install
 	cd ${FOLDER_FDLIBM} && $(MAKE) DESTDIR="$(STAGE)" install
 	$(RM) -r "$(STAGE)/sbin" "$(STAGE)/usr/sbin"
 # for m68020-60 (5475 likewise):
@@ -275,7 +285,7 @@ $(addprefix mintlib-,$(ALL_CPUS)): mintlib-%: sources/${FOLDER_MINTLIB}.ok
 	@test -x "$(call cross_gcc,$*)" || { echo "$(call cross_gcc,$*) not found"; exit 1; }
 	PATH="$(call cross_path,$*):/usr/bin" $(MAKE) mintlib-build.ok
 	cd sources/${FOLDER_MINTLIB} && PATH="$(call cross_path,$*):/usr/bin" \
-		$(MAKE) CROSS_TOOL=${TARGET} SHELL=$(BASH) WITH_020_LIB=yes WITH_V4E_LIB=yes WITH_DEBUG_LIB=no DESTDIR="$(call cpu_sysroot,$*)" install
+		$(MAKE) CROSS_TOOL=${TARGET} SHELL=$(BASH) WITH_020_LIB=yes WITH_V4E_LIB=yes WITH_DEBUG_LIB=no CC=$(CROSS_CC) DESTDIR="$(call cpu_sysroot,$*)" install
 	$(RM) -r "$(call cpu_sysroot,$*)/sbin" "$(call cpu_sysroot,$*)/usr/sbin"
 
 # fdlibm's configure needs libc.a in the sys-root
@@ -295,7 +305,11 @@ gcc-${VERSION_GCC}-cross-stage2-${CPU}.ok: | $(SYSROOT)/usr/lib/libc.a $(SYSROOT
 	../sources/${FOLDER_GCC}/configure \
 		--prefix=$(CPU_PREFIX) \
 		--target=${TARGET} \
-		--with-sysroot \
+		--program-prefix=${TARGET}- \
+		--program-suffix=-${VERSION_GCC} \
+		--infodir=$(CPU_PREFIX)/share/gcc-${VERSION_GCC}/info \
+		--mandir=$(CPU_PREFIX)/share/gcc-${VERSION_GCC}/man \
+		--with-sysroot=$(SYSROOT) \
 		--disable-nls \
 		--disable-lto \
 		--enable-languages="c,c++" \
@@ -306,10 +320,9 @@ gcc-${VERSION_GCC}-cross-stage2-${CPU}.ok: | $(SYSROOT)/usr/lib/libc.a $(SYSROOT
 		--with-cpu=${CPU} \
 		--with-libstdcxx-zoneinfo=no \
 		--disable-libcc1 \
-		--disable-fixincludes \
 		--enable-version-specific-runtime-libs && \
 	$(MAKE) -j$(CPUS) && \
-	$(MAKE) install-strip
+	$(MAKE) install-strip-gcc install-strip-target
 	@touch $@
 
 gcc: gcc-${VERSION_GCC}-cross-stage2-${CPU}.ok
@@ -334,14 +347,15 @@ mintbin: mintbin-cross-${CPU}.ok
 # Atari building
 
 check-target-gcc:
-	multi_dir=`${TARGET}-gcc -$(call cpu_opt,$(CPU)) -print-multi-directory` && \
-	if [ $$multi_dir != "." ]; then echo "\n${TARGET}-gcc is not configured for default ${CPU} output\n"; exit 1; fi
+	multi_dir=`$(CROSS_CC) -$(call cpu_opt,$(CPU)) -print-multi-directory` && \
+	if [ $$multi_dir != "." ]; then echo "\n$(CROSS_CC) is not configured for default ${CPU} output\n"; exit 1; fi
 
 binutils-${VERSION_BINUTILS}-atari-${CPU}.ok: sources/${FOLDER_BINUTILS}.ok
 	@$(RM) -r ${FOLDER_BINUTILS}-atari-${CPU}
 	@mkdir -p ${FOLDER_BINUTILS}-atari-${CPU}
 	cd ${FOLDER_BINUTILS}-atari-${CPU} && \
 	CFLAGS="-O2 -fomit-frame-pointer" CXXFLAGS="-O2 -fomit-frame-pointer" \
+	CC=$(CROSS_CC) CXX=$(CROSS_CXX) \
 	../sources/${FOLDER_BINUTILS}/configure --target=${TARGET} --host=${TARGET} --disable-nls --prefix=/usr \
 		--disable-gdb --disable-libdecnumber --disable-readline --disable-sim && \
 	$(MAKE) -j$(CPUS) V=1 && \
@@ -355,6 +369,8 @@ gcc-${VERSION_GCC}-atari-${CPU}.ok: sources/${FOLDER_GCC}.patched
 	@mkdir -p ${FOLDER_GCC}-atari-${CPU}
 	cd ${FOLDER_GCC}-atari-${CPU} && \
 	CFLAGS="-O2 -fomit-frame-pointer" CXXFLAGS="-O2 -fomit-frame-pointer" \
+	CC=$(CROSS_CC) CXX=$(CROSS_CXX) \
+	CC_FOR_TARGET=$(CROSS_CC) CXX_FOR_TARGET=$(CROSS_CXX) GCC_FOR_TARGET=$(CROSS_CC) \
 	../sources/${FOLDER_GCC}/configure \
 		--prefix=/usr \
 		--host=${TARGET} \
@@ -371,7 +387,6 @@ gcc-${VERSION_GCC}-atari-${CPU}.ok: sources/${FOLDER_GCC}.patched
 		--with-cpu=${CPU} \
 		--with-libstdcxx-zoneinfo=no \
 		--disable-libcc1 \
-		--disable-fixincludes \
 		--enable-version-specific-runtime-libs && \
 	$(MAKE) -j$(CPUS) && \
 	$(MAKE) install-strip DESTDIR=${PWD}/binary-package/${CPU}/gcc-${VERSION_GCC}
@@ -384,6 +399,7 @@ mintbin-atari-${CPU}.ok: sources/${FOLDER_MINTBIN}.ok
 	@mkdir -p ${FOLDER_MINTBIN}-atari-${CPU}
 	cd ${FOLDER_MINTBIN}-atari-${CPU} && \
 	CFLAGS="-O2 -fomit-frame-pointer" CXXFLAGS="-O2 -fomit-frame-pointer" \
+	CC=$(CROSS_CC) CXX=$(CROSS_CXX) \
 	../sources/${FOLDER_MINTBIN}/configure --target=${TARGET} --host=${TARGET} --disable-nls --prefix=/usr && \
 	$(MAKE) && \
 	$(MAKE) install-strip DESTDIR=${PWD}/binary-package/${CPU}/mintbin

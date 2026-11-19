@@ -1,0 +1,46 @@
+diff -ru a/gcc/cp/Make-lang.in b/gcc/cp/Make-lang.in
+--- a/gcc/cp/Make-lang.in	2026-11-19 11:31:43.206845751 +1000
++++ b/gcc/cp/Make-lang.in	2026-11-19 11:31:43.214428835 +1000
+@@ -160,15 +160,7 @@
+ 	-( cd $(DESTDIR)$(bindir) && \
+ 	      $(LN) $(GXX_INSTALL_NAME)$(exeext) $(CXX_INSTALL_NAME)$(exeext) )
+ 	-if [ -f cc1plus$(exeext) ] ; then \
+-	  if [ -f g++-cross$(exeext) ] ; then \
+-	    if [ -d $(DESTDIR)$(gcc_tooldir)/bin/. ] ; then \
+-	      rm -f $(DESTDIR)$(gcc_tooldir)/bin/g++$(exeext); \
+-	      $(INSTALL_PROGRAM) g++-cross$(exeext) $(DESTDIR)$(gcc_tooldir)/bin/g++$(exeext); \
+-	      rm -f $(DESTDIR)$(gcc_tooldir)/bin/c++$(exeext); \
+-	      ( cd $(DESTDIR)$(gcc_tooldir)/bin && \
+-		$(LN) g++$(exeext) c++$(exeext) ); \
+-	    else true; fi; \
+-	  else \
++	  if [ ! -f g++-cross$(exeext) ] ; then \
+ 	    rm -f $(DESTDIR)$(bindir)/$(GXX_TARGET_INSTALL_NAME)$(exeext); \
+ 	    ( cd $(DESTDIR)$(bindir) && \
+ 	      $(LN) $(GXX_INSTALL_NAME)$(exeext) $(GXX_TARGET_INSTALL_NAME)$(exeext) ); \
+diff -ru a/gcc/Makefile.in b/gcc/Makefile.in
+--- a/gcc/Makefile.in	2026-11-19 11:30:48.313546263 +1000
++++ b/gcc/Makefile.in	2026-11-19 11:30:48.351397253 +1000
+@@ -4607,15 +4607,13 @@
+ install-driver: installdirs xgcc$(exeext)
+ 	-rm -f $(DESTDIR)$(bindir)/$(GCC_INSTALL_NAME)$(exeext)
+ 	-$(INSTALL_PROGRAM) xgcc$(exeext) $(DESTDIR)$(bindir)/$(GCC_INSTALL_NAME)$(exeext)
+-	-rm -f $(DESTDIR)$(bindir)/$(target_noncanonical)-gcc-$(version)$(exeext)
+-	-( cd $(DESTDIR)$(bindir) && \
+-	   $(LN) $(GCC_INSTALL_NAME)$(exeext) $(target_noncanonical)-gcc-$(version)$(exeext) )
+-	-if [ -f gcc-cross$(exeext) ] ; then \
+-	  if [ -d $(DESTDIR)$(gcc_tooldir)/bin/. ] ; then \
+-	    rm -f $(DESTDIR)$(gcc_tooldir)/bin/gcc$(exeext); \
+-	    $(INSTALL_PROGRAM) gcc-cross$(exeext) $(DESTDIR)$(gcc_tooldir)/bin/gcc$(exeext); \
+-	  else true; fi; \
+-	else \
++	-if [ "$(GCC_INSTALL_NAME)" != "$(target_noncanonical)-gcc-$(version)" ]; then \
++	  rm -f $(DESTDIR)$(bindir)/$(target_noncanonical)-gcc-$(version)$(exeext); \
++	  ( cd $(DESTDIR)$(bindir) && \
++	    $(LN) $(GCC_INSTALL_NAME)$(exeext) $(target_noncanonical)-gcc-$(version)$(exeext) ); \
++	fi
++	-if [ ! -f gcc-cross$(exeext) ] \
++	    && [ "$(GCC_INSTALL_NAME)" != "$(GCC_TARGET_INSTALL_NAME)" ]; then \
+ 	  rm -f $(DESTDIR)$(bindir)/$(target_noncanonical)-gcc-tmp$(exeext); \
+ 	  ( cd $(DESTDIR)$(bindir) && \
+ 	    $(LN) $(GCC_INSTALL_NAME)$(exeext) $(target_noncanonical)-gcc-tmp$(exeext) && \

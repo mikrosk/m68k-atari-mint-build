@@ -5,11 +5,13 @@ This is a set of patches and scripts to download and build GCC and Binutils
 packages for Atari and FireBee range of computers running on m68k/ColdFire
 CPUs.
 
-After the complete build (`make all`) (which takes about 40 minutes on modern PCs
-and takes about 9 GB of disk space) you will get:
+After the complete build (`make all`) (which takes about 25 minutes on modern PCs
+and takes about 6.0 GB of disk space) you will get:
 
-- three cross compilers (host to m68000/m68020-60/m5475; installed in
-  `$INSTALL_DIR/<cpu>`; `INSTALL_DIR` defaults to `~/gnu-tools`)
+- three cross compilers (host to m68000/m68020-60/m5475; installed as
+  `m68k-atari-mint-gcc-4.6.4` etc. with their own `sys-root-4.6.4` next to
+  gcc 7 in `$INSTALL_DIR/<cpu>`, sharing its binutils and mintbin;
+  `INSTALL_DIR` defaults to `~/gnu-tools`)
 - three native compilers (m68000/m68020-60/m5475; packaged as .tar.bz2 in
   the `binary-packages` folder)
 - supporting tools and libraries for the above

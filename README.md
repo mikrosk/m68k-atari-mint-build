@@ -19,6 +19,11 @@ flex etc. Typing `make` is usually what you need: this creates just the
 classic m68000 cross compiler. Removing any `*.ok` file results in given folder
 being erased and recompiled (along all the targets which depend on it).
 
+`make mintlib-<cpu>` and `make fdlibm-<cpu>` (in this order; `<cpu>` is
+m68000, m68020-60 or 5475, `make mintlib` / `make fdlibm` means m68000) rebuild
+and reinstall the libraries into the sys-root of an installed cross compiler,
+so the sys-root can be wiped and repopulated at any time.
+
 When it comes to the cross compilers, there's very little difference -- all
 of them produce m68k/ColdFire code, the only difference is which one is
 produced by default (this has meaning only if you want to compile a native

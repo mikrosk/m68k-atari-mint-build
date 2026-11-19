@@ -42,10 +42,13 @@ ALL_CPUS	= m68000 m68020-60 5475
 cpu_dir		= $(if $(filter 5475,$(1)),m5475,$(1))
 cpu_opt		= $(if $(filter 5475,$(1)),mcpu=5475,$(1))
 cpu_prefix	= $(INSTALL_DIR)/$(call cpu_dir,$(1))
+cpu_sysroot	= $(call cpu_prefix,$(1))/$(TARGET)/sys-root
+cross_gcc	= $(call cpu_prefix,$(1))/bin/$(TARGET)-gcc
+cross_path	= $(call cpu_prefix,$(1))/bin
 
 # CPU is set on the command line of per-CPU sub-makes
 CPU_PREFIX	= $(call cpu_prefix,$(CPU))
-SYSROOT		= $(CPU_PREFIX)/$(TARGET)/sys-root
+SYSROOT		= $(call cpu_sysroot,$(CPU))
 
 .PHONY: default help bootstrap \
 	all       all-skip-native       all-native \
@@ -55,6 +58,7 @@ SYSROOT		= $(CPU_PREFIX)/$(TARGET)/sys-root
 	$(addprefix cross-,$(ALL_CPUS)) $(addprefix native-,$(ALL_CPUS)) \
 	binutils-preliminary gcc-preliminary mintlib-preliminary fdlibm-preliminary \
 	binutils gcc sysroot-prebuilt mintbin \
+	mintlib fdlibm $(addprefix mintlib-,$(ALL_CPUS)) $(addprefix fdlibm-,$(ALL_CPUS)) \
 	binutils-atari gcc-atari mintbin-atari \
 	strip-atari pack-atari check-target-gcc
 
@@ -69,6 +73,7 @@ help:
 	@echo "    m68000    / m68000[-skip]-native"
 	@echo "    m68020-60 / m68020-60[-skip]-native"
 	@echo "    5475      / 5475[-skip]-native"
+	@echo "    mintlib[-<cpu>] / fdlibm[-<cpu>] (reinstall into an installed cross compiler, m68000 by default)"
 
 # "real" targets
 
@@ -254,9 +259,27 @@ endif
 
 sysroot-prebuilt: sysroot-${CPU}.ok
 
+# Libraries (reinstall into an installed cross compiler)
+
+mintlib: mintlib-m68000
+fdlibm: fdlibm-m68000
+
+$(addprefix mintlib-,$(ALL_CPUS)): mintlib-%: sources/${FOLDER_MINTLIB}.ok
+	@test -x "$(call cross_gcc,$*)" || { echo "$(call cross_gcc,$*) not found"; exit 1; }
+	PATH="$(call cross_path,$*):/usr/bin" $(MAKE) mintlib-build.ok
+	cd sources/${FOLDER_MINTLIB} && PATH="$(call cross_path,$*):/usr/bin" \
+		$(MAKE) CROSS_TOOL=${TARGET} SHELL=$(BASH) WITH_020_LIB=yes WITH_V4E_LIB=yes WITH_DEBUG_LIB=no DESTDIR="$(call cpu_sysroot,$*)" install
+	$(RM) -r "$(call cpu_sysroot,$*)/sbin" "$(call cpu_sysroot,$*)/usr/sbin"
+
+# fdlibm's configure needs libc.a in the sys-root
+$(addprefix fdlibm-,$(ALL_CPUS)): fdlibm-%: sources/${FOLDER_FDLIBM}.ok
+	@test -f "$(call cpu_sysroot,$*)/usr/lib/libc.a" || { echo "Run 'make mintlib-$*' first"; exit 1; }
+	PATH="$(call cross_path,$*):/usr/bin" $(MAKE) fdlibm-build.ok
+	PATH="$(call cross_path,$*):/usr/bin" $(MAKE) -C ${FOLDER_FDLIBM} DESTDIR="$(call cpu_sysroot,$*)" install
+
 # gcc (full)
 
-gcc-${VERSION_GCC}-cross-stage2-${CPU}.ok: $(SYSROOT)/usr/lib/libc.a $(SYSROOT)/usr/lib/libm.a
+gcc-${VERSION_GCC}-cross-stage2-${CPU}.ok: | $(SYSROOT)/usr/lib/libc.a $(SYSROOT)/usr/lib/libm.a
 	@$(RM) -r ${FOLDER_GCC}-cross-stage2-${CPU}
 	@mkdir -p ${FOLDER_GCC}-cross-stage2-${CPU}
 	cd ${FOLDER_GCC}-cross-stage2-${CPU} && \
